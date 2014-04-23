@@ -97,8 +97,8 @@ def setImageSize():
 	setSizeCmd = [ 0x56, 0x00, 0x31, 0x05, 0x04, 0x01, 0x00, 0x19, 0x22]
 	return serialComm(setSizeCmd, 10)
 
-def setImageCompression():
-	compCmd = [0x56, 0x00, 0x31, 0x05, 0x04, 0x01, 0x00, 0x1A, 0x26 ]
+def setImageCompression(ratio):
+	compCmd = [0x56, 0x00, 0x31, 0x05, 0x04, 0x01, 0x00, 0x1A, ratio ]
 	return serialComm(compCmd, 10)
 
 def serialComm(cmd_list, readLen):
@@ -111,8 +111,14 @@ def serialComm(cmd_list, readLen):
 s = serial.Serial(PORT, baudrate=BAUD, timeout=TIMEOUT)
 getVersion(getversioncommand, 0x11)
 
+# Resume frame to "start" the camera
+controlFrame(FBUF_CTRL, 0x02)
+
+# Currently only sets to 160x120
 setImageSize()
-setImageCompression()
+
+# Compression ratio is between 0x00 to 0xFF
+setImageCompression(0x90)
 
 setBaudRate(115200)
 serial.baudrate = 115200
@@ -139,8 +145,7 @@ for i in range(4):
 					f.write(chr(i))
 			print "got photo :D"
 
-		# After all have finished, we need to send FBUF_CTRL command to resume frame,
-		# the parameter is 0x02
+		# Send FBUF_CTRL command to resume frame,
 		controlFrame(FBUF_CTRL, 0x02)
 
 setBaudRate(38400)
