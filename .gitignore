@@ -1,0 +1,7 @@
+#ignore python compiled byte code
+*.pyc
+
+#ignore IDE garbage
+Fokus/.idea
+
+.DS_Store
