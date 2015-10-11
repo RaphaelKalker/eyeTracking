@@ -1,4 +1,12 @@
-# eyeTracking
+# MuthaFokusing
+
+### Python 
+ - Setup your python environment properly and make sure you are using 2.7x with openCV3. 
+ - Download PyCharm
+ - Run Start.py
+ - Dump your pupil images in the imageTest folder within the same directory as the python files
+
+### C++ 
 
 If wanting to run the C version follow these commands:
 
