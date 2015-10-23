@@ -32,7 +32,7 @@ while (serial.inWaiting() > 0):
 print " ".join(hex(ord(n)) for n in resp)
 
 #increase compression ratio
-serial.write(b'\x56\0\x31\x05\x01\x01\x12\x04\x50')
+serial.write(b'\x56\0\x31\x05\x01\x01\x12\x04\x25')
 
 resp = ""
 time.sleep(1)
