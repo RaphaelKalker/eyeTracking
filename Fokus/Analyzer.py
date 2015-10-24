@@ -42,7 +42,7 @@ class Analyzer:
         Analyzer.showImage(self, 'Threshold Image', imageThreshold, 2)
 
         #Fill in contours
-        image2, contours, heirachy = cv2.findContours(imageThreshold, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        contours, heirachy = cv2.findContours(imageThreshold, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         cv2.drawContours(imageThreshold, contours, -1, (255,255,255), -1)
         Analyzer.showImage(self, "Fill in contours", imageThreshold, 3)
 
@@ -54,7 +54,7 @@ class Analyzer:
         minRadius = 0
         maxRadius = 40
 
-        houghCircles = cv2.HoughCircles(imageThreshold, cv2.HOUGH_GRADIENT, DP, MIN_DIST,
+        houghCircles = cv2.HoughCircles(imageThreshold, cv2.cv.CV_HOUGH_GRADIENT, DP, MIN_DIST,
                                    circles, param1, param2, minRadius, maxRadius)
 
         while(houghCircles is None):
@@ -78,7 +78,7 @@ class Analyzer:
 
 
             param2 -= 1
-            houghCircles = cv2.HoughCircles(imageThreshold, cv2.HOUGH_GRADIENT, DP, MIN_DIST,
+            houghCircles = cv2.HoughCircles(imageThreshold, cv2.cv.CV_HOUGH_GRADIENT, DP, MIN_DIST,
                                    circles, param1, param2, minRadius, maxRadius)
 
             if houghCircles is not None:
