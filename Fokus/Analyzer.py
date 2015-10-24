@@ -49,8 +49,8 @@ class Analyzer:
         circles = None
         param1 = 1
         param2 = 300
-        minRadius = 1
-        maxRadius = 30
+        minRadius = 0
+        maxRadius = 40
 
         houghCircles = cv2.HoughCircles(imageThreshold, cv2.HOUGH_GRADIENT, DP, MIN_DIST,
                                    circles, param1, param2, minRadius, maxRadius)
@@ -59,24 +59,28 @@ class Analyzer:
 
             print 'Could not find circles with param2: ' + str(param2)
 
+            # if houghCircles is not None:
+            #     print 'test'
+            #     if len(houghCircles) is 1:
+            #         print 'After adjusting found more than one'
+            #         break
+
+            if (param2 is 1):
+                print 'Failed!!!!'
+                break
+
+
+
             param2 -= 1
             houghCircles = cv2.HoughCircles(imageThreshold, cv2.HOUGH_GRADIENT, DP, MIN_DIST,
                                    circles, param1, param2, minRadius, maxRadius)
 
             if houghCircles is not None:
-                if len(houghCircles) is 1:
-                    print 'After adjusting found more than one'
-                    break
+                circles = np.round(houghCircles[0, :]).astype("int")
+                for (x,y,r) in circles:
+                    cv2.circle(houghTransformed, (x,y), r, RED, 1)
+                    Analyzer.showImage(self, 'Hough Circle', houghTransformed, 6)
 
-
-            #tweak params and try again
-
-        # else:
-        circles = np.round(houghCircles[0, :]).astype("int")
-
-        for (x,y,r) in circles:
-            cv2.circle(houghTransformed, (x,y), r, RED, 1)
-            Analyzer.showImage(self, 'Hough Circle', houghTransformed, 6)
 
         #OLD STUFF
 
