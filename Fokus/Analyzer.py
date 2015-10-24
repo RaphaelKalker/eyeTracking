@@ -6,7 +6,7 @@ import numpy as np
 
 class Analyzer:
 
-    global THRESH, MAXVAL, MIN_AREA, RED, DIFF_VALUES, DP, MIN_DIST, MAX_HOUGH_ATTEMPTS
+    global THRESH, MAXVAL, MIN_AREA, RED, DIFF_VALUES, DP, MIN_DIST, MAX_HOUGH_ATTEMPTS, CROSSHAIRS
 
     THRESH = 220 #the threshold value
     MAXVAL = 255 #the maximum value
@@ -16,6 +16,7 @@ class Analyzer:
     DP = 10 #Dimension in circle space (lower is faster to compute)
     MIN_DIST = 20 # the minimum distance two detected circles can be from one another
     MAX_HOUGH_ATTEMPTS = 100 #define the number of attempts to find at least one circle
+    CROSSHAIRS = 5
 
     def __init__(self):
         print 'init'
@@ -67,6 +68,10 @@ class Analyzer:
 
             if (param2 is 1):
                 print 'Failed!!!!'
+                width, height, blah = originalImage.shape
+                cv2.putText(houghTransformed,"FAILED", (width/2, height/2), cv2.FONT_HERSHEY_SIMPLEX, 1,(0,0,255))
+                Analyzer.showImage(self, 'Hough Circle', houghTransformed, 6)
+
                 break
 
 
@@ -79,6 +84,11 @@ class Analyzer:
                 circles = np.round(houghCircles[0, :]).astype("int")
                 for (x,y,r) in circles:
                     cv2.circle(houghTransformed, (x,y), r, RED, 1)
+                    lineLength = 2
+                    cv2.line(houghTransformed,(x - CROSSHAIRS, y - CROSSHAIRS),(x + CROSSHAIRS, y + CROSSHAIRS),(0,0,255),1)
+                    cv2.line(houghTransformed,(x + CROSSHAIRS, y - CROSSHAIRS),(x - CROSSHAIRS, y + CROSSHAIRS),(0,0,255),1)
+
+
                     Analyzer.showImage(self, 'Hough Circle', houghTransformed, 6)
 
 
