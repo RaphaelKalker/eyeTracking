@@ -6,7 +6,7 @@ import numpy as np
 
 class Analyzer:
 
-    global THRESH, MAXVAL, MIN_AREA, RED, DIFF_VALUES, DP, MIN_DIST, MAX_HOUGH_ATTEMPTS, CROSSHAIRS
+    global THRESH, MAXVAL, MIN_AREA, RED, DIFF_VALUES, DP, MIN_DIST, MAX_HOUGH_ATTEMPTS, CROSSHAIRS, PRINTDEBUG
 
     THRESH = 220 #the threshold value
     MAXVAL = 255 #the maximum value
@@ -17,6 +17,7 @@ class Analyzer:
     MIN_DIST = 20 # the minimum distance two detected circles can be from one another
     MAX_HOUGH_ATTEMPTS = 100 #define the number of attempts to find at least one circle
     CROSSHAIRS = 5
+    PRINTDEBUG = True
 
     def __init__(self):
         print 'init'
@@ -94,30 +95,38 @@ class Analyzer:
 
         #OLD STUFF
 
-        # for contour in contours:
-        #     area = cv2.contourArea(contour)
-        #     x,y,width,height = cv2.boundingRect(contour)
-        #     radius = width/2
-        #
-        #     #DEBUGGING
-        #     # if area > 0:
-        #     #     print "Area: " + str(area)
-        #     # if width != 0 and height != 0 and radius != 0:
-        #     #     print "Diff1: " + str(abs(1 - width/height))
-        #     #     print "Diff2: " + str(abs(1 - area/(math.pi * math.pow(radius, 2))))
-        #
-        #
-        #     if  (   area >= MIN_AREA and
-        #             abs(1 - width/height) <= DIFF_VALUES and
-        #             abs(1 - area/(math.pi * math.pow(radius, 2))) < DIFF_VALUES):
-        #
-        #         # print "Diff1: " + str(abs(1 - width/height))
-        #         # print "Diff2: " + str(abs(1 - area/(math.pi * math.pow(radius, 2))))
-        #
-        #         center = (x + radius, y + radius)
-        #         cv2.circle(originalImage, center, radius, RED, 2)
-        #
-        #         Analyzer.showImage(self, 'Final Result', originalImage, 4)
+        for contour in contours:
+            area = cv2.contourArea(contour)
+            x,y,width,height = cv2.boundingRect(contour)
+            radius = width/2
+
+            #DEBUGGING
+            # if area > 0:
+            #     print "Area: " + str(area)
+            # if width != 0 and height != 0 and radius != 0:
+            #     print "Diff1: " + str(abs(1 - width/height))
+            #     print "Diff2: " + str(abs(1 - area/(math.pi * math.pow(radius, 2))))
+
+
+            if  (   area >= MIN_AREA and
+                    abs(1 - width/height) <= DIFF_VALUES and
+                    abs(1 - area/(math.pi * math.pow(radius, 2))) < DIFF_VALUES):
+
+                # print "Diff1: " + str(abs(1 - width/height))
+                # print "Diff2: " + str(abs(1 - area/(math.pi * math.pow(radius, 2))))
+
+                center = (x + radius, y + radius)
+                cv2.line(originalImage,(x, y + radius),(x + radius*2, y + radius),(0,0,255),1)
+                cv2.line(originalImage,(x + radius, y + radius *2),(x + radius, y),(0,0,255),1)
+                cv2.circle(originalImage, center, radius, RED, 1)
+
+                Analyzer.showImage(self, 'Final Result', originalImage, 4)
+
+
+        if PRINTDEBUG:
+            self.printDebugInfo()
+
+
 
 
         cv2.waitKey(0)
@@ -133,3 +142,10 @@ class Analyzer:
         shape = image.shape
         posX, posY = Analyzer.getWindowPosition(self, imageNr, shape[1])
         cv2.moveWindow(title, posX, posY)
+
+    def printDebugInfo(self):
+        background = np.zeros((512,512,3), np.uint8)
+        win = cv2.namedWindow('Debug Infromation', flags=cv2.WINDOW_NORMAL)
+        font = cv2.FONT_HERSHEY_COMPLEX_SMALL
+        cv2.putText(background,'Debug Info coming soon',(10,100), font, 1,(255,255,255),1)
+        cv2.imshow('Debug Information', background)
