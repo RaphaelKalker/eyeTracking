@@ -12,5 +12,5 @@ class Start(object):
         for dirName, subDirList, fileList in os.walk(rootDir):
             for fname in fileList:
                 if fname.__contains__('jpg') and dirName.__contains__('image'):
+                    print fname
                     a.loadImage(fname)
-                    print 'fname'
