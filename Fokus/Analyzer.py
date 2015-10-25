@@ -7,7 +7,7 @@ import math
 
 class Analyzer:
 
-    global THRESH, MAXVAL, MIN_AREA, RED, GREEN, BLUE, DIFF_VALUES, DP, MIN_DIST, MAX_HOUGH_ATTEMPTS, CROSSHAIRS, PRINTDEBUG
+    global THRESH, MAXVAL, MIN_AREA, RED, GREEN, BLUE, DIFF_VALUES, DP, MIN_DIST, MAX_HOUGH_ATTEMPTS, CROSSHAIRS, PRINTDEBUG, IMGINDEX
 
     THRESH = 220 #the threshold value
     MAXVAL = 255 #the maximum value
@@ -21,12 +21,15 @@ class Analyzer:
     MAX_HOUGH_ATTEMPTS = 100 #define the number of attempts to find at least one circle
     CROSSHAIRS = 5
     PRINTDEBUG = False 
+    IMGINDEX = 0
 
     def __init__(self):
         print 'init'
 
     def loadImage(self, src):
 
+        global IMGINDEX
+        IMGINDEX = 0
         originalImage = cv2.imread('image/' + src)
 
         imgWidth,imgHeight,rgb = np.shape(originalImage)
@@ -35,21 +38,21 @@ class Analyzer:
             raise NameError('Image not found!')
 
         houghTransformed = copy.deepcopy(originalImage)
-        Analyzer.showImage(self, 'Original Image', originalImage, 0)
+        Analyzer.showImage(self, 'Original Image', originalImage)
 
         #Invert image with ~ and convert to grayscale
         imageGray = cv2.cvtColor(~originalImage, cv2.COLOR_BGR2GRAY)
-        Analyzer.showImage(self, 'Grey Image', imageGray, 1)
+        Analyzer.showImage(self, 'Grey Image', imageGray)
 
         #Threshold the image
         imageThreshold = copy.deepcopy(imageGray)
         cv2.threshold(imageThreshold, THRESH, MAXVAL, cv2.THRESH_BINARY, imageThreshold)
-        Analyzer.showImage(self, 'Threshold Image', imageThreshold, 2)
+        Analyzer.showImage(self, 'Threshold Image', imageThreshold)
 
         #Fill in contours
         contours, heirachy = cv2.findContours(imageThreshold, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         cv2.drawContours(imageThreshold, contours, -1, (255,255,255), -1)
-        Analyzer.showImage(self, "Fill in contours", imageThreshold, 3)
+        Analyzer.showImage(self, "Fill in contours", imageThreshold)
 
         #Hough Circles
 
@@ -59,43 +62,43 @@ class Analyzer:
         minRadius = 0
         maxRadius = 40
 
-#        houghCircles = cv2.HoughCircles(imageThreshold, cv2.cv.CV_HOUGH_GRADIENT, DP, MIN_DIST,
-#                                   circles, param1, param2, minRadius, maxRadius)
-#
-#        while(houghCircles is None):
-#
-#            print 'Could not find circles with param2: ' + str(param2)
-#
-#            # if houghCircles is not None:
-#            #     print 'test'
-#            #     if len(houghCircles) is 1:
-#            #         print 'After adjusting found more than one'
-#            #         break
-#
-#            if (param2 is 1):
-#                print 'Failed!!!!'
-#                width, height, blah = originalImage.shape
-#                cv2.putText(houghTransformed,"FAILED", (width/2, height/2), cv2.FONT_HERSHEY_SIMPLEX, 1,(0,0,255))
-#                Analyzer.showImage(self, 'Hough Circle', houghTransformed, 6)
-#
-#                break
-#
-#
-#
-#            param2 -= 1
-#            houghCircles = cv2.HoughCircles(imageThreshold, cv2.cv.CV_HOUGH_GRADIENT, DP, MIN_DIST,
-#                                   circles, param1, param2, minRadius, maxRadius)
-#
-#            if houghCircles is not None:
-#                circles = np.round(houghCircles[0, :]).astype("int")
-#                for (x,y,r) in circles:
-#                    cv2.circle(houghTransformed, (x,y), r, RED, 1)
-#                    lineLength = 2
-#                    cv2.line(houghTransformed,(x - CROSSHAIRS, y - CROSSHAIRS),(x + CROSSHAIRS, y + CROSSHAIRS),(0,0,255),1)
-#                    cv2.line(houghTransformed,(x + CROSSHAIRS, y - CROSSHAIRS),(x - CROSSHAIRS, y + CROSSHAIRS),(0,0,255),1)
-#
-#
-#                    Analyzer.showImage(self, 'Hough Circle', houghTransformed, 6)
+        houghCircles = cv2.HoughCircles(imageThreshold, cv2.cv.CV_HOUGH_GRADIENT, DP, MIN_DIST,
+                                   circles, param1, param2, minRadius, maxRadius)
+
+        while(houghCircles is None):
+
+            if PRINTDEBUG:
+                print 'Could not find circles with param2: ' + str(param2)
+
+            # if houghCircles is not None:
+            #     print 'test'
+            #     if len(houghCircles) is 1:
+            #         print 'After adjusting found more than one'
+            #         break
+
+            if (param2 is 1):
+                if PRINTDEBUG:
+                    print 'Failed!!!!'
+                width, height, blah = originalImage.shape
+                cv2.putText(houghTransformed,"FAILED", (width/2, height/2), cv2.FONT_HERSHEY_SIMPLEX, 1,(0,0,255))
+                Analyzer.showImage(self, 'Hough Circle', houghTransformed)
+
+                break
+
+            param2 -= 1
+            houghCircles = cv2.HoughCircles(imageThreshold, cv2.cv.CV_HOUGH_GRADIENT, DP, MIN_DIST,
+                                   circles, param1, param2, minRadius, maxRadius)
+
+            if houghCircles is not None:
+                circles = np.round(houghCircles[0, :]).astype("int")
+                for (x,y,r) in circles:
+                    cv2.circle(houghTransformed, (x,y), r, RED, 1)
+                    lineLength = 2
+                    cv2.line(houghTransformed,(x - CROSSHAIRS, y - CROSSHAIRS),(x + CROSSHAIRS, y + CROSSHAIRS),(0,0,255),1)
+                    cv2.line(houghTransformed,(x + CROSSHAIRS, y - CROSSHAIRS),(x - CROSSHAIRS, y + CROSSHAIRS),(0,0,255),1)
+
+
+                    Analyzer.showImage(self, 'Hough Circle', houghTransformed)
 
 
         #OLD STUFF
@@ -137,8 +140,8 @@ class Analyzer:
                 imgGrayBin = copy.deepcopy(imgGrayCropped)
                 cv2.threshold(imgGrayBin, 200, MAXVAL, cv2.THRESH_BINARY, imgGrayBin)
                 
-                Analyzer.showImage(self, 'cropped', imgGrayCropped, 5)
-                Analyzer.showImage(self, 'cropped thresholding', imgGrayBin, 6)
+#                Analyzer.showImage(self, 'cropped', imgGrayCropped)
+#                Analyzer.showImage(self, 'cropped thresholding', imgGrayBin)
 
                 # get ir led reflection contour
                 irContours, hier = cv2.findContours(imgGrayBin,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
@@ -163,7 +166,7 @@ class Analyzer:
                     lenIrPupil = math.sqrt((irX-center[0])**2 + (irY-center[1])**2 )
                     print lenIrPupil
 
-                Analyzer.showImage(self, 'Final Result', originalImage, 4)
+                Analyzer.showImage(self, 'Final Result', originalImage)
 
         if PRINTDEBUG:
             self.printDebugInfo()
@@ -176,10 +179,12 @@ class Analyzer:
         return (imageNr * imageWidth, 0)
 
 
-    def showImage(self, title, image, imageNr):
+    def showImage(self, title, image):
         cv2.imshow(title, image)
         shape = image.shape
-        posX, posY = Analyzer.getWindowPosition(self, imageNr, shape[1])
+        global IMGINDEX
+        IMGINDEX += 1
+        posX, posY = Analyzer.getWindowPosition(self, IMGINDEX, shape[1])
         cv2.moveWindow(title, posX, posY)
 
     def printDebugInfo(self):
