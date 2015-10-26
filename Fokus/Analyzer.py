@@ -19,7 +19,7 @@ class Analyzer:
     MIN_DIST = 20 # the minimum distance two detected circles can be from one another
     MAX_HOUGH_ATTEMPTS = 100 #define the number of attempts to find at least one circle
     CROSSHAIRS = 5
-    PRINTDEBUG = False
+    PRINTDEBUG = True
 
     def __init__(self, src):
         self.originalImage = cv2.imread('image/' + src)
@@ -84,7 +84,7 @@ class Analyzer:
 
             if (param2 is 1):
                 print 'Failed!!!!'
-                width, height, blah = srcImage.shape
+                width, height = srcImage.shape
                 cv2.putText(houghTransformed,"FAILED", (width/2, height/2), cv2.FONT_HERSHEY_SIMPLEX, 1,(0,0,255))
                 Analyzer.showImage(self, 'Hough Circle', houghTransformed)
 
@@ -213,5 +213,8 @@ class Analyzer:
         background = np.zeros((512,512,3), np.uint8)
         win = cv2.namedWindow('Debug Infromation', flags=cv2.WINDOW_NORMAL)
         font = cv2.FONT_HERSHEY_COMPLEX_SMALL
-        cv2.putText(background,'Debug Info coming soon',(10,100), font, 1,(255,255,255),1)
-        cv2.imshow('Debug Information', background)
+
+        for k, v in self.debugStats.iteritems():
+            print k + ': ' + str(v)
+        # cv2.putText(background,'Debug Info coming soon',(10,100), font, 1,(255,255,255),1)
+        # cv2.imshow(q'Debug Information', background)
