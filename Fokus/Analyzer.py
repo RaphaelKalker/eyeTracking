@@ -22,8 +22,16 @@ HOUGH_MIN_RADIUS = 0
 HOUGH_MAX_RADIUS = 40
 HOUGH_MIN_DIST = 20 # the minimum distance two detected circles can be from one another
 HOUGH_MAX_ATTEMPTS = 100 #define the number of attempts to find at least one circle
-class Analyzer:
 
+def close():
+    cv2.destroyAllWindows()
+
+def exit():
+    cv2.destroyAllWindows()
+    exit()
+
+
+class Analyzer:
 
     def __init__(self, src):
         self.originalImage = cv2.imread('image/' + src)
@@ -210,9 +218,6 @@ class Analyzer:
 
 
     def printDebugInfo(self):
-        background = np.zeros((512,512,3), np.uint8)
-        win = cv2.namedWindow('Debug Infromation', flags=cv2.WINDOW_NORMAL)
-        font = cv2.FONT_HERSHEY_COMPLEX_SMALL
 
         for k, v in self.debugStats.iteritems():
             print k + ': ' + str(v)
