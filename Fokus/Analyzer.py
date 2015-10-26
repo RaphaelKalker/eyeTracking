@@ -2,6 +2,7 @@ import cv2
 import CV_
 import math
 import copy
+import trackbar as tb
 import time as time
 import numpy as np
 
@@ -70,10 +71,14 @@ class Analyzer:
         #self.findIrReflection(imageGray)
 
 
+
         if PRINTDEBUG:
             self.printDebugInfo()
 
-        cv2.waitKey(0)
+        tb.initHoughOptions()
+
+        cv2.waitKey(1)
+
         cv2.destroyAllWindows()
 
 
