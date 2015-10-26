@@ -68,7 +68,7 @@ class Analyzer:
         self.findPupilCircle(imageThreshold)
 
         #IR LED
-        #self.findIrReflection(imageGray)
+        self.findIrReflection(imageGray)
 
 
 
@@ -88,7 +88,7 @@ class Analyzer:
         param2 = HOUGH_MAX_PARAM2
 
 
-        houghCircles = cv2.HoughCircles(srcImage, cv2.HOUGH_GRADIENT, DP, HOUGH_MIN_DIST,
+        houghCircles = CV_.HoughCirclesWithDefaultGradient(srcImage, DP, HOUGH_MIN_DIST,
                                    None, HOUGH_PARAM1, HOUGH_MAX_PARAM2, HOUGH_MIN_RADIUS, HOUGH_MAX_RADIUS)
 
         while(houghCircles is None):
@@ -106,7 +106,7 @@ class Analyzer:
 
 
             param2 -= 1
-            houghCircles = cv2.HoughCircles(srcImage, cv2.HOUGH_GRADIENT, DP, HOUGH_MIN_DIST,
+            houghCircles = CV_.HoughCirclesWithDefaultGradient(srcImage, DP, HOUGH_MIN_DIST,
                                    None, HOUGH_PARAM1, param2, HOUGH_MIN_RADIUS, HOUGH_MAX_RADIUS)
 
             if houghCircles is not None:
