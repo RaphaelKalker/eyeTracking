@@ -5,7 +5,7 @@ import os
 class Start(object):
 
     if  __name__ == '__main__':
-        a = Analyzer()
+        # a = Analyzer()
 
         rootDir = '.'
 
@@ -13,4 +13,5 @@ class Start(object):
             for fname in fileList:
                 if fname.__contains__('jpg') and dirName.__contains__('image'):
                     print fname
-                    a.loadImage(fname)
+                    a = Analyzer(fname)
+                    a.loadImage()
