@@ -1,4 +1,5 @@
 import cv2
+import CV_
 import math
 import copy
 import time as time
@@ -113,7 +114,7 @@ class Analyzer:
         circleDetectedImage = copy.deepcopy(self.originalImage)
 
         #Fill in contours
-        image2, contours, heirachy = cv2.findContours(srcImage, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        contours, hierachy = CV_.findContours(srcImage, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         cv2.drawContours(srcImage, contours, -1, (255,255,255), -1)
         Analyzer.showImage(self, "Fill in contours", srcImage)
 
@@ -169,7 +170,7 @@ class Analyzer:
         Analyzer.showImage(self, 'cropped thresholding', imgGrayBin)
 
         # get ir led reflection contour
-        tempImage, irContours, hier = cv2.findContours(imgGrayBin,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
+        irContours, hier = CV_.findContours(imgGrayBin,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
 
         # take the first found contour
         if irContours:
