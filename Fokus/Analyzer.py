@@ -2,7 +2,7 @@ import cv2
 import CV_
 import math
 import copy
-import trackbar as tb
+import DebugOptions as tb
 import time as time
 import numpy as np
 
