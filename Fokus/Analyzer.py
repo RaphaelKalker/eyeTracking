@@ -5,22 +5,25 @@ import copy
 import time as time
 import numpy as np
 
+THRESH = 220 #the threshold value
+MAXVAL = 255 #the maximum value
+MIN_AREA = 30 #the min value for creating circles
+RED = (0,0,255)
+GREEN = (0,255,0)
+BLUE = (255,0,0)
+DIFF_VALUES = 1
+DP = 10 #Dimension in circle space (lower is faster to compute)
+CROSSHAIRS = 5
+PRINTDEBUG = True
+
+HOUGH_PARAM1 = 1
+HOUGH_MAX_PARAM2 = 300
+HOUGH_MIN_RADIUS = 0
+HOUGH_MAX_RADIUS = 40
+HOUGH_MIN_DIST = 20 # the minimum distance two detected circles can be from one another
+HOUGH_MAX_ATTEMPTS = 100 #define the number of attempts to find at least one circle
 class Analyzer:
 
-    global THRESH, MAXVAL, MIN_AREA, RED, GREEN, BLUE, DIFF_VALUES, DP, MIN_DIST, MAX_HOUGH_ATTEMPTS, CROSSHAIRS, PRINTDEBUG
-
-    THRESH = 220 #the threshold value
-    MAXVAL = 255 #the maximum value
-    MIN_AREA = 30 #the min value for creating circles
-    RED = (0,0,255)
-    GREEN = (0,255,0)
-    BLUE = (255,0,0)
-    DIFF_VALUES = 1
-    DP = 10 #Dimension in circle space (lower is faster to compute)
-    MIN_DIST = 20 # the minimum distance two detected circles can be from one another
-    MAX_HOUGH_ATTEMPTS = 100 #define the number of attempts to find at least one circle
-    CROSSHAIRS = 5
-    PRINTDEBUG = True
 
     def __init__(self, src):
         self.originalImage = cv2.imread('image/' + src)
@@ -69,15 +72,11 @@ class Analyzer:
     def doHoughTransform(self, srcImage):
 
         houghTransformed = copy.deepcopy(self.originalImage)
+        param2 = HOUGH_MAX_PARAM2
 
-        circles = None
-        param1 = 1
-        param2 = 300
-        minRadius = 0
-        maxRadius = 40
 
-        houghCircles = cv2.HoughCircles(srcImage, cv2.HOUGH_GRADIENT, DP, MIN_DIST,
-                                   circles, param1, param2, minRadius, maxRadius)
+        houghCircles = cv2.HoughCircles(srcImage, cv2.HOUGH_GRADIENT, DP, HOUGH_MIN_DIST,
+                                   None, HOUGH_PARAM1, HOUGH_MAX_PARAM2, HOUGH_MIN_RADIUS, HOUGH_MAX_RADIUS)
 
         while(houghCircles is None):
 
@@ -94,8 +93,8 @@ class Analyzer:
 
 
             param2 -= 1
-            houghCircles = cv2.HoughCircles(srcImage, cv2.HOUGH_GRADIENT, DP, MIN_DIST,
-                                   circles, param1, param2, minRadius, maxRadius)
+            houghCircles = cv2.HoughCircles(srcImage, cv2.HOUGH_GRADIENT, DP, HOUGH_MIN_DIST,
+                                   None, HOUGH_PARAM1, param2, HOUGH_MIN_RADIUS, HOUGH_MAX_RADIUS)
 
             if houghCircles is not None:
                 circles = np.round(houghCircles[0, :]).astype("int")
