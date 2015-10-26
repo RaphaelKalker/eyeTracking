@@ -1,25 +1,38 @@
 import cv2
+import CV_
 import math
 import copy
+import trackbar as tb
 import time as time
 import numpy as np
 
+THRESH = 220 #the threshold value
+MAXVAL = 255 #the maximum value
+MIN_AREA = 30 #the min value for creating circles
+RED = (0,0,255)
+GREEN = (0,255,0)
+BLUE = (255,0,0)
+DIFF_VALUES = 1
+DP = 10 #Dimension in circle space (lower is faster to compute)
+CROSSHAIRS = 5
+PRINTDEBUG = True
+
+HOUGH_PARAM1 = 1
+HOUGH_MAX_PARAM2 = 300
+HOUGH_MIN_RADIUS = 0
+HOUGH_MAX_RADIUS = 40
+HOUGH_MIN_DIST = 20 # the minimum distance two detected circles can be from one another
+HOUGH_MAX_ATTEMPTS = 100 #define the number of attempts to find at least one circle
+
+def close():
+    cv2.destroyAllWindows()
+
+def exit():
+    cv2.destroyAllWindows()
+    exit()
+
+
 class Analyzer:
-
-    global THRESH, MAXVAL, MIN_AREA, RED, GREEN, BLUE, DIFF_VALUES, DP, MIN_DIST, MAX_HOUGH_ATTEMPTS, CROSSHAIRS, PRINTDEBUG
-
-    THRESH = 220 #the threshold value
-    MAXVAL = 255 #the maximum value
-    MIN_AREA = 30 #the min value for creating circles
-    RED = (0,0,255)
-    GREEN = (0,255,0)
-    BLUE = (255,0,0)
-    DIFF_VALUES = 1
-    DP = 10 #Dimension in circle space (lower is faster to compute)
-    MIN_DIST = 20 # the minimum distance two detected circles can be from one another
-    MAX_HOUGH_ATTEMPTS = 100 #define the number of attempts to find at least one circle
-    CROSSHAIRS = 5
-    PRINTDEBUG = True
 
     def __init__(self, src):
         self.originalImage = cv2.imread('image/' + src)
@@ -58,25 +71,25 @@ class Analyzer:
         #self.findIrReflection(imageGray)
 
 
+
         if PRINTDEBUG:
             self.printDebugInfo()
 
-        cv2.waitKey(0)
+        tb.initHoughOptions()
+
+        cv2.waitKey(1)
+
         cv2.destroyAllWindows()
 
 
     def doHoughTransform(self, srcImage):
 
         houghTransformed = copy.deepcopy(self.originalImage)
+        param2 = HOUGH_MAX_PARAM2
 
-        circles = None
-        param1 = 1
-        param2 = 300
-        minRadius = 0
-        maxRadius = 40
 
-        houghCircles = cv2.HoughCircles(srcImage, cv2.HOUGH_GRADIENT, DP, MIN_DIST,
-                                   circles, param1, param2, minRadius, maxRadius)
+        houghCircles = cv2.HoughCircles(srcImage, cv2.HOUGH_GRADIENT, DP, HOUGH_MIN_DIST,
+                                   None, HOUGH_PARAM1, HOUGH_MAX_PARAM2, HOUGH_MIN_RADIUS, HOUGH_MAX_RADIUS)
 
         while(houghCircles is None):
 
@@ -93,8 +106,8 @@ class Analyzer:
 
 
             param2 -= 1
-            houghCircles = cv2.HoughCircles(srcImage, cv2.HOUGH_GRADIENT, DP, MIN_DIST,
-                                   circles, param1, param2, minRadius, maxRadius)
+            houghCircles = cv2.HoughCircles(srcImage, cv2.HOUGH_GRADIENT, DP, HOUGH_MIN_DIST,
+                                   None, HOUGH_PARAM1, param2, HOUGH_MIN_RADIUS, HOUGH_MAX_RADIUS)
 
             if houghCircles is not None:
                 circles = np.round(houghCircles[0, :]).astype("int")
@@ -113,7 +126,7 @@ class Analyzer:
         circleDetectedImage = copy.deepcopy(self.originalImage)
 
         #Fill in contours
-        image2, contours, heirachy = cv2.findContours(srcImage, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        contours, hierachy = CV_.findContours(srcImage, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         cv2.drawContours(srcImage, contours, -1, (255,255,255), -1)
         Analyzer.showImage(self, "Fill in contours", srcImage)
 
@@ -169,7 +182,7 @@ class Analyzer:
         Analyzer.showImage(self, 'cropped thresholding', imgGrayBin)
 
         # get ir led reflection contour
-        tempImage, irContours, hier = cv2.findContours(imgGrayBin,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
+        irContours, hier = CV_.findContours(imgGrayBin,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
 
         # take the first found contour
         if irContours:
@@ -210,9 +223,6 @@ class Analyzer:
 
 
     def printDebugInfo(self):
-        background = np.zeros((512,512,3), np.uint8)
-        win = cv2.namedWindow('Debug Infromation', flags=cv2.WINDOW_NORMAL)
-        font = cv2.FONT_HERSHEY_COMPLEX_SMALL
 
         for k, v in self.debugStats.iteritems():
             print k + ': ' + str(v)
