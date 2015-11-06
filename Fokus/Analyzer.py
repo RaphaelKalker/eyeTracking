@@ -24,6 +24,12 @@ HOUGH_MAX_RADIUS = 40
 HOUGH_MIN_DIST = 20 # the minimum distance two detected circles can be from one another
 HOUGH_MAX_ATTEMPTS = 100 #define the number of attempts to find at least one circle
 
+
+#Values
+DEBUG_RECT = 'Rect'
+DEBUG_CENTER = 'Center'
+DEBUG_RADIUS = 'Radius'
+
 def close():
     cv2.destroyAllWindows()
 
@@ -158,15 +164,15 @@ class Analyzer:
 
                 Analyzer.showImage(self, 'Pupil Circle', circleDetectedImage)
 
-                self.saveInfo({('radius', radius), ('center', center), ('rect', (x,y,width,height))})
+                self.saveInfo({(DEBUG_RADIUS, radius), (DEBUG_CENTER, center), (DEBUG_RECT, (x,y,width,height))})
 
     def findIrReflection(self, imageGray):
 
         irImage = copy.deepcopy(self.originalImage)
 
-        center = self.debugStats.get('center')
-        radius = self.debugStats.get('radius')
-        xPupil, yPupil, widthPupil, heightPupil = self.debugStats.get('rect')
+        center = self.debugStats.get(DEBUG_CENTER)
+        radius = self.debugStats.get(DEBUG_RADIUS)
+        xPupil, yPupil, widthPupil, heightPupil = self.debugStats.get(DEBUG_RECT)
 
         # cropping to find ir led reflection
         xBoundLow = max(0, xPupil - 20)
@@ -225,6 +231,6 @@ class Analyzer:
     def printDebugInfo(self):
 
         for k, v in self.debugStats.iteritems():
-            print k + ': ' + str(v)
+            print k + ':\t\t' + str(v)
         # cv2.putText(background,'Debug Info coming soon',(10,100), font, 1,(255,255,255),1)
         # cv2.imshow(q'Debug Information', background)
