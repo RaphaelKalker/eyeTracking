@@ -24,11 +24,18 @@ HOUGH_MAX_RADIUS = 40
 HOUGH_MIN_DIST = 20 # the minimum distance two detected circles can be from one another
 HOUGH_MAX_ATTEMPTS = 100 #define the number of attempts to find at least one circle
 
+PARAM1 = 'param1'
+PARAM2 = 'param2'
+MIN_RAD = 'minRadius'
+MAX_RAD = 'maxRadius'
+
 
 #Values
 DEBUG_RECT = 'Rect'
 DEBUG_CENTER = 'Center'
 DEBUG_RADIUS = 'Radius'
+
+FORMAT_JPG = '.jpg'
 
 def close():
     cv2.destroyAllWindows()
@@ -40,15 +47,25 @@ def exit():
 
 class Analyzer:
 
+    #src is either a file name, or an image buffer
     def __init__(self, src):
-        self.originalImage = cv2.imread('image/' + src)
-        self.imgWidth, self.imgHeight, self.imgChannel = self.originalImage.shape
+
+        if isinstance(src, basestring):
+            self.debugStats = dict({('Filename', src)})
+            self.originalImage = cv2.imread('image/' + src)
+
+        elif type(src).__module__ == 'numpy':
+            self.debugStats = dict({('Buffer', True)})
+            self.originalImage = cv2.imdecode(src, 1)
+
+        else:
+            raise AssertionError('Source input is invalid')
+
+        self.imgWidth, self.imgHeight = self.originalImage.shape[:2]
         self.imgIndex = 0
-        self.debugStats = dict({('filename', src)})
-        print 'Starting Analyzer for ' + src
+
 
     def loadImage(self):
-
         # originalImage = cv2.imread('image/' + src)
         originalImage = self.originalImage
 
