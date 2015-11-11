@@ -59,47 +59,86 @@ class Analyzer:
 
         #Invert image with ~ and convert to grayscale
         imageGray = cv2.cvtColor(~originalImage, cv2.COLOR_BGR2GRAY)
-        Analyzer.showImage(self, 'Grey Image', imageGray)
+        # Analyzer.showImage(self, 'Grey Image', imageGray)
 
         #Threshold the image
-        imageThreshold = copy.deepcopy(imageGray)
-        cv2.threshold(imageThreshold, THRESH, MAXVAL, cv2.THRESH_BINARY, imageThreshold)
-        Analyzer.showImage(self, 'Threshold Image', imageThreshold)
+        self.imageThreshold = copy.deepcopy(imageGray)
+        cv2.threshold(self.imageThreshold, THRESH, MAXVAL, cv2.THRESH_BINARY, self.imageThreshold)
+        Analyzer.showImage(self, 'Threshold Image', self.imageThreshold)
+
+        tb.initHoughOptions(self.updateParams)
 
 
         #Hough Circles
-        self.doHoughTransform(imageThreshold)
+        self.doHoughTransform(self.imageThreshold)
 
         #Simple Circle Math
-        self.findPupilCircle(imageThreshold)
+        # self.findPupilCircle(self.imageThreshold)
 
         #IR LED
-        self.findIrReflection(imageGray)
+        # self.findIrReflection(imageGray)
 
 
 
         if PRINTDEBUG:
             self.printDebugInfo()
 
-        tb.initHoughOptions()
+        tb.initHoughOptions(self.updateParams)
 
         cv2.waitKey(1)
 
         cv2.destroyAllWindows()
 
 
-    def doHoughTransform(self, srcImage):
+    def updateParams(self, **kwargs):
+        print 'Updated Params ' + kwargs.__str__()
+        self.saveInfo(kwargs)
+
+        param1 = kwargs.get(PARAM1)
+        param2 = kwargs.get(PARAM2)
+        minRad = kwargs.get(MIN_RAD)
+        maxRad = kwargs.get(MAX_RAD)
+        self.doSelectiveHoughTransform(self.imageThreshold, param1, param2, minRad, maxRad)
+
+    def doSelectiveHoughTransform(self, srcImage, param1=None, param2 = None, minRadius = None, maxRadius = None):
 
         houghTransformed = copy.deepcopy(self.originalImage)
-        param2 = HOUGH_MAX_PARAM2
-
 
         houghCircles = CV_.HoughCirclesWithDefaultGradient(srcImage, DP, HOUGH_MIN_DIST,
-                                   None, HOUGH_PARAM1, HOUGH_MAX_PARAM2, HOUGH_MIN_RADIUS, HOUGH_MAX_RADIUS)
+                                   None, param1, param2, minRadius, maxRadius)
+
+        #reset Image
+        self.imgIndex = 0
+
+        if houghCircles is not None:
+            circles = np.round(houghCircles[0, :]).astype("int")
+            for (x,y,r) in circles:
+                cv2.circle(houghTransformed, (x,y), r, RED, 1)
+                lineLength = 2
+                cv2.line(houghTransformed,(x - CROSSHAIRS, y - CROSSHAIRS),(x + CROSSHAIRS, y + CROSSHAIRS),(0,0,255),1)
+                cv2.line(houghTransformed,(x + CROSSHAIRS, y - CROSSHAIRS),(x - CROSSHAIRS, y + CROSSHAIRS),(0,0,255),1)
+
+            Analyzer.showImage(self, 'Hough Circle', houghTransformed)
+
+        else:
+            Analyzer.showImage(self, 'Hough Circle', houghTransformed)
+
+
+    def doHoughTransform(self, srcImage, param1=None, param2 = None, minRadius = None, maxRadius = None):
+
+        houghTransformed = copy.deepcopy(self.originalImage)
+
+        if param1 is None or param2 is None or minRadius is None or maxRadius is None:
+            param1 = HOUGH_PARAM1
+            param2 = HOUGH_MAX_PARAM2
+            minRadius = HOUGH_MIN_RADIUS
+            maxRadius = HOUGH_MAX_RADIUS
+            houghMinDistance = HOUGH_MIN_DIST
+
+        houghCircles = CV_.HoughCirclesWithDefaultGradient(srcImage, DP, houghMinDistance,
+                                   None, param1, param2, minRadius, maxRadius)
 
         while(houghCircles is None):
-
-            # print 'Could not find circles with param2: ' + str(param2)
 
             if (param2 is 1):
                 print 'Failed!!!!'
@@ -109,19 +148,16 @@ class Analyzer:
 
                 break
 
-
-
             param2 -= 1
-            houghCircles = CV_.HoughCirclesWithDefaultGradient(srcImage, DP, HOUGH_MIN_DIST,
-                                   None, HOUGH_PARAM1, param2, HOUGH_MIN_RADIUS, HOUGH_MAX_RADIUS)
+            houghCircles = CV_.HoughCirclesWithDefaultGradient(srcImage, DP, houghMinDistance,
+                                   None, param1, param2, minRadius, maxRadius)
 
             if houghCircles is not None:
                 circles = np.round(houghCircles[0, :]).astype("int")
                 for (x,y,r) in circles:
                     cv2.circle(houghTransformed, (x,y), r, RED, 1)
-                    lineLength = 2
-                    cv2.line(houghTransformed,(x - CROSSHAIRS, y - CROSSHAIRS),(x + CROSSHAIRS, y + CROSSHAIRS),(0,0,255),1)
-                    cv2.line(houghTransformed,(x + CROSSHAIRS, y - CROSSHAIRS),(x - CROSSHAIRS, y + CROSSHAIRS),(0,0,255),1)
+                    cv2.line(houghTransformed,(x - CROSSHAIRS, y - CROSSHAIRS),(x + CROSSHAIRS, y + CROSSHAIRS), RED, 1)
+                    cv2.line(houghTransformed,(x + CROSSHAIRS, y - CROSSHAIRS),(x - CROSSHAIRS, y + CROSSHAIRS), RED, 1)
 
                     Analyzer.showImage(self, 'Hough Circle', houghTransformed)
 
@@ -184,8 +220,8 @@ class Analyzer:
         imgGrayBin = copy.deepcopy(imgGrayCropped)
         cv2.threshold(imgGrayBin, 200, MAXVAL, cv2.THRESH_BINARY, imgGrayBin)
 
-        Analyzer.showImage(self, 'cropped', imgGrayCropped)
-        Analyzer.showImage(self, 'cropped thresholding', imgGrayBin)
+        # Analyzer.showImage(self, 'cropped', imgGrayCropped)
+        # Analyzer.showImage(self, 'cropped thresholding', imgGrayBin)
 
         # get ir led reflection contour
         irContours, hier = CV_.findContours(imgGrayBin,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
@@ -230,7 +266,11 @@ class Analyzer:
 
     def printDebugInfo(self):
 
+        print '\n'
+
         for k, v in self.debugStats.iteritems():
             print k + ':\t\t' + str(v)
+
+        print '\n'
         # cv2.putText(background,'Debug Info coming soon',(10,100), font, 1,(255,255,255),1)
         # cv2.imshow(q'Debug Information', background)
