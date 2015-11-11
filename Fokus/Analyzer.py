@@ -2,7 +2,7 @@ import cv2
 import CV_
 import math
 import copy
-import trackbar as tb
+import DebugOptions as tb
 import time as time
 import numpy as np
 
@@ -24,6 +24,19 @@ HOUGH_MAX_RADIUS = 40
 HOUGH_MIN_DIST = 20 # the minimum distance two detected circles can be from one another
 HOUGH_MAX_ATTEMPTS = 100 #define the number of attempts to find at least one circle
 
+PARAM1 = 'param1'
+PARAM2 = 'param2'
+MIN_RAD = 'minRadius'
+MAX_RAD = 'maxRadius'
+
+
+#Values
+DEBUG_RECT = 'Rect'
+DEBUG_CENTER = 'Center'
+DEBUG_RADIUS = 'Radius'
+
+FORMAT_JPG = '.jpg'
+
 def close():
     cv2.destroyAllWindows()
 
@@ -34,15 +47,25 @@ def exit():
 
 class Analyzer:
 
+    #src is either a file name, or an image buffer
     def __init__(self, src):
-        self.originalImage = cv2.imread('image/' + src)
-        self.imgWidth, self.imgHeight, self.imgChannel = self.originalImage.shape
+
+        if isinstance(src, basestring):
+            self.debugStats = dict({('Filename', src)})
+            self.originalImage = cv2.imread('image/' + src)
+
+        elif type(src).__module__ == 'numpy':
+            self.debugStats = dict({('Buffer', True)})
+            self.originalImage = cv2.imdecode(src, 1)
+
+        else:
+            raise AssertionError('Source input is invalid')
+
+        self.imgWidth, self.imgHeight = self.originalImage.shape[:2]
         self.imgIndex = 0
-        self.debugStats = dict({('filename', src)})
-        print 'Starting Analyzer for ' + src
+
 
     def loadImage(self):
-
         # originalImage = cv2.imread('image/' + src)
         originalImage = self.originalImage
 
@@ -53,47 +76,86 @@ class Analyzer:
 
         #Invert image with ~ and convert to grayscale
         imageGray = cv2.cvtColor(~originalImage, cv2.COLOR_BGR2GRAY)
-        Analyzer.showImage(self, 'Grey Image', imageGray)
+        # Analyzer.showImage(self, 'Grey Image', imageGray)
 
         #Threshold the image
-        imageThreshold = copy.deepcopy(imageGray)
-        cv2.threshold(imageThreshold, THRESH, MAXVAL, cv2.THRESH_BINARY, imageThreshold)
-        Analyzer.showImage(self, 'Threshold Image', imageThreshold)
+        self.imageThreshold = copy.deepcopy(imageGray)
+        cv2.threshold(self.imageThreshold, THRESH, MAXVAL, cv2.THRESH_BINARY, self.imageThreshold)
+        Analyzer.showImage(self, 'Threshold Image', self.imageThreshold)
+
+        tb.initHoughOptions(self.updateParams)
 
 
         #Hough Circles
-        self.doHoughTransform(imageThreshold)
+        self.doHoughTransform(self.imageThreshold)
 
         #Simple Circle Math
-        self.findPupilCircle(imageThreshold)
+        # self.findPupilCircle(self.imageThreshold)
 
         #IR LED
-        self.findIrReflection(imageGray)
+        # self.findIrReflection(imageGray)
 
 
 
         if PRINTDEBUG:
             self.printDebugInfo()
 
-        tb.initHoughOptions()
+        tb.initHoughOptions(self.updateParams)
 
         cv2.waitKey(1)
 
         cv2.destroyAllWindows()
 
 
-    def doHoughTransform(self, srcImage):
+    def updateParams(self, **kwargs):
+        print 'Updated Params ' + kwargs.__str__()
+        self.saveInfo(kwargs)
+
+        param1 = kwargs.get(PARAM1)
+        param2 = kwargs.get(PARAM2)
+        minRad = kwargs.get(MIN_RAD)
+        maxRad = kwargs.get(MAX_RAD)
+        self.doSelectiveHoughTransform(self.imageThreshold, param1, param2, minRad, maxRad)
+
+    def doSelectiveHoughTransform(self, srcImage, param1=None, param2 = None, minRadius = None, maxRadius = None):
 
         houghTransformed = copy.deepcopy(self.originalImage)
-        param2 = HOUGH_MAX_PARAM2
-
 
         houghCircles = CV_.HoughCirclesWithDefaultGradient(srcImage, DP, HOUGH_MIN_DIST,
-                                   None, HOUGH_PARAM1, HOUGH_MAX_PARAM2, HOUGH_MIN_RADIUS, HOUGH_MAX_RADIUS)
+                                   None, param1, param2, minRadius, maxRadius)
+
+        #reset Image
+        self.imgIndex = 0
+
+        if houghCircles is not None:
+            circles = np.round(houghCircles[0, :]).astype("int")
+            for (x,y,r) in circles:
+                cv2.circle(houghTransformed, (x,y), r, RED, 1)
+                lineLength = 2
+                cv2.line(houghTransformed,(x - CROSSHAIRS, y - CROSSHAIRS),(x + CROSSHAIRS, y + CROSSHAIRS),(0,0,255),1)
+                cv2.line(houghTransformed,(x + CROSSHAIRS, y - CROSSHAIRS),(x - CROSSHAIRS, y + CROSSHAIRS),(0,0,255),1)
+
+            Analyzer.showImage(self, 'Hough Circle', houghTransformed)
+
+        else:
+            Analyzer.showImage(self, 'Hough Circle', houghTransformed)
+
+
+    def doHoughTransform(self, srcImage, param1=None, param2 = None, minRadius = None, maxRadius = None):
+
+        houghTransformed = copy.deepcopy(self.originalImage)
+
+        if param1 is None or param2 is None or minRadius is None or maxRadius is None:
+            param1 = HOUGH_PARAM1
+            param2 = HOUGH_MAX_PARAM2
+            minRadius = HOUGH_MIN_RADIUS
+            maxRadius = HOUGH_MAX_RADIUS
+            houghMinDistance = HOUGH_MIN_DIST
+
+        houghCircles = CV_.HoughCirclesWithDefaultGradient(srcImage, DP, houghMinDistance,
+                                   None, param1, param2, minRadius, maxRadius)
 
         while(houghCircles is None):
-
-            # print 'Could not find circles with param2: ' + str(param2)
 
             if (param2 is 1):
                 print 'Failed!!!!'
@@ -103,19 +165,16 @@ class Analyzer:
 
                 break
 
-
-
             param2 -= 1
-            houghCircles = CV_.HoughCirclesWithDefaultGradient(srcImage, DP, HOUGH_MIN_DIST,
-                                   None, HOUGH_PARAM1, param2, HOUGH_MIN_RADIUS, HOUGH_MAX_RADIUS)
+            houghCircles = CV_.HoughCirclesWithDefaultGradient(srcImage, DP, houghMinDistance,
+                                   None, param1, param2, minRadius, maxRadius)
 
             if houghCircles is not None:
                 circles = np.round(houghCircles[0, :]).astype("int")
                 for (x,y,r) in circles:
                     cv2.circle(houghTransformed, (x,y), r, RED, 1)
-                    lineLength = 2
-                    cv2.line(houghTransformed,(x - CROSSHAIRS, y - CROSSHAIRS),(x + CROSSHAIRS, y + CROSSHAIRS),(0,0,255),1)
-                    cv2.line(houghTransformed,(x + CROSSHAIRS, y - CROSSHAIRS),(x - CROSSHAIRS, y + CROSSHAIRS),(0,0,255),1)
+                    cv2.line(houghTransformed,(x - CROSSHAIRS, y - CROSSHAIRS),(x + CROSSHAIRS, y + CROSSHAIRS), RED, 1)
+                    cv2.line(houghTransformed,(x + CROSSHAIRS, y - CROSSHAIRS),(x - CROSSHAIRS, y + CROSSHAIRS), RED, 1)
 
                     Analyzer.showImage(self, 'Hough Circle', houghTransformed)
 
@@ -158,15 +217,15 @@ class Analyzer:
 
                 Analyzer.showImage(self, 'Pupil Circle', circleDetectedImage)
 
-                self.saveInfo({('radius', radius), ('center', center), ('rect', (x,y,width,height))})
+                self.saveInfo({(DEBUG_RADIUS, radius), (DEBUG_CENTER, center), (DEBUG_RECT, (x,y,width,height))})
 
     def findIrReflection(self, imageGray):
 
         irImage = copy.deepcopy(self.originalImage)
 
-        center = self.debugStats.get('center')
-        radius = self.debugStats.get('radius')
-        xPupil, yPupil, widthPupil, heightPupil = self.debugStats.get('rect')
+        center = self.debugStats.get(DEBUG_CENTER)
+        radius = self.debugStats.get(DEBUG_RADIUS)
+        xPupil, yPupil, widthPupil, heightPupil = self.debugStats.get(DEBUG_RECT)
 
         # cropping to find ir led reflection
         xBoundLow = max(0, xPupil - 20)
@@ -178,8 +237,8 @@ class Analyzer:
         imgGrayBin = copy.deepcopy(imgGrayCropped)
         cv2.threshold(imgGrayBin, 200, MAXVAL, cv2.THRESH_BINARY, imgGrayBin)
 
-        Analyzer.showImage(self, 'cropped', imgGrayCropped)
-        Analyzer.showImage(self, 'cropped thresholding', imgGrayBin)
+        # Analyzer.showImage(self, 'cropped', imgGrayCropped)
+        # Analyzer.showImage(self, 'cropped thresholding', imgGrayBin)
 
         # get ir led reflection contour
         irContours, hier = CV_.findContours(imgGrayBin,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
@@ -224,7 +283,11 @@ class Analyzer:
 
     def printDebugInfo(self):
 
+        print '\n'
+
         for k, v in self.debugStats.iteritems():
-            print k + ': ' + str(v)
+            print k + ':\t\t' + str(v)
+
+        print '\n'
         # cv2.putText(background,'Debug Info coming soon',(10,100), font, 1,(255,255,255),1)
         # cv2.imshow(q'Debug Information', background)
