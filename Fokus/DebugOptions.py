@@ -5,10 +5,12 @@ import sys
 
 WINDOW = 'Options'
 
-PARAM1 = 'Param 1'
-PARAM2 = 'Param 2'
-MIN_RAD = 'Minimum Radius'
-MAX_RAD = 'Maximum Radius'
+PARAM1 = '1) Param 1'
+PARAM2 = '2) Param 2'
+MIN_RAD = '3) Minimum Radius'
+MAX_RAD = '4) Maximum Radius'
+WINDOW_BOUND = '5) Top Left Window Px'
+WINDOW_BOUND2 = '6) Top Right Window px'
 
 HOUGH_PARAM1 = 1
 HOUGH_MAX_PARAM2 = 300
@@ -33,11 +35,14 @@ def initHoughOptions(callback):
     # Create a black image, a window
     img = np.zeros((200,300,3), np.uint8)
     cv2.namedWindow(WINDOW)
-
     cv2.createTrackbar(PARAM1, WINDOW, 0, Analyzer.HOUGH_PARAM1, nothing)
-    cv2.createTrackbar(PARAM2, WINDOW, 0, Analyzer.HOUGH_MAX_PARAM2, nothing)
+
     cv2.createTrackbar(MIN_RAD, WINDOW, 0, 255, nothing)
+    cv2.createTrackbar(PARAM2, WINDOW, 0, Analyzer.HOUGH_MAX_PARAM2, nothing)
+
     cv2.createTrackbar(MAX_RAD, WINDOW, 0, Analyzer.HOUGH_MAX_RADIUS, nothing)
+
+    cv2.createTrackbar(WINDOW_BOUND, WINDOW, 0, 100, nothing)
 
     cv2.setTrackbarPos(PARAM1, WINDOW, HOUGH_PARAM1)
     cv2.setTrackbarPos(PARAM2, WINDOW, 40)
