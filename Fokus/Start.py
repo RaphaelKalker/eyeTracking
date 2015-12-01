@@ -1,9 +1,12 @@
 import cv2
 from Analyzer import Analyzer
+from Analyzer2 import Analyzer2
 import os
 
 
 # class Start(object):
+
+DEFAULT_DIRECTORY = 'imageLeftCam'
 
 def analyzeImages():
 
@@ -11,9 +14,8 @@ def analyzeImages():
 
     for dirName, subDirList, fileList in os.walk(rootDir):
         for fname in fileList:
-            if fname.__contains__('jpg') and dirName.__contains__('image'):
-                # print fname
-                a = Analyzer(fname)
+            if fname.__contains__('jpg') and dirName.__contains__(DEFAULT_DIRECTORY):
+                a = Analyzer2(DEFAULT_DIRECTORY + '/' + fname)
                 a.loadImage()
 
 
