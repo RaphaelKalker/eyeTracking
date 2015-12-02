@@ -102,7 +102,6 @@ class Analyzer2:
 
 
 
-
         #Invert image with ~ and convert to grayscale
         self.imageGray = cv2.cvtColor(~originalImage, cv2.COLOR_BGR2GRAY)
         # Analyzer.showImage(self, 'Grey Image', imageGray)
@@ -111,22 +110,33 @@ class Analyzer2:
 
         #Convert to HSV
         self.imageHSV = cv2.cvtColor(originalImage, cv2.COLOR_BGR2HSV_FULL)
-        # Analyzer.showImage(self, 'Yolo', imageHSV)
+        self.showImage('Yolo', self.imageHSV)
 
 
         #Threshold the image
-        self.imageThreshold = copy.deepcopy(self.imageGray)
+        self.imageThreshold = self.imageGray.copy()
         cv2.threshold(self.imageThreshold, THRESH, MAXVAL, cv2.THRESH_BINARY, self.imageThreshold)
-        # Analyzer.showImage(self, 'Threshold Image', self.imageThreshold)
+        self.showImage('Threshold Image', self.imageThreshold)
+
+        kernel = np.ones((3,3),np.uint8)
+        iter = 1
+        dilation = cv2.dilate(self.imageThreshold, kernel, iterations = iter)
+        self.showImage('Dilated', dilation)
+
+        closing = cv2.morphologyEx(dilation, cv2.MORPH_CLOSE, kernel)
+
+        self.showImage('Closing', closing)
+
+        self.imageThreshold = dilation
 
 
-        # Analyzer.showImage(self, 'Shitt', mask)
+
 
         #Hough Circles
         self.doHoughTransform(self.imageThreshold)
 
         #Simple Circle Math
-        # self.findPupilCircle(self.imageThreshold)
+        self.findPupilCircle(self.imageThreshold)
 
         #IR LED
         # self.findIrReflection(imageGray)
@@ -295,11 +305,11 @@ class Analyzer2:
                 cv2.line(houghTransformed,(x - CROSSHAIRS, y - CROSSHAIRS),(x + CROSSHAIRS, y + CROSSHAIRS),(0,0,255),1)
                 cv2.line(houghTransformed,(x + CROSSHAIRS, y - CROSSHAIRS),(x - CROSSHAIRS, y + CROSSHAIRS),(0,0,255),1)
 
-            # self.showImage('Hough Circle', houghTransformed)
+            self.showImage('Hough Circle', houghTransformed)
 
         else:
             pass
-            # self.showImage('Hough Circle', houghTransformed)
+            self.showImage('Hough Circle', houghTransformed)
 
 
     def doHoughTransform(self, srcImage, param1=None, param2 = None, minRadius = None, maxRadius = None):
@@ -322,7 +332,7 @@ class Analyzer2:
                 print 'Failed!!!!'
                 width, height = srcImage.shape
                 cv2.putText(houghTransformed,"FAILED", (width/2, height/2), cv2.FONT_HERSHEY_SIMPLEX, 1,(0,0,255))
-                # self.showImage('Hough Circle', houghTransformed)
+                self.showImage('Hough Circle', houghTransformed)
 
                 break
 
@@ -337,7 +347,7 @@ class Analyzer2:
                     cv2.line(houghTransformed,(x - CROSSHAIRS, y - CROSSHAIRS),(x + CROSSHAIRS, y + CROSSHAIRS), RED, 1)
                     cv2.line(houghTransformed,(x + CROSSHAIRS, y - CROSSHAIRS),(x - CROSSHAIRS, y + CROSSHAIRS), RED, 1)
 
-                    # self.showImage('Hough Circle', houghTransformed)
+                    self.showImage('Hough Circle', houghTransformed)
 
     def findPupilCircle(self, srcImage):
 
