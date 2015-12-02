@@ -1,6 +1,9 @@
 import cv2
 from Analyzer import Analyzer
 from Analyzer2 import Analyzer2
+from redis import Redis
+from rq import Queue
+
 import os
 
 
@@ -9,6 +12,7 @@ import os
 DEFAULT_DIRECTORY = 'imageLeftCam'
 
 def analyzeImages():
+
 
     rootDir = '.'
 
@@ -27,7 +31,21 @@ def analyzeSimulatedBuffer(src):
     a = Analyzer(imageBuf)
     a.loadImage()
 
+def takeLeftPicture():
+    print 'takeLeftPicutre'
+    ##analyze
+
+def takeRightPicture():
+    print 'takeRightPicture'
+
 if  __name__ == '__main__':
+
+    q = Queue(connection=Redis())
+
+
+    resultLeft = q.enqueue(takeLeftPicture())
+    resultRight = q.enqueue(takeRightPicture())
+    
     analyzeImages()
     # analyzeSimulatedBuffer('aa2.jpg')
 
