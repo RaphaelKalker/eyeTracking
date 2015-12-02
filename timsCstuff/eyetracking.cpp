@@ -9,7 +9,7 @@ using namespace cv;
 
 int threshold_value = 70;
 int threshold_type = 2;
-int circle_size = 100;
+int circle_size = 10;
 int const max_value = 255;
 int const max_type = 4;
 int const max_BINARY_value = 255;
@@ -56,6 +56,7 @@ int main( int argc, char** argv )
   int folderNum = 1;
   char eye = 'L';
   int bmp = 1;
+  int num = 1;
   
   while(true)
   {
@@ -75,12 +76,14 @@ int main( int argc, char** argv )
     }
     if( (char)c == 'a')
     {
-      std::string file = "../UTIRIS_V.1/Infrared_Images/00" + std::to_string(folderNum) + "/00"
-	+ std::to_string(folderNum) + "_" + eye + "/" + "Img_00" + std::to_string(folderNum)
-	+ "_" + eye + "_" + std::to_string(bmp) + ".bmp";
+      //      std::string file = "../UTIRIS_V.1/Infrared_Images/00" + std::to_string(folderNum) + "/00"
+      //	+ std::to_string(folderNum) + "_" + eye + "/" + "Img_00" + std::to_string(folderNum)
+      //	+ "_" + eye + "_" + std::to_string(bmp) + ".bmp";
+      std::string file = "../test" + std::to_string(num) + ".jpg";
+      printf("file: %s\n", file.c_str());
       src = imread( file, 1 );
       cvtColor( src, src_gray, CV_RGB2GRAY );
-
+      num++;
       bmp++;
       if(bmp > 5)
       {
@@ -141,7 +144,7 @@ void Threshold_Demo( int, void* )
   {
   for(int i = 0; i < 100 && notOneCircleDetected; ++i)
   {
-    HoughCircles( dst, circles, CV_HOUGH_GRADIENT, 1, dst.rows/32, 100, circleVal, 35, circle_size );
+    HoughCircles( dst, circles, CV_HOUGH_GRADIENT, 1, dst.rows/32, 100, circleVal, 3, circle_size );
 
     //  cvtColor( dst, dst_output, CV_GRAY2RGB );
     if(circles.size() < 1)

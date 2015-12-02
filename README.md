@@ -1,4 +1,4 @@
-# MuthaFokusing
+# Hocus-Pocus-Focus
 
 ### Python 
  - Setup your python environment properly and make sure you are using 2.7x with openCV3. 
