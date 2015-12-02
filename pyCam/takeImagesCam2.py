@@ -118,12 +118,12 @@ controlFrame(FBUF_CTRL, 0x02)
 setImageSize()
 
 # Compression ratio is between 0x00 to 0xFF
-setImageCompression(0x90)
+setImageCompression(0x26)
 
 setBaudRate(115200)
 serial.baudrate = 115200
 
-for i in range(4):
+for i in range(1):
 	# Send FBUF_CTRL command to stop current frame updating, the parameter is 0x00.
 	controlFrame(FBUF_CTRL, 0x00)
 
@@ -140,7 +140,7 @@ for i in range(4):
 							lowbit=buff_len[3])
 
 		if buff:
-			with open("image" + str(int(time.time())) + ".jpg", 'w') as f:
+			with open("./output/cam2/image" + str(int(time.time())) + ".jpg", 'w') as f:
 				for i in buff:
 					f.write(chr(i))
 			print "got photo :D"

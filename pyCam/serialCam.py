@@ -3,7 +3,7 @@ import time
 import datetime
 
 # Initialize camera
-serial = serial.Serial("/dev/ttyO1", baudrate=38400)
+serial = serial.Serial("/dev/ttyO4", baudrate=38400)
 
 #reset the camera
 serial.write(b'\x56\0\x26\0')
@@ -85,7 +85,7 @@ now = datetime.datetime.now()
 filename = "%d.%02d.%02d.%02d.%02d.%02d.jpg" % (now.year,now.month,now.day,now.hour,now.minute,now.second)
 resp = serial.read(size=5)
 if b'\x76\0\x32\0\0' in resp:
-    with open("output/" + filename, 'wb') as f:
+    with open("output/cam1/" + filename, 'wb') as f:
         while (serial.inWaiting() > 0):
             data = serial.read()
             f.write('%c' % data)
