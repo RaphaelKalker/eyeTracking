@@ -1,5 +1,5 @@
 import cv2
-from Analyzer import Analyzer
+#from Analyzer import Analyzer
 from Analyzer2 import Analyzer2
 from redis import Redis
 from rq import Queue
@@ -25,10 +25,10 @@ def analyzeImages():
 
 def analyzeSimulatedBuffer(src):
 
-    originalImage = cv2.imread('image/' + src)
+    originalImage = cv2.imread(DEFAULT_DIRECTORY + '/' + src)
     success,imageBuf = cv2.imencode('.jpg', originalImage)
 
-    a = Analyzer(imageBuf)
+    a = Analyzer2(imageBuf)
     a.loadImage()
 
 def takeLeftPicture():
@@ -47,7 +47,7 @@ if  __name__ == '__main__':
     # resultRight = q.enqueue(takeRightPicture())
     #
     # analyzeImages()
-    analyzeSimulatedBuffer('aa2.jpg')
+    analyzeSimulatedBuffer('image1398285888.jpg')
 
 
 

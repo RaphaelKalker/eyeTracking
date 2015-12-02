@@ -103,9 +103,11 @@ def initHoughOptions(callback):
 
         if updatedHoughCircle:
             callback(Const.Trackbar.Hough, param1 = p1, param2 = p2, minRadius = minR, maxRadius = maxR)
+            pass
 
         if updatedCanny:
             callback(Const.Trackbar.Canny, cannyLb = cannyLb, cannyUb = cannyUb)
+            pass
 
 
 
