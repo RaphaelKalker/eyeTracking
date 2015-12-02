@@ -74,35 +74,40 @@ def initHoughOptions(callback):
         cannyLbTemp = cv2.getTrackbarPos(CANNY_LOW, WINDOW)
         cannyUbTemp = cv2.getTrackbarPos(CANNY_HIGH, WINDOW)
 
-        updated = False
+        updatedHoughCircle = False
+        updatedCanny = False
 
         if p1Temp != p1:
             p1 = p1Temp
-            updated = True
+            updatedHoughCircle = True
 
         if p2Temp != p2:
             p2 = p2Temp
-            updated = True
+            updatedHoughCircle = True
 
         if minRTemp != minR:
             minR = minRTemp
-            updated = True
+            updatedHoughCircle = True
 
         if maxRTemp != maxR:
             maxR = maxRTemp
-            updated = True
+            updatedHoughCircle = True
 
         if cannyLbTemp != cannyLb:
             cannyLb = cannyLbTemp
-            updated = True
+            updatedCanny = True
 
         if cannyUbTemp != cannyUb:
             cannyUb = cannyUbTemp
-            updated = True
+            updatedCanny = True
 
-        if updated:
-            # callback(param1 = p1, param2 = p2, minRadius = minR, maxRadius = maxR)
+        if updatedHoughCircle:
+            callback(Const.Trackbar.Hough, param1 = p1, param2 = p2, minRadius = minR, maxRadius = maxR)
+
+        if updatedCanny:
             callback(Const.Trackbar.Canny, cannyLb = cannyLb, cannyUb = cannyUb)
+
+
 
     cv2.destroyWindow(WINDOW)
 
