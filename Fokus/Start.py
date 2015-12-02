@@ -40,14 +40,14 @@ def takeRightPicture():
 
 if  __name__ == '__main__':
 
-    q = Queue(connection=Redis())
+    # q = Queue(connection=Redis())
 
 
-    resultLeft = q.enqueue(takeLeftPicture())
-    resultRight = q.enqueue(takeRightPicture())
-    
-    analyzeImages()
-    # analyzeSimulatedBuffer('aa2.jpg')
+    # resultLeft = q.enqueue(takeLeftPicture())
+    # resultRight = q.enqueue(takeRightPicture())
+    #
+    # analyzeImages()
+    analyzeSimulatedBuffer('aa2.jpg')
 
 
 
