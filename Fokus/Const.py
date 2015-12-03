@@ -14,7 +14,7 @@ class Camera():
 
 class Threshold():
     LEFT    = 190
-    RIGHT   = 200
+    RIGHT   = 205
 
     @classmethod
     def getMin(cls, cameraType):
@@ -43,14 +43,21 @@ class HoughParamaters():
         else:
             return (cls.RIGHT_PARAM_1, cls.RIGHT_PARAM_2, cls.RIGHT_MIN_RADIUS, cls.RIGHT_MAX_RADIUS)
 
+class Canny():
 
+    LEFT_LOW_BOUND = 35
+    LEFT_UPPER_BOUND = 141
 
+    RIGHT_LOW_BOUND = 35
+    RIGHT_UPPER_BOUND = 141
 
-class RightHough():
-    MAX_RADIUS      = 20
-    MIN_MINRADIUS   = 8
-    PARAM_1         = 1
-    PARAM_2         = 40
+    @classmethod
+    def getParams(cls, cameraType):
+        if cameraType == Const.Camera.LEFT:
+            return (cls.LEFT_LOW_BOUND, cls.LEFT_UPPER_BOUND)
+        else:
+            return (cls.RIGHT_LOW_BOUND, cls.RIGHT_UPPER_BOUND)
+
 
 
 

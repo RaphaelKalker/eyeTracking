@@ -40,6 +40,7 @@ def initHoughOptions(cameraType, callback):
 
     #get default start values
     p1, p2, minR, maxR = Const.HoughParamaters.getParams(cameraType)
+    cannyLb, cannyUb = Const.Canny.getParams(cameraType)
 
     # Create a black image, a window
     img = np.zeros((200,300,3), np.uint8)
