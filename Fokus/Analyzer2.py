@@ -7,6 +7,7 @@ import Const
 import DebugOptions as tb
 import time as time
 import numpy as np
+import platform
 
 THRESH = 220 #the threshold value
 MAXVAL = 255 #the maximum value
@@ -64,10 +65,11 @@ class Analyzer2:
     startY = 0
 
     #src is either a file name, or an image buffer
-    def __init__(self, src):
+    def __init__(self, src, cameraType):
 
         if isinstance(src, basestring):
-            self.debugStats = dict({('Filename', src)})
+            self.debugStats = dict({('Filename', src), ('CameraType', cameraType)})
+            self.cameraType = cameraType
             self.originalImage = cv2.imread(src)
 
         elif type(src).__module__ == 'numpy':
@@ -94,17 +96,20 @@ class Analyzer2:
 
         self.showImage('Original Image', originalImage)
 
+        #Invert image with ~ and convert to grayscale
+        self.imageGray = cv2.cvtColor(~originalImage, cv2.COLOR_BGR2GRAY)
+        Analyzer2.showImage(self, 'Grey Image', self.imageGray)
+
         #Create a region of interest by selection
         # self.roi = Analyzer2.findRegionOfInterest(originalImage)
         self.roi = originalImage.copy()
+        selectableWindow = 'Grey Image'
         self.showImage('ROI', self.roi)
-        cv2.setMouseCallback('ROI', self.onPointSelected)
+        cv2.setMouseCallback(selectableWindow, self.onPointSelected)
 
 
 
-        #Invert image with ~ and convert to grayscale
-        self.imageGray = cv2.cvtColor(~originalImage, cv2.COLOR_BGR2GRAY)
-        # Analyzer.showImage(self, 'Grey Image', imageGray)
+
 
 
 
@@ -112,11 +117,12 @@ class Analyzer2:
         self.imageHSV = cv2.cvtColor(originalImage, cv2.COLOR_BGR2HSV_FULL)
         self.showImage('Yolo', self.imageHSV)
 
-
         #Threshold the image
-        self.imageThreshold = self.imageGray.copy()
-        cv2.threshold(self.imageThreshold, THRESH, MAXVAL, cv2.THRESH_BINARY, self.imageThreshold)
-        self.showImage('Threshold Image', self.imageThreshold)
+        self.doThreshold()
+
+
+
+
 
         kernel = np.ones((3,3),np.uint8)
         iter = 1
@@ -145,7 +151,7 @@ class Analyzer2:
         if PRINTDEBUG:
             self.printDebugInfo()
 
-        tb.initHoughOptions(self.updateParams)
+        tb.initHoughOptions(self.cameraType, self.updateParams)
 
         cv2.waitKey(1)
         # k = cv2.waitKey() & 0xFF
@@ -161,7 +167,7 @@ class Analyzer2:
     def onPointSelected(self, event,x,y,flags,param):
 
         # print 'onPointSelected -> x: {} y: {}'.format(x,y)
-        regionSelected, x1,x2, y1, y2 = Analyzer2.drawRectSelection(self, self.roi, event, x, y)
+        regionSelected, x1,x2, y1, y2 = Analyzer2.drawRectSelection(self, self.imageGray, event, x, y)
 
         if regionSelected:
             print 'region selected true'
@@ -197,10 +203,6 @@ class Analyzer2:
 
         # print window
 
-
-
-
-
     def drawRectSelection(self, img, event, x, y):
 
         global selecting, startX, startY
@@ -211,7 +213,11 @@ class Analyzer2:
             startY = y
 
         elif event == cv2.EVENT_MOUSEMOVE:
-            print 'Pointer Stats, x,y: {},{} - HSV: [{}] '.format(x,y,img[x,y,:] )
+            #GrayScale Image
+            if len(img.shape) == 2:
+                print 'Pointer Stats, x,y: {},{} - Value: [{}]'.format(x,y,img[x,y])
+            else:
+                print 'Pointer Stats, x,y: {},{} - Value: [{}] '.format(x,y,img[x,y,:] )
             # if selecting:
             #     pass
             #     cv2.rectangle(self.roi, (startX,startY), (x,y), GREEN, 1)
@@ -235,11 +241,6 @@ class Analyzer2:
         else:
             return False, 0, 0, 0, 0
 
-
-
-
-
-
     def updateParams(self, type, **kwargs):
         print 'Updated Params ' + kwargs.__str__()
         self.saveInfo(kwargs)
@@ -256,8 +257,11 @@ class Analyzer2:
             maxRad = kwargs.get(MAX_RAD)
             self.doSelectiveHoughTransform(self.imageThreshold, param1, param2, minRad, maxRad)
 
-
-
+    def doThreshold(self):
+        self.imageThreshold = self.imageGray.copy()
+        minThresh = Const.Threshold.getMin(self.cameraType)
+        cv2.threshold(self.imageThreshold, minThresh, MAXVAL, cv2.THRESH_BINARY, self.imageThreshold)
+        self.showImage('Threshold Image', self.imageThreshold)
 
     def findCornerCandidate(self, img, lowerBound, upperBound):
         blur = cv2.GaussianBlur(img, (9, 9), 0)
@@ -269,20 +273,25 @@ class Analyzer2:
 
         candidatesYX =  (dst > 0.01 * dst.max()).nonzero()
 
+        if not candidatesYX or not candidatesYX[0] or not candidatesYX[1]:
+            print 'Failed to find corners!'
+        else:
+            ind = candidatesYX[1].argmax(axis=0)
+
+            (mostLikelyX, mostLikelyY) = (candidatesYX[0][ind], candidatesYX[1][ind])
+
+            self.saveInfo({(DEBUG_CANDIDATE_CORNER, (mostLikelyX, mostLikelyY))})
+
+            corners = self.originalImage.copy()
+            corners[candidatesYX[0], candidatesYX[1]] = [0,0,255]
+            offset = 3
+            corners[mostLikelyX -offset : mostLikelyX + offset, mostLikelyY - offset: mostLikelyY + offset] = [0,255,255]
+
+            self.showImage('Corners', corners)
+            self.showImage('Canny', edges)
+
         #x,y are switched
-        ind = candidatesYX[1].argmax(axis=0)
 
-        (mostLikelyX, mostLikelyY) = (candidatesYX[0][ind], candidatesYX[1][ind])
-
-        self.saveInfo({(DEBUG_CANDIDATE_CORNER, (mostLikelyX, mostLikelyY))})
-
-        corners = self.originalImage.copy()
-        corners[candidatesYX[0], candidatesYX[1]] = [0,0,255]
-        offset = 3
-        corners[mostLikelyX -offset : mostLikelyX + offset, mostLikelyY - offset: mostLikelyY + offset] = [0,255,255]
-
-        self.showImage('Corners', corners)
-        self.showImage('Canny', edges)
 
 
 
@@ -308,7 +317,8 @@ class Analyzer2:
             self.showImage('Hough Circle', houghTransformed)
 
         else:
-            pass
+            width, height = srcImage.shape
+            cv2.putText(houghTransformed,"FAILED", (width/2, height/2), cv2.FONT_HERSHEY_SIMPLEX, 1,(0,0,255))
             self.showImage('Hough Circle', houghTransformed)
 
 
@@ -317,37 +327,51 @@ class Analyzer2:
         houghTransformed = copy.deepcopy(self.originalImage)
 
         if param1 is None or param2 is None or minRadius is None or maxRadius is None:
-            param1 = HOUGH_PARAM1
-            param2 = HOUGH_MAX_PARAM2
-            minRadius = HOUGH_MIN_RADIUS
-            maxRadius = HOUGH_MAX_RADIUS
+            (param1, param2, minRadius, maxRadius) = Const.HoughParamaters.getParams(self.cameraType)
             houghMinDistance = HOUGH_MIN_DIST
 
         houghCircles = CV_.HoughCirclesWithDefaultGradient(srcImage, DP, houghMinDistance,
                                    None, param1, param2, minRadius, maxRadius)
 
-        while(houghCircles is None):
+        if houghCircles is not None:
+            self.saveInfo({('Hough Circle', True)})
+            circles = np.round(houghCircles[0, :]).astype("int")
+            for (x,y,r) in circles:
+                cv2.circle(houghTransformed, (x,y), r, RED, 1)
+                cv2.line(houghTransformed,(x - CROSSHAIRS, y - CROSSHAIRS),(x + CROSSHAIRS, y + CROSSHAIRS), RED, 1)
+                cv2.line(houghTransformed,(x + CROSSHAIRS, y - CROSSHAIRS),(x - CROSSHAIRS, y + CROSSHAIRS), RED, 1)
 
-            if (param2 is 1):
-                print 'Failed!!!!'
-                width, height = srcImage.shape
-                cv2.putText(houghTransformed,"FAILED", (width/2, height/2), cv2.FONT_HERSHEY_SIMPLEX, 1,(0,0,255))
                 self.showImage('Hough Circle', houghTransformed)
+        else:
+            self.saveInfo({('Hough Circle', False)})
 
-                break
 
-            param2 -= 1
-            houghCircles = CV_.HoughCirclesWithDefaultGradient(srcImage, DP, houghMinDistance,
-                                   None, param1, param2, minRadius, maxRadius)
 
-            if houghCircles is not None:
-                circles = np.round(houghCircles[0, :]).astype("int")
-                for (x,y,r) in circles:
-                    cv2.circle(houghTransformed, (x,y), r, RED, 1)
-                    cv2.line(houghTransformed,(x - CROSSHAIRS, y - CROSSHAIRS),(x + CROSSHAIRS, y + CROSSHAIRS), RED, 1)
-                    cv2.line(houghTransformed,(x + CROSSHAIRS, y - CROSSHAIRS),(x - CROSSHAIRS, y + CROSSHAIRS), RED, 1)
 
-                    self.showImage('Hough Circle', houghTransformed)
+
+        #use selective for iteration instead
+        # while(houghCircles is None):
+        #
+        #     if (param2 is 1):
+        #         print 'Failed!!!!'
+        #         width, height = srcImage.shape
+        #         cv2.putText(houghTransformed,"FAILED", (width/2, height/2), cv2.FONT_HERSHEY_SIMPLEX, 1,(0,0,255))
+        #         self.showImage('Hough Circle', houghTransformed)
+        #
+        #         break
+        #
+        #     param2 -= 1
+        #     houghCircles = CV_.HoughCirclesWithDefaultGradient(srcImage, DP, houghMinDistance,
+        #                            None, param1, param2, minRadius, maxRadius)
+        #
+        #     if houghCircles is not None:
+        #         circles = np.round(houghCircles[0, :]).astype("int")
+        #         for (x,y,r) in circles:
+        #             cv2.circle(houghTransformed, (x,y), r, RED, 1)
+        #             cv2.line(houghTransformed,(x - CROSSHAIRS, y - CROSSHAIRS),(x + CROSSHAIRS, y + CROSSHAIRS), RED, 1)
+        #             cv2.line(houghTransformed,(x + CROSSHAIRS, y - CROSSHAIRS),(x - CROSSHAIRS, y + CROSSHAIRS), RED, 1)
+        #
+        #             self.showImage('Hough Circle', houghTransformed)
 
     def findPupilCircle(self, srcImage):
 
@@ -386,7 +410,7 @@ class Analyzer2:
                 cv2.line(circleDetectedImage,(x + radius, y + radius *2),(x + radius, y),(0,0,255),1)
                 cv2.circle(circleDetectedImage, center, radius, RED, 1)
 
-                # self.showImage('Pupil Circle', circleDetectedImage)
+                self.showImage('Pupil Circle', circleDetectedImage)
 
                 self.saveInfo({(DEBUG_RADIUS, radius), (DEBUG_CENTER, center), (DEBUG_RECT, (x,y,width,height))})
 
@@ -445,11 +469,12 @@ class Analyzer2:
         return (imageNr * imageWidth, 0)
 
     def showImage(self, title, image):
-        cv2.imshow(title, image)
-        shape = image.shape
-        posX, posY = self.getWindowPosition(self.imgIndex, shape[1])
-        # cv2.moveWindow(title, posX, posY)
-        self.imgIndex += 1
+        if platform.system() == Const.MAC:
+            cv2.imshow(title, image)
+            shape = image.shape
+            posX, posY = self.getWindowPosition(self.imgIndex, shape[1])
+            cv2.moveWindow(title, posX, posY)
+            self.imgIndex += 1
 
 
     def printDebugInfo(self):
