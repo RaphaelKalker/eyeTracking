@@ -122,12 +122,16 @@ class Analyzer2:
         erosion = cv2.erode(dilation, kernel, iterations=3)
         self.showImage('Erosion', erosion)
 
-        opening = cv2.morphologyEx(erosion, cv2.MORPH_OPEN, kernel)
+        opening = cv2.morphologyEx(erosion, cv2.MORPH_OPEN, kernel, iterations=3)
         self.showImage('Opening', opening)
 
-        closing = cv2.morphologyEx(dilation, cv2.MORPH_ELLIPSE, kernel)
+        dilation = cv2.dilate(opening, kernel, iterations = 3)
+        self.showImage('Dilated', dilation)
 
-        self.showImage('Closing', closing)
+
+        # closing = cv2.morphologyEx(dilation, cv2.MORPH_ELLIPSE, kernel)
+
+        # self.showImage('Closing', closing)
 
         self.imageThreshold = dilation
 
@@ -137,11 +141,18 @@ class Analyzer2:
         lB, uB = Const.Canny.getParams(self.cameraType)
         self.findCornerCandidate(self.imageCanny, lB, uB)
 
+
+        ####TEMP
+        blur = cv2.GaussianBlur(self.imageCanny, (9, 9), 0)
+        self.showImage('Blurred', blur)
+        lB, uB = Const.Canny.getParams(self.cameraType)
+        canny = cv2.Canny(blur, lB, uB)
+
         #Hough Circles
-        self.doHoughTransform(self.imageThreshold)
+        self.doHoughTransform(dilation)
 
         #Simple Circle Math
-        self.findPupilCircle(self.imageThreshold)
+        self.findPupilCircle(dilation)
 
         #IR LED
         # self.findIrReflection(imageGray)
@@ -470,7 +481,7 @@ class Analyzer2:
     def showImage(self, title, image):
         if platform.system() == Const.MAC:
             cv2.imshow(title, image)
-            cv2.imwrite(title + '.jpg', image)
+            cv2.imwrite('../results/' + title + '.jpg', image)
             shape = image.shape
             # posX, posY = self.getWindowPosition(self.imgIndex, shape[1])
             # cv2.moveWindow(title, posX, posY)
