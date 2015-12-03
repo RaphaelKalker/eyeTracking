@@ -1,8 +1,13 @@
 import cv2
 #from Analyzer import Analyzer
 from Analyzer2 import Analyzer2
-from redis import Redis
-from rq import Queue
+#from redis import Redis
+#from rq import Queue
+
+import sys
+sys.path.insert(0, '../pyCam/')
+import Cam2
+import Cam1
 
 import os
 
@@ -10,6 +15,7 @@ import os
 # class Start(object):
 
 DEFAULT_DIRECTORY = 'imageLeftCam'
+IMAGE_DIRECTORY = './processing/'
 
 def analyzeImages():
 
@@ -33,10 +39,21 @@ def analyzeSimulatedBuffer(src):
 
 def takeLeftPicture():
     print 'takeLeftPicutre'
-    ##analyze
+    cam2 = Cam2.Cam2(IMAGE_DIRECTORY)
+    cam2.takeImg()
+    leftImgDir = cam2.getImg()
+    cam2.closeConn()
+    print leftImgDir
+    return leftImgDir
 
 def takeRightPicture():
     print 'takeRightPicture'
+    cam1 = Cam1.Cam1(IMAGE_DIRECTORY)
+    cam1.takeImg()
+    rightImgDir = cam1.getImg()
+    cam1.closeConn()
+    print rightImgDir
+    return rightImgDir
 
 if  __name__ == '__main__':
 
@@ -47,8 +64,9 @@ if  __name__ == '__main__':
     # resultRight = q.enqueue(takeRightPicture())
     #
     # analyzeImages()
-    analyzeSimulatedBuffer('image1398285888.jpg')
-
-
-
-
+#    analyzeSimulatedBuffer('image1398285888.jpg')
+    leftImg = takeLeftPicture()
+    rightImg = takeRightPicture()
+    print "process image in Analyzer2"
+#    a = Analyzer2(leftImg)
+#    a.loadImage()
