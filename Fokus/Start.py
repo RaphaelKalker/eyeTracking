@@ -32,8 +32,9 @@ def processImages():
     for image in files:
 
         if image.startswith('L'):
-            left = Analyzer2(image, Const.Camera.LEFT)
-            left.loadImage()
+            # left = Analyzer2(image, Const.Camera.LEFT)
+            # left.loadImage()
+            pass
         elif image.startswith('R'):
             right = Analyzer2(image, Const.Camera.RIGHT)
             right.loadImage()
