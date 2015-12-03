@@ -117,16 +117,25 @@ class Analyzer2:
         kernel = np.ones((3,3),np.uint8)
         iter = 1
         dilation = cv2.dilate(self.imageThreshold, kernel, iterations = iter)
-        # self.showImage('Dilated', dilation)
+        self.showImage('Dilated', dilation)
 
-        closing = cv2.morphologyEx(dilation, cv2.MORPH_CLOSE, kernel)
+        erosion = cv2.erode(dilation, kernel, iterations=3)
+        self.showImage('Erosion', erosion)
 
-        # self.showImage('Closing', closing)
+        opening = cv2.morphologyEx(erosion, cv2.MORPH_OPEN, kernel)
+        self.showImage('Opening', opening)
+
+        closing = cv2.morphologyEx(dilation, cv2.MORPH_ELLIPSE, kernel)
+
+        self.showImage('Closing', closing)
 
         self.imageThreshold = dilation
 
 
-
+        #Corner Detection
+        self.imageCanny = self.originalImage.copy()
+        lB, uB = Const.Canny.getParams(self.cameraType)
+        self.findCornerCandidate(self.imageCanny, lB, uB)
 
         #Hough Circles
         self.doHoughTransform(self.imageThreshold)
@@ -255,7 +264,7 @@ class Analyzer2:
 
     def findCornerCandidate(self, img, lowerBound, upperBound):
         blur = cv2.GaussianBlur(img, (9, 9), 0)
-        # self.showImage('Blurred', blur)
+        self.showImage('Blurred', blur)
 
         edges = cv2.Canny(blur, lowerBound, upperBound)
         self.showImage('Canny', edges)
@@ -279,7 +288,6 @@ class Analyzer2:
             corners[mostLikelyX -offset : mostLikelyX + offset, mostLikelyY - offset: mostLikelyY + offset] = [0,255,255]
 
             self.showImage('Corners', corners)
-            self.showImage('Canny', edges)
 
         #x,y are switched
 
@@ -462,6 +470,7 @@ class Analyzer2:
     def showImage(self, title, image):
         if platform.system() == Const.MAC:
             cv2.imshow(title, image)
+            cv2.imwrite(title + '.jpg', image)
             shape = image.shape
             # posX, posY = self.getWindowPosition(self.imgIndex, shape[1])
             # cv2.moveWindow(title, posX, posY)
