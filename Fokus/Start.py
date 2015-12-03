@@ -1,71 +1,72 @@
 import cv2
-#from Analyzer import Analyzer
+import os
 from Analyzer2 import Analyzer2
 #from redis import Redis
 #from rq import Queue
 
-import sys
-sys.path.insert(0, '../pyCam/')
-import Cam2
-import Cam1
+import platform
+import Const
+import Utils
 import time
 
-import os
+
+if Utils.isBeagalBone():
+    import sys
+    import Cam2
+    import Cam1
+    sys.path.insert(0, '../pyCam/')
+
 
 
 # class Start(object):
 
 DEFAULT_DIRECTORY = 'imageLeftCam'
 IMAGE_DIRECTORY = './processing/'
-
-def analyzeImages():
-
-
-    rootDir = '.'
-
-    for dirName, subDirList, fileList in os.walk(rootDir):
-        for fname in fileList:
-            if fname.__contains__('jpg') and dirName.__contains__(DEFAULT_DIRECTORY):
-                a = Analyzer2(DEFAULT_DIRECTORY + '/' + fname)
-                a.loadImage()
+PROCESSING_DIR = 'processing/'
 
 
-def analyzeSimulatedBuffer(src):
+def processImages():
+    os.chdir(PROCESSING_DIR)
 
-    originalImage = cv2.imread(DEFAULT_DIRECTORY + '/' + src)
-    success,imageBuf = cv2.imencode('.jpg', originalImage)
+    files = [f for f in os.listdir('.') if os.path.isfile(f)]
+    for image in files:
 
-    a = Analyzer2(imageBuf)
-    a.loadImage()
+        if image.startswith('L'):
+            left = Analyzer2(image, Const.Camera.LEFT)
+            left.loadImage()
+        elif image.startswith('R'):
+            right = Analyzer2(image, Const.Camera.RIGHT)
+            right.loadImage()
+
+        else:
+            pass
 
 if  __name__ == '__main__':
 
-    # q = Queue(connection=Redis())
+    if Utils.isBeagalBone():
+        print 'Init BB System'
+        # initialize cameras
+        camRight = Cam1.Cam1(IMAGE_DIRECTORY)
+        camLeft = Cam2.Cam2(IMAGE_DIRECTORY)
 
+        # looping to capture and process images
+        for i in range(1,100):
+            timestamp = int(time.time())
+            camRight.takeImg()
+            camLeft.takeImg()
 
-    # resultLeft = q.enqueue(takeLeftPicture())
-    # resultRight = q.enqueue(takeRightPicture())
-    #
-    # analyzeImages()
-#    analyzeSimulatedBuffer('image1398285888.jpg')
+            rightImg = camRight.getImg(timestamp)
+            leftImg = camLeft.getImg(timestamp)
 
-    # initialize cameras
-    camRight = Cam1.Cam1(IMAGE_DIRECTORY)
-    camLeft = Cam2.Cam2(IMAGE_DIRECTORY)
+            print "process image in Analyzer2"
 
-    # looping to capture and process images
-    for i in range(1,100): 
-        timestamp = int(time.time())
-        camRight.takeImg()
-        camLeft.takeImg()
+            time.sleep(1)
 
-        rightImg = camRight.getImg(timestamp)
-        leftImg = camLeft.getImg(timestamp)
+        # close connections to cameras
+        cam1.closeConn()
+        cam2.closeConn()
 
         print "process image in Analyzer2"
-
-        time.sleep(1)
-
-    # close connections to cameras
-    cam1.closeConn()
-    cam2.closeConn()
+    else:
+        print 'Init Mac System'
+        processImages()
