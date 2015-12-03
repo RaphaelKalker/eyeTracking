@@ -71,7 +71,7 @@ class Cam1():
 		if b'\x76\0\x36\0\0' in resp:
 		    print "Picture taken"
 
-	def getImg(self):
+	def getImg(self, timestamp):
 		#Get JPG size
 		self.conn.write(b'\x56\0\x34\x01\0')
 		resp = ""
@@ -91,7 +91,7 @@ class Cam1():
 		resp = self.conn.read(5)
 		if b'\x76\0\x32\0\0' in resp:
 #			buff = self.conn.read(size)  #might work
-			fileName = self.opDir + "R" +str(int(time.time())) + ".jpg"
+			fileName = self.opDir + "R" +str(timestamp) + ".jpg"
 			with open(fileName, 'wb') as f:
 				while (self.conn.inWaiting() > 0):
 				    data = self.conn.read()

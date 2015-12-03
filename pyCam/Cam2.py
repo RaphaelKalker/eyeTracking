@@ -130,7 +130,7 @@ class Cam2():
 		# Send FBUF_CTRL command to stop current frame updating, the parameter is 0x00.
 		self.controlFrame(FBUF_CTRL, 0x00)
 
-	def getImg(self):
+	def getImg(self, timestamp):
 		# Send GET_FBUF_LEN command to get image lengths in FBUF.
 		buff_len = self.getBufferLen(GET_FBUF_LEN, 0x00)
 
@@ -144,7 +144,7 @@ class Cam2():
 								lowbit=buff_len[3])
 
 			if buff:
-				fileName = self.opDir + "L" +str(int(time.time())) + ".jpg"
+				fileName = self.opDir + "L" +str(timestamp) + ".jpg"
 				with open(fileName, 'w') as f:
 					for i in buff:
 						f.write(chr(i))

@@ -8,6 +8,7 @@ import sys
 sys.path.insert(0, '../pyCam/')
 import Cam2
 import Cam1
+import time
 
 import os
 
@@ -37,24 +38,6 @@ def analyzeSimulatedBuffer(src):
     a = Analyzer2(imageBuf)
     a.loadImage()
 
-def takeLeftPicture():
-    print 'takeLeftPicutre'
-    cam2 = Cam2.Cam2(IMAGE_DIRECTORY)
-    cam2.takeImg()
-    leftImgDir = cam2.getImg()
-    cam2.closeConn()
-    print leftImgDir
-    return leftImgDir
-
-def takeRightPicture():
-    print 'takeRightPicture'
-    cam1 = Cam1.Cam1(IMAGE_DIRECTORY)
-    cam1.takeImg()
-    rightImgDir = cam1.getImg()
-    cam1.closeConn()
-    print rightImgDir
-    return rightImgDir
-
 if  __name__ == '__main__':
 
     # q = Queue(connection=Redis())
@@ -65,8 +48,24 @@ if  __name__ == '__main__':
     #
     # analyzeImages()
 #    analyzeSimulatedBuffer('image1398285888.jpg')
-    leftImg = takeLeftPicture()
-    rightImg = takeRightPicture()
-    print "process image in Analyzer2"
-#    a = Analyzer2(leftImg)
-#    a.loadImage()
+
+    # initialize cameras
+    camRight = Cam1.Cam1(IMAGE_DIRECTORY)
+    camLeft = Cam2.Cam2(IMAGE_DIRECTORY)
+
+    # looping to capture and process images
+    for i in range(1,100): 
+        timestamp = int(time.time())
+        camRight.takeImg()
+        camLeft.takeImg()
+
+        rightImg = camRight.getImg(timestamp)
+        leftImg = camLeft.getImg(timestamp)
+
+        print "process image in Analyzer2"
+
+        time.sleep(1)
+
+    # close connections to cameras
+    cam1.closeConn()
+    cam2.closeConn()
