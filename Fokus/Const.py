@@ -13,7 +13,7 @@ class Camera():
     RIGHT   = 1
 
 class Threshold():
-    LEFT    = 180
+    LEFT    = 190
     RIGHT   = 200
 
     @classmethod
@@ -31,7 +31,7 @@ class HoughParamaters():
     LEFT_PARAM_2        = 40
 
     RIGHT_MAX_RADIUS    = 20
-    RIGHT_MIN_MINRADIUS = 8
+    RIGHT_MIN_RADIUS = 8
     RIGHT_PARAM_1       = 1
     RIGHT_PARAM_2       = 40
 

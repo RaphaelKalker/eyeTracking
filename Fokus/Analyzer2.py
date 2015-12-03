@@ -102,27 +102,17 @@ class Analyzer2:
 
         #Create a region of interest by selection
         # self.roi = Analyzer2.findRegionOfInterest(originalImage)
-        self.roi = originalImage.copy()
-        selectableWindow = 'Grey Image'
-        self.showImage('ROI', self.roi)
-        cv2.setMouseCallback(selectableWindow, self.onPointSelected)
-
-
-
-
-
-
+        # self.roi = originalImage.copy()
+        # selectableWindow = 'Grey Image'
+        # # self.showImage('ROI', self.roi)
+        # cv2.setMouseCallback(selectableWindow, self.onPointSelected)
 
         #Convert to HSV
         self.imageHSV = cv2.cvtColor(originalImage, cv2.COLOR_BGR2HSV_FULL)
-        self.showImage('Yolo', self.imageHSV)
+        # self.showImage('Yolo', self.imageHSV)
 
         #Threshold the image
         self.doThreshold()
-
-
-
-
 
         kernel = np.ones((3,3),np.uint8)
         iter = 1
@@ -273,7 +263,7 @@ class Analyzer2:
 
         candidatesYX =  (dst > 0.01 * dst.max()).nonzero()
 
-        if not candidatesYX or not candidatesYX[0] or not candidatesYX[1]:
+        if not candidatesYX or len(candidatesYX[0]) != 0 or len(candidatesYX[1]) != 0:
             print 'Failed to find corners!'
         else:
             ind = candidatesYX[1].argmax(axis=0)
