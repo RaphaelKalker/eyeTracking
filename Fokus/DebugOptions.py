@@ -34,9 +34,12 @@ cannyUb = 0
 def nothing(dummyVar = None):
     pass
 
-def initHoughOptions(callback):
+def initHoughOptions(cameraType, callback):
 
     global p1, p2, minR, maxR, cannyUb, cannyLb
+
+    #get default start values
+    p1, p2, minR, maxR = Const.HoughParamaters.getParams(cameraType)
 
     # Create a black image, a window
     img = np.zeros((200,300,3), np.uint8)
@@ -49,10 +52,10 @@ def initHoughOptions(callback):
     cv2.createTrackbar(CANNY_LOW, WINDOW, 0, 255, nothing)
     cv2.createTrackbar(CANNY_HIGH, WINDOW, 0, 255, nothing)
 
-    cv2.setTrackbarPos(PARAM1, WINDOW, HOUGH_PARAM1)
-    cv2.setTrackbarPos(PARAM2, WINDOW, 40)
-    cv2.setTrackbarPos(MIN_RAD, WINDOW, HOUGH_MIN_RADIUS)
-    cv2.setTrackbarPos(MAX_RAD, WINDOW, HOUGH_MAX_RADIUS)
+    cv2.setTrackbarPos(PARAM1, WINDOW, p1)
+    cv2.setTrackbarPos(PARAM2, WINDOW, p2)
+    cv2.setTrackbarPos(MIN_RAD, WINDOW, minR)
+    cv2.setTrackbarPos(MAX_RAD, WINDOW, maxR)
 
     cv2.setTrackbarPos(CANNY_LOW, WINDOW, 35)
     cv2.setTrackbarPos(CANNY_HIGH, WINDOW, 150)
