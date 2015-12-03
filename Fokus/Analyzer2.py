@@ -117,11 +117,11 @@ class Analyzer2:
         kernel = np.ones((3,3),np.uint8)
         iter = 1
         dilation = cv2.dilate(self.imageThreshold, kernel, iterations = iter)
-        self.showImage('Dilated', dilation)
+        # self.showImage('Dilated', dilation)
 
         closing = cv2.morphologyEx(dilation, cv2.MORPH_CLOSE, kernel)
 
-        self.showImage('Closing', closing)
+        # self.showImage('Closing', closing)
 
         self.imageThreshold = dilation
 
@@ -255,9 +255,10 @@ class Analyzer2:
 
     def findCornerCandidate(self, img, lowerBound, upperBound):
         blur = cv2.GaussianBlur(img, (9, 9), 0)
-        self.showImage('Blurred', blur)
+        # self.showImage('Blurred', blur)
 
         edges = cv2.Canny(blur, lowerBound, upperBound)
+        self.showImage('Canny', edges)
         dst = cv2.cornerHarris(edges, 3, 21, 0.2)
         dst = cv2.dilate(dst, None)
 
@@ -462,9 +463,9 @@ class Analyzer2:
         if platform.system() == Const.MAC:
             cv2.imshow(title, image)
             shape = image.shape
-            posX, posY = self.getWindowPosition(self.imgIndex, shape[1])
-            cv2.moveWindow(title, posX, posY)
-            self.imgIndex += 1
+            # posX, posY = self.getWindowPosition(self.imgIndex, shape[1])
+            # cv2.moveWindow(title, posX, posY)
+            # self.imgIndex += 1
 
 
     def printDebugInfo(self):
