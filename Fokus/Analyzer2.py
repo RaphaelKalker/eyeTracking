@@ -264,7 +264,7 @@ class Analyzer2:
 
         candidatesYX =  (dst > 0.01 * dst.max()).nonzero()
 
-        if not candidatesYX or len(candidatesYX[0]) != 0 or len(candidatesYX[1]) != 0:
+        if not candidatesYX or len(candidatesYX[0]) == 0 or len(candidatesYX[1]) == 0:
             print 'Failed to find corners!'
         else:
             ind = candidatesYX[1].argmax(axis=0)
