@@ -29,9 +29,11 @@ class ImageHelper(object):
         if platform.system() == Const.MAC and FeatureDebug.IMAGES:
 
             cv2.imshow(title, image)
-            timestamp = int(round(time.time() * 1000))
-            cv2.imwrite('../results/' + title + str(timestamp) + '.jpg', image)
             shape = image.shape
+
+            if FeatureDebug.SAVE_IMAGES:
+                timestamp = int(round(time.time() * 1000))
+                cv2.imwrite('../results/' + title + str(timestamp) + '.jpg', image)
 
             if title not in cls.imageDict:
                 cls.imageDict.update({title : cls.newestIndex})
