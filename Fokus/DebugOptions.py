@@ -1,8 +1,9 @@
 import cv2
 import numpy as np
-import Analyzer
 import sys
+import Analyzer
 import Const
+import FeatureDebug
 
 WINDOW = 'Options'
 
@@ -36,86 +37,101 @@ def nothing(dummyVar = None):
 
 def initHoughOptions(cameraType, callback):
 
-    global p1, p2, minR, maxR, cannyUb, cannyLb
+    if FeatureDebug.TRACKBAR:
 
-    #get default start values
-    p1, p2, minR, maxR = Const.HoughParamaters.getParams(cameraType)
-    cannyLb, cannyUb = Const.Canny.getParams(cameraType)
+        global p1, p2, minR, maxR, cannyUb, cannyLb, adaptive1
 
-    # Create a black image, a window
-    img = np.zeros((200,300,3), np.uint8)
-    cv2.namedWindow(WINDOW)
-    cv2.createTrackbar(PARAM1, WINDOW, 0, Analyzer.HOUGH_PARAM1, nothing)
-    cv2.createTrackbar(MIN_RAD, WINDOW, 0, 255, nothing)
-    cv2.createTrackbar(PARAM2, WINDOW, 0, Analyzer.HOUGH_MAX_PARAM2, nothing)
-    cv2.createTrackbar(MAX_RAD, WINDOW, 0, Analyzer.HOUGH_MAX_RADIUS, nothing)
-    cv2.createTrackbar(WINDOW_BOUND, WINDOW, 0, 100, nothing)
-    cv2.createTrackbar(CANNY_LOW, WINDOW, 0, 255, nothing)
-    cv2.createTrackbar(CANNY_HIGH, WINDOW, 0, 255, nothing)
+        #get default start values
+        p1, p2, minR, maxR = Const.HoughParamaters.getParams(cameraType)
+        cannyLb, cannyUb = Const.Canny.getParams(cameraType)
+        adaptive1 = 11
 
-    cv2.setTrackbarPos(PARAM1, WINDOW, p1)
-    cv2.setTrackbarPos(PARAM2, WINDOW, p2)
-    cv2.setTrackbarPos(MIN_RAD, WINDOW, minR)
-    cv2.setTrackbarPos(MAX_RAD, WINDOW, maxR)
+        # Create a black image, a window
+        img = np.zeros((200,300,3), np.uint8)
+        cv2.namedWindow(WINDOW)
+        cv2.createTrackbar(PARAM1, WINDOW, 0, HOUGH_PARAM1, nothing)
+        cv2.createTrackbar(MIN_RAD, WINDOW, 0, 255, nothing)
+        cv2.createTrackbar(PARAM2, WINDOW, 0, HOUGH_MAX_PARAM2, nothing)
+        cv2.createTrackbar(MAX_RAD, WINDOW, 0, HOUGH_MAX_RADIUS, nothing)
+        cv2.createTrackbar(WINDOW_BOUND, WINDOW, 0, 100, nothing)
+        cv2.createTrackbar(CANNY_LOW, WINDOW, 0, 255, nothing)
+        cv2.createTrackbar(CANNY_HIGH, WINDOW, 0, 255, nothing)
+        cv2.createTrackbar('Block Size', WINDOW, -21, 21, nothing)
 
-    cv2.setTrackbarPos(CANNY_LOW, WINDOW, 35)
-    cv2.setTrackbarPos(CANNY_HIGH, WINDOW, 150)
+        cv2.setTrackbarPos(PARAM1, WINDOW, p1)
+        cv2.setTrackbarPos(PARAM2, WINDOW, p2)
+        cv2.setTrackbarPos(MIN_RAD, WINDOW, minR)
+        cv2.setTrackbarPos(MAX_RAD, WINDOW, maxR)
 
-    while(1):
-        cv2.imshow(WINDOW,img)
-        cv2.moveWindow(WINDOW, 0, 500)
-        k = cv2.waitKey(1) & 0xFF
-        if k == ord('q'):
-            Analyzer.close()
-            break
-        elif k == ord('e'):
-            sys.exit('Force Close')
+        cv2.setTrackbarPos(CANNY_LOW, WINDOW, 35)
+        cv2.setTrackbarPos(CANNY_HIGH, WINDOW, 150)
 
-        p1Temp = cv2.getTrackbarPos(PARAM1, WINDOW)
-        p2Temp = cv2.getTrackbarPos(PARAM2, WINDOW)
-        minRTemp = cv2.getTrackbarPos(MIN_RAD, WINDOW)
-        maxRTemp = cv2.getTrackbarPos(MAX_RAD, WINDOW)
-        cannyLbTemp = cv2.getTrackbarPos(CANNY_LOW, WINDOW)
-        cannyUbTemp = cv2.getTrackbarPos(CANNY_HIGH, WINDOW)
+        cv2.setTrackbarPos('Block Size', WINDOW, 11)
 
-        updatedHoughCircle = False
-        updatedCanny = False
+        while(1):
+            cv2.imshow(WINDOW,img)
+            cv2.moveWindow(WINDOW, 0, 500)
+            k = cv2.waitKey(1) & 0xFF
+            if k == ord('q'):
+                Analyzer.close()
+                break
+            elif k == ord('e'):
+                sys.exit('Force Close')
 
-        if p1Temp != p1:
-            p1 = p1Temp
-            updatedHoughCircle = True
+            p1Temp = cv2.getTrackbarPos(PARAM1, WINDOW)
+            p2Temp = cv2.getTrackbarPos(PARAM2, WINDOW)
+            minRTemp = cv2.getTrackbarPos(MIN_RAD, WINDOW)
+            maxRTemp = cv2.getTrackbarPos(MAX_RAD, WINDOW)
+            cannyLbTemp = cv2.getTrackbarPos(CANNY_LOW, WINDOW)
+            cannyUbTemp = cv2.getTrackbarPos(CANNY_HIGH, WINDOW)
+            adaptive1Temp = cv2.getTrackbarPos('Block Size', WINDOW)
 
-        if p2Temp != p2:
-            p2 = p2Temp
-            updatedHoughCircle = True
+            updatedHoughCircle = False
+            updatedCanny = False
+            updatedAdaptive = False
 
-        if minRTemp != minR:
-            minR = minRTemp
-            updatedHoughCircle = True
+            if p1Temp != p1:
+                p1 = p1Temp
+                updatedHoughCircle = True
 
-        if maxRTemp != maxR:
-            maxR = maxRTemp
-            updatedHoughCircle = True
+            if p2Temp != p2:
+                p2 = p2Temp
+                updatedHoughCircle = True
 
-        if cannyLbTemp != cannyLb:
-            cannyLb = cannyLbTemp
-            updatedCanny = True
+            if minRTemp != minR:
+                minR = minRTemp
+                updatedHoughCircle = True
 
-        if cannyUbTemp != cannyUb:
-            cannyUb = cannyUbTemp
-            updatedCanny = True
+            if maxRTemp != maxR:
+                maxR = maxRTemp
+                updatedHoughCircle = True
 
-        if updatedHoughCircle:
-            callback(Const.Trackbar.Hough, param1 = p1, param2 = p2, minRadius = minR, maxRadius = maxR)
-            pass
+            if cannyLbTemp != cannyLb:
+                cannyLb = cannyLbTemp
+                updatedCanny = True
 
-        if updatedCanny:
-            callback(Const.Trackbar.Canny, cannyLb = cannyLb, cannyUb = cannyUb)
-            pass
+            if cannyUbTemp != cannyUb:
+                cannyUb = cannyUbTemp
+                updatedCanny = True
+
+            if adaptive1Temp !=  adaptive1:
+                adaptive1 = adaptive1Temp
+                updatedAdaptive = True
+
+            if updatedHoughCircle:
+                callback(Const.Trackbar.Hough, param1 = p1, param2 = p2, minRadius = minR, maxRadius = maxR)
+                pass
+
+            if updatedCanny:
+                callback(Const.Trackbar.Canny, cannyLb = cannyLb, cannyUb = cannyUb)
+                pass
+
+            if updatedAdaptive:
+                callback(Const.Trackbar.AdaptiveThreshold, blockSize = adaptive1)
 
 
 
-    cv2.destroyWindow(WINDOW)
+        cv2.destroyWindow(WINDOW)
 
 
 

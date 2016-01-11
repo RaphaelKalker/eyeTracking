@@ -1,24 +1,14 @@
-import cv2
 import os
-from Analyzer2 import Analyzer2
-#from redis import Redis
-#from rq import Queue
-
-import platform
+from Analyzer import Analyzer
 import Const
 import Utils
 import time
-
 
 if Utils.isBeagalBone():
     import sys
     import Cam2
     import Cam1
     sys.path.insert(0, '../pyCam/')
-
-
-
-# class Start(object):
 
 DEFAULT_DIRECTORY = 'imageLeftCam'
 IMAGE_DIRECTORY = './processing/'
@@ -32,12 +22,13 @@ def processImages():
     for image in files:
 
         if image.startswith('L'):
-            # left = Analyzer2(image, Const.Camera.LEFT)
-            # left.loadImage()
+            left = Analyzer(image, Const.Camera.LEFT)
+            left.loadImage()
             pass
         elif image.startswith('R'):
-            right = Analyzer2(image, Const.Camera.RIGHT)
-            right.loadImage()
+            # right = Analyzer2(image, Const.Camera.RIGHT)
+            # right.loadImage()
+            pass
 
         else:
             pass
