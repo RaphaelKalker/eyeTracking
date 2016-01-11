@@ -20,12 +20,22 @@ class Threshold():
     LEFT    = 190
     RIGHT   = 205
 
+    LEFT_NORMALIZED = 245
+    RIGHT_NORMALZED = 240
+
     @classmethod
     def getMin(cls, cameraType):
         if cameraType == Const.Camera.LEFT:
             return cls.LEFT
         else:
             return cls.RIGHT
+
+    @classmethod
+    def getNormalizedMin(cls, cameraType):
+        if cameraType == Const.Camera.LEFT:
+            return cls.LEFT_NORMALIZED
+        else:
+            return cls.RIGHT_NORMALZED
 
 
 class HoughParamaters():

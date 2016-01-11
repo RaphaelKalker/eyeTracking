@@ -1,5 +1,6 @@
 import cv2
 import Const
+import FeatureDebug
 from ImageHelper import ImageHelper
 
 __author__ = 'Raphael'
@@ -15,14 +16,21 @@ class Threshold(object):
         self.image = image
         self.cameraType = cameraType
 
+    def preProcessGrayScale(self):
+        cv2.equalizeHist(self.image, self.image)
+        ImageHelper.showImage('Normalized', self.image)
+        pass
+
     def getBinaryThreshold(self):
         minThresh = Const.Threshold.getMin(self.cameraType)
         # maxThresh = Const.Threshold.getMax(self.cameraType)
 
-        retval, output = cv2.threshold(self.image, minThresh, MAXVAL, cv2.THRESH_BINARY)
-        retval2, output2 = cv2.threshold(self.image, minThresh, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+        if FeatureDebug.NORMALIZE_GRAYSCALE:
+            self.preProcessGrayScale()
+            minThresh = Const.Threshold.getNormalizedMin(self.cameraType)
 
-        print 'retval' +  str(output2)
+        _, output = cv2.threshold(self.image, minThresh, MAXVAL, cv2.THRESH_BINARY)
+        _, output2 = cv2.threshold(self.image, minThresh, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 
 
         ImageHelper.showImage('Threshold Image', output)
