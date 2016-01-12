@@ -13,13 +13,17 @@ if Utils.isBeagalBone():
 DEFAULT_DIRECTORY = 'imageLeftCam'
 IMAGE_DIRECTORY = './processing/'
 PROCESSING_DIR = 'processing/'
+PROCESSING_DIR_JAN_11 = 'image/Jan11'
 
 
 def processImages():
-    os.chdir(PROCESSING_DIR)
+    os.chdir(PROCESSING_DIR_JAN_11)
 
     files = [f for f in os.listdir('.') if os.path.isfile(f)]
     for image in files:
+
+        if not image.endswith('.jpg'):
+            continue #skip 
 
         if image.startswith('L'):
             left = Analyzer(image, Const.Camera.LEFT)
@@ -31,6 +35,8 @@ def processImages():
             pass
 
         else:
+            left = Analyzer(image, Const.Camera.LEFT)
+            left.loadImage()
             pass
 
 if  __name__ == '__main__':
