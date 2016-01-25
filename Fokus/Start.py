@@ -3,12 +3,16 @@ from Analyzer import Analyzer
 import Const
 import Utils
 import time
+import sys
+import logging
+
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 if Utils.isBeagalBone():
-    import sys
-    import Cam2
-    import Cam1
     sys.path.insert(0, '../pyCam/')
+    import Cam1
+    import Cam2
 
 DEFAULT_DIRECTORY = 'imageLeftCam'
 IMAGE_DIRECTORY = './processing/'
@@ -42,7 +46,8 @@ def processImages():
 if  __name__ == '__main__':
 
     if Utils.isBeagalBone():
-        print 'Init BB System'
+        logger.info('Init BB System')
+
         # initialize cameras
         camRight = Cam1.Cam1(IMAGE_DIRECTORY)
         camLeft = Cam2.Cam2(IMAGE_DIRECTORY)
@@ -56,15 +61,13 @@ if  __name__ == '__main__':
             rightImg = camRight.getImg(timestamp)
             leftImg = camLeft.getImg(timestamp)
 
-            print "process image in Analyzer2"
-
+#            print "process image in Analyzer2"
             time.sleep(1)
 
         # close connections to cameras
         cam1.closeConn()
         cam2.closeConn()
 
-        print "process image in Analyzer2"
     else:
-        print 'Init Mac System'
+        logger.info('Init Mac System')
         processImages()

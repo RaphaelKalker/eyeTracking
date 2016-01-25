@@ -4,7 +4,7 @@ import serial
 import copy
 
 BAUD = 38400 
-PORT = "/dev/ttyO1"      # change this to your com port!
+PORT = "/dev/ttyO4"      # change this to your com port!
 TIMEOUT = 0.2
 
 SERIALNUM = 0x00

@@ -2,12 +2,15 @@ import sys
 import time
 import serial
 import copy
+import logging
+
+logger = logging.getLogger(__name__)
 
 class Cam1():
 	def __init__(self, outputDir ):
 		self.opDir = outputDir
 		# Initialize camera
-		self.conn = serial.Serial("/dev/ttyO4", baudrate=38400)
+		self.conn = serial.Serial("/dev/ttyO1", baudrate=38400)
 
 		#reset the camera
 		self.conn.write(b'\x56\0\x26\0')
@@ -18,10 +21,10 @@ class Cam1():
 		    data = self.conn.read()
 		    resp += data
 
-		print " ".join(hex(ord(n)) for n in resp)
+                logger.info( " ".join(hex(ord(n)) for n in resp))
 		    
 		if "Init end\r\n" in resp:
-		   print "Ready"
+                   logger.info("init successful")
 
 
 		#lower image size to 160x120
@@ -32,7 +35,7 @@ class Cam1():
 		while (self.conn.inWaiting() > 0):
 		    data = self.conn.read()
 		    resp += data
-		print " ".join(hex(ord(n)) for n in resp)
+                logger.info( " ".join(hex(ord(n)) for n in resp))
 
 		#increase compression ratio
 		self.conn.write(b'\x56\0\x31\x05\x01\x01\x12\x04\x25')
@@ -42,7 +45,7 @@ class Cam1():
 		while (self.conn.inWaiting() > 0):
 		    data = self.conn.read()
 		    resp += data
-		print " ".join(hex(ord(n)) for n in resp)
+                logger.info( " ".join(hex(ord(n)) for n in resp))
 
 		#change baud rate to 115200
 		self.conn.write(b'\x56\0\x24\x03\x01\x0d\0xa6')
@@ -52,11 +55,11 @@ class Cam1():
 		    data = self.conn.read()
 		    resp += data
 
-		print " ".join(hex(ord(n)) for n in resp)
+                logger.info(" ".join(hex(ord(n)) for n in resp))
 
 		#change the baudrate set earlier
 		self.conn.baudrate = 115200
-		print "camera 1 init finished"
+                logger.info("init finished")
 
 	def takeImg(self): 
 		#take photo
@@ -66,10 +69,9 @@ class Cam1():
 		while (self.conn.inWaiting() > 0):
 		    data = self.conn.read()
 		    resp += data
-		print resp
 
 		if b'\x76\0\x36\0\0' in resp:
-		    print "Picture taken"
+                    logger.info("picture taken")
 
 	def getImg(self, timestamp):
 		#Get JPG size
@@ -83,8 +85,8 @@ class Cam1():
 			msb = self.conn.read()
 			lsb = self.conn.read()
 			size = (ord(msb) << 8 | ord(lsb))
-		print "picture size response"
-		print resp
+
+                        logger.info("picture size received")
 
 		# Write image to file
 		self.conn.write(b'\x56\0\x32\x0C\0\x0A\0\0\0\0\0\0%c%c\0\x0A' % (msb,lsb))
@@ -96,7 +98,7 @@ class Cam1():
 				while (self.conn.inWaiting() > 0):
 				    data = self.conn.read()
 				    f.write('%c' % data)
-			print "Image written to output/%s" % (fileName)
+                        logger.info( "Image written to output/%s", fileName)
 			return fileName
 
 	def closeConn(self):
