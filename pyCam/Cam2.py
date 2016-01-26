@@ -2,9 +2,12 @@ import sys
 import time
 import serial
 import copy
+import logging
+
+logger = logging.getLogger(__name__)
 
 BAUD = 38400 
-PORT = "/dev/ttyO1"      # change this to your com port!
+PORT = "/dev/ttyO4"      # change this to your com port!
 TIMEOUT = 0.2
 
 SERIALNUM = 0x00
@@ -32,6 +35,7 @@ class Cam2():
 	def __init__(self, outputDir ):
 		self.opDir = outputDir
 		self.conn = serial.Serial(PORT, baudrate=BAUD, timeout=TIMEOUT)
+                logger.info("port: %s", PORT)
 
 		self.getVersion(getversioncommand, 0x11)
 
@@ -44,19 +48,19 @@ class Cam2():
 		# Compression ratio is between 0x00 to 0xFF
 		self.setImageCompression(0x26)
 		self.setBaudRate(115200)
+                logger.info("init successful")
 
 	def checkreply(self, r, b):
 		try:
 			r = map (ord, r)
 			if (r[0] == 0x76 and r[1] == SERIALNUM and r[2] == b and r[3] == 0x00):
-				print "\tcheck reply is true"
+                                logger.info("check reply is true")
 				return True
 			else:
-				print "\tcheck reply is false"
+                                logger.info("check reply is false")
 		except:
 			e = sys.exc_info()[0]
-			print "checkreply error"
-			print e
+                        logger.warning("checkreply error: %s", e)
 		return False
 
 	def getVersion(self, cmd, replyCheck):
@@ -95,14 +99,15 @@ class Cam2():
 		lowbit = kwargs['lowbit']
 		length = highbit << 8 | lowbit
 		
-		print "reading buffer"
+                logger.info("reading buffer")
+                
 		rp = self.serialComm(read_fbuf_cmd, length+10000)
 
 		dataStart = [0x76, 0x00, 0x32, 0x00, 0x00, 0xFF, 0xD8]
 		dataEnd = [0xFF, 0xD9, 0x76, 0x00, 0x32, 0x00, 0x00]
 
 		if rp[:7] == dataStart and rp[len(rp)-7:] == dataEnd:
-			print "image data received"
+                        logger.info("image data received")
 			return rp[5:len(rp)-5]
 		return
 
