@@ -1,0 +1,44 @@
+{
+    "fileName": "",
+    "cameraType": "",
+    "color": "",
+    "verified": {
+      "x": "",
+      "y": "",
+      "isReading": "True",
+      "radius": ""
+    },
+    "imageProperties": {
+      "mean": "",
+      "variance": ""
+    },
+    "heuristics": [
+      {
+        "histogramNormalized": "",
+        "threshold": "",
+        "hough": {
+          "param1": "",
+          "param2": "",
+          "minRadius": "",
+          "maxRadius": "",
+          "x": "",
+          "y": "",
+          "radius": ""
+        },
+        "contour": {
+          "minRadius": "",
+          "x": "",
+          "y": "",
+          "radius": ""
+        },
+
+      }
+    ]
+  }
+}
+
+eyeball.verifiedParams.x > eyeball.estimatedParams.hough.x
+
+//morphology
+//power transformation
+//square transformation
