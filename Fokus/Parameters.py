@@ -1,5 +1,5 @@
 from enum import Enum
-import Const
+import Parameters
 
 MAC = 'Darwin'
 
@@ -25,14 +25,14 @@ class Threshold():
 
     @classmethod
     def getMin(cls, cameraType):
-        if cameraType == Const.Camera.LEFT:
+        if cameraType == Parameters.Camera.LEFT:
             return cls.LEFT
         else:
             return cls.RIGHT
 
     @classmethod
     def getNormalizedMin(cls, cameraType):
-        if cameraType == Const.Camera.LEFT:
+        if cameraType == Parameters.Camera.LEFT:
             return cls.LEFT_NORMALIZED
         else:
             return cls.RIGHT_NORMALZED
@@ -58,7 +58,7 @@ class HoughParamaters():
 
     @classmethod
     def getParams(cls, cameraType):
-        if cameraType == Const.Camera.LEFT:
+        if cameraType == Parameters.Camera.LEFT:
             return (cls.LEFT_PARAM_1, cls.LEFT_PARAM_2, cls.LEFT_MIN_RADIUS, cls.LEFT_MAX_RADIUS)
         else:
             return (cls.RIGHT_PARAM_1, cls.RIGHT_PARAM_2, cls.RIGHT_MIN_RADIUS, cls.RIGHT_MAX_RADIUS)
@@ -73,7 +73,7 @@ class Canny():
 
     @classmethod
     def getParams(cls, cameraType):
-        if cameraType == Const.Camera.LEFT:
+        if cameraType == Parameters.Camera.LEFT:
             return (cls.LEFT_LOW_BOUND, cls.LEFT_UPPER_BOUND)
         else:
             return (cls.RIGHT_LOW_BOUND, cls.RIGHT_UPPER_BOUND)

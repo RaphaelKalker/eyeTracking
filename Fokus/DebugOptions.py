@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 import sys
 import Analyzer
-import Const
+import Parameters
 import FeatureDebug
 
 WINDOW = 'Options'
@@ -42,8 +42,8 @@ def initHoughOptions(cameraType, callback):
         global p1, p2, minR, maxR, cannyUb, cannyLb, adaptive1
 
         #get default start values
-        p1, p2, minR, maxR = Const.HoughParamaters.getParams(cameraType)
-        cannyLb, cannyUb = Const.Canny.getParams(cameraType)
+        p1, p2, minR, maxR = Parameters.HoughParamaters.getParams(cameraType)
+        cannyLb, cannyUb = Parameters.Canny.getParams(cameraType)
         adaptive1 = 11
 
         # Create a black image, a window
@@ -119,15 +119,15 @@ def initHoughOptions(cameraType, callback):
                 updatedAdaptive = True
 
             if updatedHoughCircle:
-                callback(Const.Trackbar.Hough, param1 = p1, param2 = p2, minRadius = minR, maxRadius = maxR)
+                callback(Parameters.Trackbar.Hough, param1 = p1, param2 = p2, minRadius = minR, maxRadius = maxR)
                 pass
 
             if updatedCanny:
-                callback(Const.Trackbar.Canny, cannyLb = cannyLb, cannyUb = cannyUb)
+                callback(Parameters.Trackbar.Canny, cannyLb = cannyLb, cannyUb = cannyUb)
                 pass
 
             if updatedAdaptive:
-                callback(Const.Trackbar.AdaptiveThreshold, blockSize = adaptive1)
+                callback(Parameters.Trackbar.AdaptiveThreshold, blockSize = adaptive1)
 
 
 

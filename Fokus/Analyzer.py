@@ -3,7 +3,7 @@ import sys
 import CV_
 import math
 import copy
-import Const
+import Parameters
 from CornerDetection import CornerDetection
 import DebugOptions as tb
 import numpy as np
@@ -88,7 +88,7 @@ class Analyzer:
         ####TEMP
         blur = cv2.GaussianBlur(self.imageCanny, (9, 9), 0)
         ImageHelper.showImage('Blurred', blur)
-        lB, uB = Const.Canny.getParams(self.cameraType)
+        lB, uB = Parameters.Canny.getParams(self.cameraType)
         canny = cv2.Canny(blur, lB, uB)
 
         self.pupilDetector = PupilDetector(originalImage, processedImage, self.cameraType, self.saveInfo, self.parameters)
@@ -206,20 +206,20 @@ class Analyzer:
         print 'Updated Params ' + kwargs.__str__()
         self.saveInfo(kwargs)
 
-        if type is Const.Trackbar.Canny:
+        if type is Parameters.Trackbar.Canny:
             cannyLb = kwargs.get('cannyLb')
             cannyUp = kwargs.get('cannyUb')
             CornerDetection.findCornerCandidate(self.imageCanny, cannyLb, cannyUp)
 
-        elif type is Const.Trackbar.Hough:
-            param1 = kwargs.get(Const.HoughParamaters.PARAM_1)
-            param2 = kwargs.get(Const.HoughParamaters.PARAM_2)
-            minRad = kwargs.get(Const.HoughParamaters.MIN_RAD)
-            maxRad = kwargs.get(Const.HoughParamaters.MAX_RAD)
+        elif type is Parameters.Trackbar.Hough:
+            param1 = kwargs.get(Parameters.HoughParamaters.PARAM_1)
+            param2 = kwargs.get(Parameters.HoughParamaters.PARAM_2)
+            minRad = kwargs.get(Parameters.HoughParamaters.MIN_RAD)
+            maxRad = kwargs.get(Parameters.HoughParamaters.MAX_RAD)
             self.pupilDetector.doHoughTransform(param1, param2, minRad, maxRad)
 
-        elif type is Const.Trackbar.AdaptiveThreshold:
-            blockSize = kwargs.get(Const.Threshold.BLOCKSIZE)
+        elif type is Parameters.Trackbar.AdaptiveThreshold:
+            blockSize = kwargs.get(Parameters.Threshold.BLOCKSIZE)
             self.thresholder.getAdaptiveThreshold(blockSize)
 
     def doSelectiveHoughTransform(self, srcImage, param1=None, param2 = None, minRadius = None, maxRadius = None):

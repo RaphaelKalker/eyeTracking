@@ -1,7 +1,7 @@
 import time
 import platform
 import cv2
-import Const
+import Parameters
 
 import FeatureDebug
 
@@ -26,7 +26,7 @@ class ImageHelper(object):
     @classmethod
     def showImage(cls, title, image):
 
-        if platform.system() == Const.MAC and FeatureDebug.IMAGES:
+        if platform.system() == Parameters.MAC and FeatureDebug.IMAGES:
 
             cv2.imshow(title, image)
             shape = image.shape

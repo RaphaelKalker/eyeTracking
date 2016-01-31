@@ -2,7 +2,7 @@ import cv2
 import math
 import numpy as np
 import CV_
-import Const
+import Parameters
 from ImageHelper import ImageHelper
 
 __author__ = 'Raphael'
@@ -38,11 +38,12 @@ DEBUG_CANDIDATE_CORNER = 'CandidateCorner'
 
 class PupilDetector(object):
 
-    def __init__(self, originalImg, processedImg, cameraType, callback):
+    def __init__(self, originalImg, processedImg, cameraType, callback, params = None):
         self.originalImg = originalImg
         self.processedImg = processedImg
         self.cameraType = cameraType
         self.callback = callback
+        self.params = params
 
     def doHoughTransform(self, param1=None, param2 = None, minRadius = None, maxRadius = None):
 
@@ -50,7 +51,7 @@ class PupilDetector(object):
         result = self.originalImg.copy()
 
         if param1 is None or param2 is None or minRadius is None or maxRadius is None:
-            (param1, param2, minRadius, maxRadius) = Const.HoughParamaters.getParams(self.cameraType)
+            (param1, param2, minRadius, maxRadius) = Parameters.HoughParamaters.getParams(self.cameraType)
             # houghMinDistance = HOUGH_MIN_DIST
 
         houghCircles = CV_.HoughCirclesWithDefaultGradient(self.processedImg, DP, HOUGH_MIN_DIST,

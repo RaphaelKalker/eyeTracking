@@ -1,6 +1,6 @@
 import os
 from Analyzer import Analyzer
-import Const
+import Parameters
 import Utils
 import time
 import sys
@@ -30,7 +30,7 @@ def processImages():
             continue #skip 
 
         if image.startswith('L'):
-            left = Analyzer(image, Const.Camera.LEFT)
+            left = Analyzer(image, Parameters.Camera.LEFT)
             left.loadImage()
             pass
         elif image.startswith('R'):
@@ -39,7 +39,7 @@ def processImages():
             pass
 
         else:
-            left = Analyzer(image, Const.Camera.LEFT)
+            left = Analyzer(image, Parameters.Camera.LEFT)
             left.loadImage()
             pass
 

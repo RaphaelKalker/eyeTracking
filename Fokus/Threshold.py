@@ -1,5 +1,5 @@
 import cv2
-import Const
+import Parameters
 import FeatureDebug
 from ImageHelper import ImageHelper
 
@@ -22,7 +22,7 @@ class Threshold(object):
         pass
 
     def getBinaryThreshold(self):
-        minThresh = Const.Threshold.getMin(self.cameraType)
+        minThresh = Parameters.Threshold.getMin(self.cameraType)
         # maxThresh = Const.Threshold.getMax(self.cameraType)
 
         if FeatureDebug.NORMALIZE_GRAYSCALE:

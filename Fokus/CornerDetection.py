@@ -1,6 +1,6 @@
 import cv2
 import Analyzer
-import Const
+import Parameters
 from ImageHelper import ImageHelper
 
 __author__ = 'Raphael'
