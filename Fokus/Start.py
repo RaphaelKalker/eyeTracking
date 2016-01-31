@@ -1,6 +1,6 @@
 import os
 from Analyzer import Analyzer
-import Parameters
+from Parameters import Parameters
 import Utils
 import time
 import sys

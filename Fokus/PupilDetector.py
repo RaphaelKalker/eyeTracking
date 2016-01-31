@@ -51,7 +51,7 @@ class PupilDetector(object):
         result = self.originalImg.copy()
 
         if param1 is None or param2 is None or minRadius is None or maxRadius is None:
-            (param1, param2, minRadius, maxRadius) = Parameters.HoughParamaters.getParams(self.cameraType)
+            (param1, param2, minRadius, maxRadius) = self.params.HoughParamaters.getParams(self.cameraType)
             # houghMinDistance = HOUGH_MIN_DIST
 
         houghCircles = CV_.HoughCirclesWithDefaultGradient(self.processedImg, DP, HOUGH_MIN_DIST,
