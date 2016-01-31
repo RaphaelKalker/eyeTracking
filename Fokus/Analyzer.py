@@ -39,7 +39,7 @@ class Analyzer:
     startY = 0
 
     #src is either a file name, or an image buffer
-    def __init__(self, src, cameraType):
+    def __init__(self, src, cameraType, parameters=None):
 
         if isinstance(src, basestring):
             self.debugStats = dict({('Filename', src), ('CameraType', cameraType)})
@@ -58,6 +58,7 @@ class Analyzer:
 
         self.imgWidth, self.imgHeight = self.originalImage.shape[:2]
         self.imgIndex = 0
+        self.parameters = parameters #todo set default parameters
 
 
     def loadImage(self):
@@ -76,7 +77,7 @@ class Analyzer:
 
         #Threshold image -> req. new Threshold obj
 
-        self.thresholder = Threshold(self.imageGray, self.cameraType)
+        self.thresholder = Threshold(self.imageGray, self.cameraType, self.parameters)
         self.imageThreshold = self.thresholder.getBinaryThreshold()
         self.thresholder.getAdaptiveThreshold(150, 3, -5)
 
@@ -90,7 +91,7 @@ class Analyzer:
         lB, uB = Const.Canny.getParams(self.cameraType)
         canny = cv2.Canny(blur, lB, uB)
 
-        self.pupilDetector = PupilDetector(originalImage, processedImage, self.cameraType, self.saveInfo)
+        self.pupilDetector = PupilDetector(originalImage, processedImage, self.cameraType, self.saveInfo, self.parameters)
         self.pupilDetector.doHoughTransform()
         self.pupilDetector.findPupilCircle()
 
