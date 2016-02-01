@@ -31,16 +31,14 @@ def processImages():
 
         if image.startswith('L'):
             left = Analyzer(image, Parameters.Camera.LEFT)
-            left.loadImage()
             pass
         elif image.startswith('R'):
             # right = Analyzer2(image, Const.Camera.RIGHT)
-            # right.loadImage()
             pass
 
         else:
             left = Analyzer(image, Parameters.Camera.LEFT)
-            left.loadImage()
+            results = left.getHeuristics()
             pass
 
 if  __name__ == '__main__':
