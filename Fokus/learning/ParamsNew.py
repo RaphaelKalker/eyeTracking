@@ -59,6 +59,15 @@ class Threshold():
     def minNormalizedThresh(self, value):
         self.minNormalizedThresh = value
 
+    @property
+    def isNormalized(self):
+        return self.isNormalized
+
+    @isNormalized.setter
+    def isNormalized(self, value):
+        self.isNormalized = value
+        pass
+
 
     def __str__(self):
         return "Threshold -> min: %d | max: %d | normalizedMin: %d" % (self.minThresh, self.maxThresh, self.minNormalizedThresh)
