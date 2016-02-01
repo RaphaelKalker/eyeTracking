@@ -82,11 +82,11 @@ class Analyzer:
         morpher = Morphology(self.imageThreshold)
         processedImage = morpher.cleanImage()
 
-        ####TEMP
-        blur = cv2.GaussianBlur(self.imageCanny, (9, 9), 0)
-        ImageHelper.showImage('Blurred', blur)
-        lB, uB = self.params.Canny.getParams(self.cameraType)
-        canny = cv2.Canny(blur, lB, uB)
+        # ####TEMP
+        # blur = cv2.GaussianBlur(self.imageCanny, (9, 9), 0)
+        # ImageHelper.showImage('Blurred', blur)
+        # lB, uB = self.params.Canny.getParams(self.cameraType)
+        # canny = cv2.Canny(blur, lB, uB)
 
         self.pupilDetector = PupilDetector(originalImage, processedImage, self.cameraType, self.saveInfo, self.params)
         self.pupilDetector.doHoughTransform()
