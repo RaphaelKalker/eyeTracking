@@ -88,7 +88,7 @@ class Analyzer:
         # lB, uB = self.params.Canny.getParams(self.cameraType)
         # canny = cv2.Canny(blur, lB, uB)
 
-        self.pupilDetector = PupilDetector(originalImage, processedImage, self.cameraType, self.saveInfo, self.params)
+        self.pupilDetector = PupilDetector(originalImage, processedImage, self.cameraType, self.saveInfo, self.params, self.eyeball)
         self.pupilDetector.doHoughTransform()
         self.pupilDetector.findPupilCircle()
 

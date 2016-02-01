@@ -5,6 +5,7 @@ import Utils
 import time
 import sys
 import logging
+from learning.ParamsConstructor import ParamsConstructor
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -18,26 +19,26 @@ DEFAULT_DIRECTORY = 'imageLeftCam'
 IMAGE_DIRECTORY = './processing/'
 PROCESSING_DIR = 'processing/'
 PROCESSING_DIR_JAN_11 = 'image/Jan11'
+PROCESSING_DIR_JAN_13 = 'image/tim_jan13'
 
 
 def processImages():
-    os.chdir(PROCESSING_DIR_JAN_11)
+    os.chdir(PROCESSING_DIR_JAN_13)
 
-    files = [f for f in os.listdir('.') if os.path.isfile(f)]
+    params = ParamsConstructor().constructDefaultParams()
+
+    files = [f for f in os.listdir('.') if os.path.isfile(f) and f.endswith('jpg') or f.endswith('jpeg') ]
     for image in files:
 
-        if not image.endswith('.jpg'):
-            continue #skip 
-
         if image.startswith('L'):
-            left = Analyzer(image, Parameters.Camera.LEFT)
+            left = Analyzer(image, Parameters.Camera.LEFT, params)
             pass
         elif image.startswith('R'):
             # right = Analyzer2(image, Const.Camera.RIGHT)
             pass
 
         else:
-            left = Analyzer(image, Parameters.Camera.LEFT)
+            left = Analyzer(image, Parameters.Camera.LEFT, params)
             results = left.getHeuristics()
             pass
 
