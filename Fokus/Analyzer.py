@@ -46,13 +46,6 @@ class Analyzer:
             self.cameraType = cameraType
             self.originalImage = cv2.imread(src)
 
-        elif type(src).__module__ == 'numpy':
-            self.debugStats = dict({('Buffer', True)})
-            self.originalImage = cv2.imdecode(src, 1)
-
-        else:
-            raise AssertionError('Source input is invalid')
-
         if  self.originalImage is None:
             raise ValueError('Original Image was null')
 
