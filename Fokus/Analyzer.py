@@ -3,6 +3,7 @@ import sys
 import CV_
 import math
 import copy
+from EyeDict import EyeDict
 import Parameters
 from CornerDetection import CornerDetection
 import DebugOptions as tb
@@ -42,9 +43,10 @@ class Analyzer:
     def __init__(self, src, cameraType, params=None):
 
         if isinstance(src, basestring):
-            self.debugStats = dict({('Filename', src), ('CameraType', cameraType)})
+            self.eyeHeuristics = dict({('Filename', src), ('CameraType', cameraType)})
             self.cameraType = cameraType
             self.originalImage = cv2.imread(src)
+            self.eyeball = EyeDict(src)
 
         if  self.originalImage is None:
             raise ValueError('Original Image was null')
@@ -53,8 +55,10 @@ class Analyzer:
         self.imgIndex = 0
         self.params = Parameters.Parameters if params is None else params
 
+        self.analyze()
 
-    def loadImage(self):
+
+    def analyze(self):
 
         originalImage = self.originalImage.copy()
         self.imageCanny = self.originalImage.copy()
@@ -91,6 +95,9 @@ class Analyzer:
         #IR LED
         # self.findIrReflection(imageGray)
 
+        #fill in remaining parameters
+        self.eyeball.useParams(self.params)
+
         if FeatureDebug.PRINT:
             self.printDebugInfo()
 
@@ -108,6 +115,9 @@ class Analyzer:
                 cv2.destroyAllWindows()
             elif keyPressed == ord('e'):
                 forceExit()
+        elif Utils.isBeagalBone():
+            return self.eyeHeuristics
+
 
     def updateStats(self, info):
         self.saveInfo(info)
@@ -317,13 +327,16 @@ class Analyzer:
     #     # Analyzer.showImage(self, 'IR Reflection', irImage)
 
     def saveInfo(self, info):
-        self.debugStats.update(info)
+        self.eyeHeuristics.update(info)
+
+    def getHeuristics(self):
+        return self.eyeHeuristics
 
     def printDebugInfo(self):
 
         print '\n'
 
-        for k, v in self.debugStats.iteritems():
+        for k, v in self.eyeHeuristics.iteritems():
             print k + ':\t\t' + str(v)
 
         print '\n'
