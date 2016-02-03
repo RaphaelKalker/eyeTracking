@@ -75,12 +75,14 @@ class Analyzer:
         #Threshold image -> req. new Threshold obj
 
         self.thresholder = Threshold(self.imageGray, self.cameraType, self.params)
-        self.imageThreshold = self.thresholder.getBinaryThreshold()
+        processedImage = self.thresholder.getBinaryThreshold()
         self.thresholder.getAdaptiveThreshold(150, 3, -5)
 
         #Clean up the binary threshold image to get a better pupil representation
-        morpher = Morphology(self.imageThreshold)
-        processedImage = morpher.cleanImage()
+        if FeatureDebug.MORPHOLOGY:
+            morpher = Morphology(self.processedImage)
+            processedImage = morpher.cleanImage()
+        # else
 
         # ####TEMP
         # blur = cv2.GaussianBlur(self.imageCanny, (9, 9), 0)
