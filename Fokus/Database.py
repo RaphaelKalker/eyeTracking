@@ -4,7 +4,7 @@ from tinydb import TinyDB, Query
 __author__ = 'Raphael'
 
 SUBPATH = 'database'
-DB = SUBPATH + '/imgDB.json'
+DB = SUBPATH + '/imgDB-2.json'
 
 class Database(object):
 

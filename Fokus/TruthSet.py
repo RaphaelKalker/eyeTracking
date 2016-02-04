@@ -1,6 +1,6 @@
 import os
 import cv2
-import database
+from Database import Database
 from EyeDict import EyeDict
 
 if True:
@@ -18,7 +18,7 @@ class TruthSet(object):
     def __init__(self, filePath):
         pass
 
-        self.dbHelper = database.Database()
+        self.dbHelper = Database()
         self.cycle(filePath)
 
     def onPointSelected(self, event):
