@@ -8,3 +8,4 @@ MORPHOLOGY_IMAGES = False
 MORPHOLOGY = False
 MATLABLIB = False #This causes crashes, probably because opencv has some matplotlib stuff
 NORMALIZE_GRAYSCALE = True
+START_TRUTH_FROM_PREV = True

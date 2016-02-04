@@ -2,6 +2,7 @@ import os
 import cv2
 from Database import Database
 from EyeDict import EyeDict
+import FeatureDebug
 
 if True:
     cv2.destroyAllWindows() #avoids crash
@@ -42,9 +43,16 @@ class TruthSet(object):
         files = [f for f in os.listdir('.') if os.path.isfile(f) and f.endswith('.jpeg') or f.endswith('.jpg')]
 
         for file in files:
+
+            self.fileName = file.__str__()
+
+            if FeatureDebug.START_TRUTH_FROM_PREV:
+                if self.dbHelper.eyeBallExists(self.fileName):
+                    print 'Skipped filename'
+                    continue
+
             self.image = cv2.imread(file.__str__(), 0)
             self.annotated = self.image.copy()
-            self.fileName = file.__str__()
 
             print '\nLoading ' + self.fileName
 
