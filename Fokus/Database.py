@@ -48,6 +48,10 @@ class Database(object):
             print 'Added new item with eid: ' + str(retVal)
 
 
+    def eyeBallExists(self, fileName):
+        return self.db.contains(self.Eyeball.fileName == fileName)
+
+
 
 
 
