@@ -24,10 +24,10 @@ class ParamsNew(object):
         self.hough.maxRadius = maxRadius
         pass
 
-    def setThresholdParams(self, minThresh=None, maxThresh=None, minNormalizedThresh=None):
+    def setThresholdParams(self, minThresh=None, maxThresh=None, isNormalized=None):
         self.thresh.minThresh = minThresh
         self.thresh.maxThresh = maxThresh
-        self.thresh.minNormalizedThresh = minNormalizedThresh
+        self.thresh.isNormalized = isNormalized
         pass
 
 
@@ -51,13 +51,13 @@ class Threshold():
     def maxThresh(self, val):
         self.maxThresh = val
 
-    @property
-    def minNormalizedThresh(self):
-        return self.minNormalizedThresh
-
-    @minNormalizedThresh.setter
-    def minNormalizedThresh(self, value):
-        self.minNormalizedThresh = value
+    # @property
+    # def minNormalizedThresh(self):
+    #     return self.minNormalizedThresh
+    #
+    # @minNormalizedThresh.setter
+    # def minNormalizedThresh(self, value):
+    #     self.minNormalizedThresh = value
 
     @property
     def isNormalized(self):
@@ -107,6 +107,9 @@ class Hough():
     @param2.setter
     def param2(self, value):
         self.param2 = value
+
+    def getParams(self):
+        return (self.param1, self.param2, self.minRadius, self.maxRadius)
 
     def __str__(self):
         return "Hough -> minRadius: %d | maxRadius: %d | param1: %d | param2: %d" % (self.minRadius, self.maxRadius, self.param1, self.param2)

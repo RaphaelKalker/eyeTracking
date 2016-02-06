@@ -28,7 +28,7 @@ class ParamHelper():
         self.params.setThresholdParams(
             minThresh=10,
             maxThresh=255,
-            minNormalizedThresh=240
+            isNormalized=240
         )
 
         self.params.setHoughParams(

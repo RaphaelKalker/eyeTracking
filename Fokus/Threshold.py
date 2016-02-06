@@ -26,11 +26,11 @@ class Threshold(object):
 
         if FeatureDebug.NORMALIZE_GRAYSCALE:
             self.preProcessGrayScale()
-            minThresh = self.params.Threshold.getNormalizedMin(self.cameraType)
-        else:
-            minThresh = self.params.Threshold.getMin(self.cameraType)
 
-        _, output = cv2.threshold(self.image, minThresh, MAXVAL, cv2.THRESH_BINARY)
+        minThresh = self.params.thresh.minThresh
+        maxThresh = self.params.thresh.maxThresh
+
+        _, output = cv2.threshold(self.image, minThresh, maxThresh, cv2.THRESH_BINARY)
         _, output2 = cv2.threshold(self.image, minThresh, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 
         ImageHelper.showImage('Threshold Image', output)
