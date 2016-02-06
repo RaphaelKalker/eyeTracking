@@ -22,6 +22,21 @@ class TruthSet(object):
         self.dbHelper = Database()
         self.cycle(filePath)
 
+
+    def onKeyPressed(self, event):
+
+        if event.key == 'n':
+            print 'Pressed: ' + event.key + ': Skip this eyeball'
+            self.addEyeBall(self.fileName, -1, -1)
+
+        else:
+            plt.waitforbuttonpress()
+
+
+
+
+
+
     def onPointSelected(self, event):
 
         if event.xdata is None or event.ydata is None:
@@ -32,10 +47,7 @@ class TruthSet(object):
         print ' x=%d, y=%d, xdata=%f, ydata=%f'%(
             event.x, event.y, event.xdata, event.ydata)
 
-        eyeball = EyeDict(self.fileName)
-        eyeball.addPupilTruth(int(event.xdata), int(event.ydata))
-
-        self.dbHelper.addEyeball(eyeball)
+        self.addEyeBall(self.fileName, event.xdata, event.ydata)
 
 
     def cycle(self, filePath):
@@ -51,21 +63,29 @@ class TruthSet(object):
                     print 'Skipped filename'
                     continue
 
-            self.image = cv2.imread(file.__str__(), 0)
+            self.image = cv2.imread(file.__str__(), 1)
             self.annotated = self.image.copy()
 
             print '\nLoading ' + self.fileName
 
             fig = plt.figure()
-            plt.imshow(self.image, cmap='magma')
+            plt.imshow(cv2.cvtColor(self.image, cv2.COLOR_BGR2RGB))
             plt.get_current_fig_manager().window.wm_geometry("+0+0")
             fig.canvas.mpl_connect('button_press_event', self.onPointSelected)
+            fig.canvas.mpl_connect('key_press_event', self.onKeyPressed)
             plt.waitforbuttonpress()
             plt.close(fig)
 
     def initMouseCallback(self, fileName):
         cv2.namedWindow(fileName)
         cv2.setMouseCallback(fileName, self.onPointSelected)
+        pass
+
+    def addEyeBall(self, fileName, x, y):
+        eyeball = EyeDict(fileName)
+        eyeball.addPupilTruth(str(int(x)), str(int(y)))
+        self.dbHelper.addEyeball(eyeball)
+
         pass
 
 
