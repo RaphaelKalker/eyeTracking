@@ -15,6 +15,7 @@ Y = 'y'
 RADIUS = 'radius'
 HEURISTICS = 'heuristics'
 HOUGH = "hough"
+CONTOUR = "contour"
 
 class EyeDict():
 
@@ -58,4 +59,16 @@ class EyeDict():
         heuristics[HOUGH][RADIUS] = r
 
         self.dict[HEURISTICS].append(heuristics)
+
+    def addContourCircle(self, x, y, r):
+        heuristics = {}
+        contour = {}
+        heuristics[CONTOUR] = contour
+
+        heuristics[CONTOUR][X] = x
+        heuristics[CONTOUR][Y] = y
+        heuristics[CONTOUR][RADIUS] = r
+
+        self.dict[HEURISTICS].append(heuristics)
+
 

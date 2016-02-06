@@ -1,3 +1,4 @@
+import pprint
 import cv2
 import math
 import numpy as np
@@ -38,12 +39,13 @@ DEBUG_CANDIDATE_CORNER = 'CandidateCorner'
 
 class PupilDetector(object):
 
-    def __init__(self, originalImg, processedImg, cameraType, callback, params = None):
+    def __init__(self, originalImg, processedImg, cameraType, callback, params = None, eyeball=None):
         self.originalImg = originalImg
         self.processedImg = processedImg
         self.cameraType = cameraType
         self.callback = callback
         self.params = params
+        self.eyeBall = eyeball
 
     def doHoughTransform(self, param1=None, param2 = None, minRadius = None, maxRadius = None):
 
@@ -51,7 +53,7 @@ class PupilDetector(object):
         result = self.originalImg.copy()
 
         if param1 is None or param2 is None or minRadius is None or maxRadius is None:
-            (param1, param2, minRadius, maxRadius) = self.params.HoughParamaters.getParams(self.cameraType)
+            (param1, param2, minRadius, maxRadius) = self.params.hough.getParams()
             # houghMinDistance = HOUGH_MIN_DIST
 
         houghCircles = CV_.HoughCirclesWithDefaultGradient(self.processedImg, DP, HOUGH_MIN_DIST,
@@ -64,6 +66,8 @@ class PupilDetector(object):
                 cv2.circle(result, (x,y), r, GREEN, 1)
                 cv2.line(result,(x - CROSSHAIRS, y - CROSSHAIRS),(x + CROSSHAIRS, y + CROSSHAIRS), RED, 1)
                 cv2.line(result,(x + CROSSHAIRS, y - CROSSHAIRS),(x - CROSSHAIRS, y + CROSSHAIRS), RED, 1)
+
+                self.eyeBall.addHoughCircle(x,y,r)
 
                 ImageHelper.showImage('Hough Circle', result)
         else:
@@ -111,6 +115,7 @@ class PupilDetector(object):
                 ImageHelper.showImage('Pupil Circle', result)
 
                 self.callback({('DEBUG_RADIUS', radius), ('DEBUG_CENTER', center), ('DEBUG_RECT', (x,y,width,height))})
+                self.eyeBall.addContourCircle(x, y, radius)
 
                 # self.saveInfo({(DEBUG_RADIUS, radius), (DEBUG_CENTER, center), (DEBUG_RECT, (x,y,width,height))})
 
