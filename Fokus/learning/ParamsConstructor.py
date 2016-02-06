@@ -1,3 +1,4 @@
+import FeatureDebug
 from Parameters import Parameters
 from learning.ParamsNew import ParamsNew
 
@@ -6,33 +7,35 @@ __author__ = 'Raphael'
 
 #Responsible for settings default values for Parameters object
 
-def constructDefaultParams():
+class ParamsConstructor():
 
-    params = ParamsNew()
+    def constructDefaultParams(self):
 
-    params.setThresholdParams(
-        minThresh=10,
-        maxThresh=255,
-        minNormalizedThresh=240
-    )
+        params = ParamsNew()
 
-    params.setHoughParams(
-        param1=1,
-        param2=40,
-        minRadius=8,
-        maxRadius=35
-    )
+        params.setThresholdParams(
+            minThresh=180 if not FeatureDebug.NORMALIZE_GRAYSCALE else 250,
+            maxThresh=255,
+            isNormalized=FeatureDebug.NORMALIZE_GRAYSCALE
+        )
 
-    print params.thresh.minThresh
-    print params.thresh.maxThresh
+        params.setHoughParams(
+            param1=1,
+            param2=40,
+            minRadius=5,
+            maxRadius=40
+        )
 
-    print params.hough.maxRadius
+        print params.thresh.minThresh
+        print params.thresh.maxThresh
+
+        print params.hough.maxRadius
 
 
-    return params
+        return params
 
 
-constructDefaultParams()
+# constructDefaultParams()
 
 # def constructShit():
 #
