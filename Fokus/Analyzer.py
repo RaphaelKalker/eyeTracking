@@ -1,3 +1,4 @@
+import pprint
 import cv2
 import sys
 import CV_
@@ -96,9 +97,6 @@ class Analyzer:
 
         #IR LED
         # self.findIrReflection(imageGray)
-
-        #fill in remaining parameters
-        self.eyeball.useParams(self.params)
 
         if FeatureDebug.PRINT:
             self.printDebugInfo()
@@ -335,15 +333,8 @@ class Analyzer:
         return self.eyeHeuristics
 
     def printDebugInfo(self):
-
+        pprint.pprint(self.eyeball.dict['heuristics'])
         print '\n'
-
-        for k, v in self.eyeHeuristics.iteritems():
-            print k + ':\t\t' + str(v)
-
-        print '\n'
-        # cv2.putText(background,'Debug Info coming soon',(10,100), font, 1,(255,255,255),1)
-        # cv2.imshow(q'Debug Information', background)
 
     @staticmethod
     def findRegionOfInterest(image):

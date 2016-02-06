@@ -24,15 +24,6 @@ class EyeDict():
         self.dict = Utils.newDict({"fileName":"","truth":{"x":"","y":""},"heuristics":[]})
         self.dict['fileName'] = fileName
 
-
-    def useParams(self, params):
-        if isinstance(params, ParamsNew):
-            print 'build eye from params'
-            pass
-        else:
-            print 'Parameters instance is incorrect.'
-            # raise ValueError('Parameters instance is incorrect.')
-
     def getDict(self):
         return self.dict
 
