@@ -49,11 +49,13 @@ class EyeDict():
 
     #warning immuatable errors here
     def addHoughCircle(self, x, y, r):
-        heuristics = Utils.newDict(SCHEMA_HEURISTICS)
+        heuristics = {}
+        hough = {}
+        heuristics[HOUGH] = hough
+
         heuristics[HOUGH][X] = x
         heuristics[HOUGH][Y] = y
         heuristics[HOUGH][RADIUS] = r
 
         self.dict[HEURISTICS].append(heuristics)
-        print pprint.pprint(self.dict[HEURISTICS])
 
