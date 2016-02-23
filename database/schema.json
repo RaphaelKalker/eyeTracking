@@ -1,44 +1,50 @@
 {
-    "fileName": "",
-    "cameraType": "",
-    "color": "",
-    "verified": {
-      "x": "",
-      "y": "",
-      "isReading": "True",
-      "radius": ""
-    },
-    "imageProperties": {
-      "mean": "",
-      "variance": ""
-    },
-    "heuristics": [
-      {
-        "histogramNormalized": "",
-        "threshold": "",
-        "hough": {
-          "param1": "",
-          "param2": "",
-          "minRadius": "",
-          "maxRadius": "",
-          "x": "",
-          "y": "",
-          "radius": ""
-        },
-        "contour": {
-          "minRadius": "",
-          "x": "",
-          "y": "",
-          "radius": ""
-        },
-
-      }
-    ]
-  }
+  "fileName": "",
+  "truth": {
+    "x": "",
+    "y": ""
+  },
+  "heuristics": []
 }
 
-eyeball.verifiedParams.x > eyeball.estimatedParams.hough.x
 
-//morphology
-//power transformation
-//square transformation
+
+{
+  "fileName": "",
+  "cameraType": "",
+  "color": "",
+  "verified": {
+    "x": "",
+    "y": "",
+    "isReading": "True",
+    "radius": ""
+  },
+  "imageProperties": {
+    "mean": "",
+    "variance": ""
+  },
+  "heuristics": []
+}
+
+
+
+{
+  "histogramNormalized": "",
+  "thresholdMin": "",
+  "thresholdMax": "",
+  "param1": "",
+  "param2": "",
+  "minRadius": "",
+  "maxRadius": "",
+  "minContourRadius": "",
+  "hough": {
+    "x": "",
+    "y": "",
+    "radius": ""
+  },
+  "contour": {
+    "x": "",
+    "y": "",
+    "radius": ""
+  }
+}
