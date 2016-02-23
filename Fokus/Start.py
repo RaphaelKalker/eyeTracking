@@ -1,6 +1,6 @@
 import os
 from Analyzer import Analyzer
-from Parameters import Parameters
+import Database
 import Utils
 import time
 import sys
@@ -22,6 +22,21 @@ PROCESSING_DIR_JAN_11 = 'image/Jan11'
 PROCESSING_DIR_JAN_13 = 'image/tim_jan13'
 
 
+def compareResults(results, THRESHOLD=20):
+    annotated , (truthX, truthY) = Database.getTruth(results.getFileName())
+
+    if annotated:
+
+        for entry in results.getHeuristics():
+            heuristic = entry.itervalues().next()
+            xDiff = abs(heuristic['x'] - truthX)
+            yDiff = abs(heuristic['y'] - truthY)
+
+            if xDiff < THRESHOLD and yDiff < THRESHOLD:
+                pass
+                # print 'SUCCESS'
+
+
 def processImages():
     os.chdir(PROCESSING_DIR_JAN_13)
 
@@ -29,18 +44,11 @@ def processImages():
 
     files = [f for f in os.listdir('.') if os.path.isfile(f) and f.endswith('jpg') or f.endswith('jpeg') ]
     for image in files:
-
-        if image.startswith('L'):
-            left = Analyzer(image, Parameters.Camera.LEFT, params)
-            pass
-        elif image.startswith('R'):
-            # right = Analyzer2(image, Const.Camera.RIGHT)
-            pass
-
-        else:
-            left = Analyzer(image, Parameters.Camera.LEFT, params)
-            results = left.getHeuristics()
-            pass
+        left = Analyzer(image, params)
+        results = left.getEyeData()
+        (x,y) = results.getRandomPupilTruth()
+        logger.info('Random Pupil Truth: x: {}, y: {}'.format(x,y))
+        compareResults(results)
 
 if  __name__ == '__main__':
 
@@ -70,3 +78,4 @@ if  __name__ == '__main__':
     else:
         logger.info('Init Mac System')
         processImages()
+

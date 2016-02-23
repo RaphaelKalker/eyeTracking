@@ -1,7 +1,7 @@
 import os
 import cv2
 from Database import Database
-from EyeDict import EyeDict
+from Eyeball import Eyeball
 import FeatureDebug
 
 if True:
@@ -82,7 +82,7 @@ class TruthSet(object):
         pass
 
     def addEyeBall(self, fileName, x, y):
-        eyeball = EyeDict(fileName)
+        eyeball = Eyeball(fileName)
         eyeball.addPupilTruth(str(int(x)), str(int(y)))
         self.dbHelper.addEyeball(eyeball)
 

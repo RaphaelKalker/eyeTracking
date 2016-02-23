@@ -3,6 +3,7 @@ import cv2
 import math
 import numpy as np
 import CV_
+import Database
 import Parameters
 from ImageHelper import ImageHelper
 
@@ -12,6 +13,7 @@ MIN_AREA = 30 #the min value for creating circles
 RED = (0,0,255)
 GREEN = (0,255,0)
 BLUE = (255,0,0)
+YELLOW = (0,255,255)
 DIFF_VALUES = 1
 DP = 10 #Dimension in circle space (lower is faster to compute)
 CROSSHAIRS = 5
@@ -46,6 +48,8 @@ class PupilDetector(object):
         self.callback = callback
         self.params = params
         self.eyeBall = eyeball
+
+        self.__drawTruth__()
 
     def doHoughTransform(self, param1=None, param2 = None, minRadius = None, maxRadius = None):
 
@@ -114,8 +118,18 @@ class PupilDetector(object):
 
                 ImageHelper.showImage('Pupil Circle', result)
 
-                self.callback({('DEBUG_RADIUS', radius), ('DEBUG_CENTER', center), ('DEBUG_RECT', (x,y,width,height))})
+                # self.callback({('DEBUG_RADIUS', radius), ('DEBUG_CENTER', center), ('DEBUG_RECT', (x,y,width,height))})
                 self.eyeBall.addContourCircle(x, y, radius)
 
                 # self.saveInfo({(DEBUG_RADIUS, radius), (DEBUG_CENTER, center), (DEBUG_RECT, (x,y,width,height))})
 
+    def __drawTruth__(self):
+        fileName = self.eyeBall.getFileName()
+
+        if 'img1398289259' in fileName:
+            print 'FUCK'
+
+
+        annotated, (x,y) = Database.getTruth(self.eyeBall.getFileName())
+        if annotated:
+            cv2.circle(self.originalImg, (x,y), 5, YELLOW, -1)

@@ -4,7 +4,7 @@ import sys
 import CV_
 import math
 import copy
-from EyeDict import EyeDict
+from Eyeball import Eyeball
 import Parameters
 from CornerDetection import CornerDetection
 import DebugOptions as tb
@@ -15,6 +15,7 @@ from Morphology import Morphology
 from PupilDetector import PupilDetector
 from Threshold import Threshold
 import Utils
+from EdgeDetection import EdgeDetection
 
 selecting = False
 startX = -1
@@ -41,13 +42,13 @@ class Analyzer:
     startY = 0
 
     #src is either a file name, or an image buffer
-    def __init__(self, src, cameraType, params=None):
+    def __init__(self, src, params=None):
 
         if isinstance(src, basestring):
-            self.eyeHeuristics = dict({('Filename', src), ('CameraType', cameraType)})
-            self.cameraType = cameraType
+            self.eyeHeuristics = dict({('Filename', src), ('CameraType', 0)})
+            self.cameraType = 0 # deprecated
             self.originalImage = cv2.imread(src)
-            self.eyeball = EyeDict(src)
+            self.eyeball = Eyeball(src)
 
         if  self.originalImage is None:
             raise ValueError('Original Image was null')
@@ -78,6 +79,12 @@ class Analyzer:
         self.thresholder = Threshold(self.imageGray, self.cameraType, self.params)
         processedImage = self.thresholder.getBinaryThreshold()
         self.thresholder.getAdaptiveThreshold(150, 3, -5)
+
+
+        #Canny Edge it
+        self.canny = EdgeDetection(self.originalImage, self.params)
+        cannyImage = self.canny.doAutoCanny()
+        ImageHelper.showImage('CannyImage', cannyImage)
 
         #Clean up the binary threshold image to get a better pupil representation
         if FeatureDebug.MORPHOLOGY:
@@ -116,7 +123,8 @@ class Analyzer:
             elif keyPressed == ord('e'):
                 forceExit()
         elif Utils.isBeagalBone():
-            return self.eyeHeuristics
+            pass
+
 
 
     def updateStats(self, info):
@@ -329,12 +337,13 @@ class Analyzer:
     def saveInfo(self, info):
         self.eyeHeuristics.update(info)
 
-    def getHeuristics(self):
-        return self.eyeHeuristics
+    def getEyeData(self):
+        return self.eyeball
 
     def printDebugInfo(self):
         pprint.pprint(self.eyeball.dict['heuristics'])
         print '\n'
+
 
     @staticmethod
     def findRegionOfInterest(image):

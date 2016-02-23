@@ -17,7 +17,11 @@ HEURISTICS = 'heuristics'
 HOUGH = "hough"
 CONTOUR = "contour"
 
-class EyeDict():
+CENTRE = 60
+
+
+
+class Eyeball():
 
 
     def __init__(self, fileName = None):
@@ -32,6 +36,25 @@ class EyeDict():
 
     def getFileName(self):
         return self.dict['fileName']
+
+    def getRandomPupilTruth(self):
+        heuristics = self.getDict()[HEURISTICS]
+
+        x = -1
+        y = -1
+
+        for h in heuristics:
+
+            if 'contour' in h:
+                xNew = h['contour']['x']
+                yNew = h['contour']['y']
+
+                if abs(xNew - CENTRE) < abs(x - CENTRE):
+                    x = xNew
+                    y = yNew
+
+        return (x, y)
+
 
     def addPupilTruth(self, x, y):
         self.dict[TRUTH][X] = x

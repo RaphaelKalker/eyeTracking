@@ -1,5 +1,4 @@
 import FeatureDebug
-from Parameters import Parameters
 from learning.ParamsNew import ParamsNew
 
 __author__ = 'Raphael'
@@ -14,7 +13,7 @@ class ParamsConstructor():
         params = ParamsNew()
 
         params.setThresholdParams(
-            minThresh=180 if not FeatureDebug.NORMALIZE_GRAYSCALE else 250,
+            minThresh=180 if not FeatureDebug.NORMALIZE_GRAYSCALE else 251,
             maxThresh=255,
             isNormalized=FeatureDebug.NORMALIZE_GRAYSCALE
         )
@@ -26,11 +25,10 @@ class ParamsConstructor():
             maxRadius=40
         )
 
-        print params.thresh.minThresh
-        print params.thresh.maxThresh
-
-        print params.hough.maxRadius
-
+        params.setCannyParams(
+            lowerBound = 80,
+            upperBound = 255
+        )
 
         return params
 

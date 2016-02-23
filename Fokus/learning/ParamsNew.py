@@ -8,12 +8,16 @@ MAC = 'Darwin'
 
 #Responsible for holding all the parameters using by the Analyzer object
 
+
+
+
 class ParamsNew(object):
 
     def __init__(self):
         pass
         self.thresh = Threshold()
         self.hough = Hough()
+        self.canny = Canny()
         # self.TrackBar = Trackbar()
 
 
@@ -29,6 +33,10 @@ class ParamsNew(object):
         self.thresh.maxThresh = maxThresh
         self.thresh.isNormalized = isNormalized
         pass
+
+    def setCannyParams(self, lowerBound = None, upperBound = None):
+        self.canny.lowerBound = lowerBound
+        self.canny.upperBound = upperBound
 
 
 class Threshold():
@@ -114,6 +122,25 @@ class Hough():
     def __str__(self):
         return "Hough -> minRadius: %d | maxRadius: %d | param1: %d | param2: %d" % (self.minRadius, self.maxRadius, self.param1, self.param2)
 
+class Canny():
+
+    @property
+    def lowerBound(self):
+        return self.lowerBound
+
+    @lowerBound.setter
+    def lowerBound(self, value):
+        self.lowerBound = value
+
+
+    @property
+    def upperBound(self):
+        return self.upperBound
+
+    @upperBound.setter
+    def upperBound(self, value):
+        self.upperBound = value
+        pass
 
 #
 #     class Camera():

@@ -1,5 +1,4 @@
 import cv2
-from Parameters import Parameters
 import FeatureDebug
 from ImageHelper import ImageHelper
 
