@@ -27,6 +27,9 @@ class EyeDict():
     def getDict(self):
         return self.dict
 
+    def getHeuristics(self):
+        return self.getDict()[HEURISTICS]
+
     def getFileName(self):
         return self.dict['fileName']
 
