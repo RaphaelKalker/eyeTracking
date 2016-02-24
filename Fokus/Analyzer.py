@@ -71,14 +71,15 @@ class Analyzer:
         ImageHelper.showImage('Original Image', originalImage)
 
         #Invert image with ~ and convert to grayscale
-        self.imageGray = cv2.cvtColor(~originalImage, cv2.COLOR_BGR2GRAY)
-        ImageHelper.showImage('Grey Image', self.imageGray)
+        processedImage = cv2.cvtColor(~originalImage, cv2.COLOR_BGR2GRAY)
+        ImageHelper.showImage('Grey Image', processedImage)
 
         #Threshold image -> req. new Threshold obj
 
-        self.thresholder = Threshold(self.imageGray, self.cameraType, self.params)
-        processedImage = self.thresholder.getBinaryThreshold()
-        self.thresholder.getAdaptiveThreshold(150, 3, -5)
+        if FeatureDebug.THRESHOLD:
+            self.thresholder = Threshold(processedImage, self.cameraType, self.params)
+            processedImage = self.thresholder.getBinaryThreshold()
+            self.thresholder.getAdaptiveThreshold(150, 3, -5)
 
 
         #Canny Edge it
