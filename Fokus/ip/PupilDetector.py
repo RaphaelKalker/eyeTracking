@@ -7,6 +7,7 @@ import CV_
 # import database
 from ImageHelper import ImageHelper
 from db import Database
+from debug.AdjustableImage import AdjustableImage
 
 __author__ = 'Raphael'
 
@@ -50,6 +51,10 @@ class PupilDetector(object):
         self.params = params
         self.eyeBall = eyeball
 
+        if True:
+            self.debug = AdjustableImage()
+            self.debug.doIt(self.originalImg, self.updateHoughCallback, self.params)
+
         self.__drawTruth__()
 
     def doHoughTransform(self, param1=None, param2 = None, minRadius = None, maxRadius = None):
@@ -75,6 +80,7 @@ class PupilDetector(object):
                 self.eyeBall.addHoughCircle(x,y,r)
 
                 ImageHelper.showImage('Hough Circle', result)
+            return result
         else:
             # self.saveInfo({('Hough Circle', False)})
             pass
@@ -134,3 +140,8 @@ class PupilDetector(object):
         annotated, (x,y) = Database.getTruth(self.eyeBall.getFileName())
         if annotated:
             cv2.circle(self.originalImg, (x,y), 5, YELLOW, -1)
+
+
+    def updateHoughCallback(self, param1=None, param2=None, minRad=None, maxRad=None):
+        self.debug.updateImage(self.doHoughTransform(param1, param2, minRad, maxRad))
+        print 'updateHough'

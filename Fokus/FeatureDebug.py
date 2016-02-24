@@ -1,7 +1,7 @@
 __author__ = 'Raphael'
 
 PRINT = True
-IMAGES = True
+IMAGES = False
 SAVE_IMAGES = False
 TRACKBAR = False
 MORPHOLOGY_IMAGES = False
