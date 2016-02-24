@@ -1,6 +1,7 @@
 import pprint
 import cv2
 import sys
+from Blob import Blob
 import CV_
 import math
 import copy
@@ -84,7 +85,9 @@ class Analyzer:
         processedImage = cv2.cvtColor(~originalImage, cv2.COLOR_BGR2GRAY)
         ImageHelper.showImage('Grey Image', processedImage)
 
-        #Threshold image -> req. new Threshold obj
+        if True:
+            blobbed = Blob(processedImage).detect()
+            ImageHelper.showImage('BLOBBED', blobbed)
 
         if FeatureDebug.BLUR:
             blur = Blur(processedImage)
