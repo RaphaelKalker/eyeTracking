@@ -1,11 +1,12 @@
-import pprint
-import cv2
 import math
+
+import cv2
 import numpy as np
+
 import CV_
-import Database
-import Parameters
+# import database
 from ImageHelper import ImageHelper
+from db import Database
 
 __author__ = 'Raphael'
 

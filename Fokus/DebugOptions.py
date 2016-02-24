@@ -1,8 +1,10 @@
+import sys
+
 import cv2
 import numpy as np
-import sys
+
 import Analyzer
-import Parameters
+from learning import Parameters
 import FeatureDebug
 
 WINDOW = 'Options'

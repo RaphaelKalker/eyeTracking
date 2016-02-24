@@ -1,8 +1,5 @@
 __author__ = 'Raphael'
 
-from enum import Enum
-import Parameters
-
 MAC = 'Darwin'
 
 

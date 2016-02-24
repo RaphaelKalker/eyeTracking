@@ -1,9 +1,9 @@
 import time
-import platform
+
 import cv2
-import Parameters
 
 import FeatureDebug
+
 
 #
 import Utils
@@ -12,7 +12,6 @@ if FeatureDebug.MATLABLIB:
     import matplotlib
     matplotlib.use('TkAgg')
     import matplotlib.pyplot as plt
-    import matplotlib.image as mpimg
     from matplotlib.widgets import Slider
 
 

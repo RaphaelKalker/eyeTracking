@@ -1,10 +1,12 @@
-import os
-from Analyzer import Analyzer
-import Database
-import Utils
 import time
 import sys
 import logging
+
+import os
+
+from Analyzer import Analyzer
+from db import Database
+import Utils
 from learning.ParamsConstructor import ParamsConstructor
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)

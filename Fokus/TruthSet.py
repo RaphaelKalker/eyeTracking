@@ -1,6 +1,7 @@
 import os
 import cv2
-from Database import Database
+
+from db.Database import Database
 from Eyeball import Eyeball
 import FeatureDebug
 
@@ -9,8 +10,6 @@ if True:
     import matplotlib
     matplotlib.use('TkAgg')
     import matplotlib.pyplot as plt
-    import pylab
-    import matplotlib.image as mpimg
 
 RED = (0,0,255)
 

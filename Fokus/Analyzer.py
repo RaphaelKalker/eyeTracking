@@ -1,22 +1,21 @@
 import pprint
-import cv2
 import sys
-from Blob import Blob
-import CV_
-import math
-import copy
-from Eyeball import Eyeball
-import Parameters
-from CornerDetection import CornerDetection
-import DebugOptions as tb
+
+import cv2
 import numpy as np
+
+from ip.Blob import Blob
+from Eyeball import Eyeball
+from learning import Parameters
+from ip.CornerDetection import CornerDetection
+import DebugOptions as tb
 import FeatureDebug
 from ImageHelper import ImageHelper
-from Morphology import Morphology
-from PupilDetector import PupilDetector
-from Threshold import Threshold
+from ip.Morphology import Morphology
+from ip.PupilDetector import PupilDetector
+from ip.Threshold import Threshold
 import Utils
-from EdgeDetection import EdgeDetection
+from ip.EdgeDetection import EdgeDetection
 
 selecting = False
 startX = -1
