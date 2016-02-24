@@ -34,6 +34,16 @@ def forceExit():
     sys.exit()
 
 
+class Blur(object):
+
+    def __init__(self, image):
+        self.image = image
+
+    def applyGaussianBlur(self):
+        return cv2.GaussianBlur(self.image, (3, 3), 0)
+    pass
+
+
 class Analyzer:
 
     #global variables
@@ -76,10 +86,14 @@ class Analyzer:
 
         #Threshold image -> req. new Threshold obj
 
+        if FeatureDebug.BLUR:
+            blur = Blur(processedImage)
+            processedImage = blur.applyGaussianBlur()
+
         if FeatureDebug.THRESHOLD:
-            self.thresholder = Threshold(processedImage, self.cameraType, self.params)
-            processedImage = self.thresholder.getBinaryThreshold()
-            self.thresholder.getAdaptiveThreshold(150, 3, -5)
+            thresholder = Threshold(processedImage, self.cameraType, self.params)
+            processedImage = thresholder.getBinaryThreshold()
+            thresholder.getAdaptiveThreshold(150, 3, -5)
 
 
         #Canny Edge it
