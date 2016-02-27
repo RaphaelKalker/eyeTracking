@@ -1,7 +1,7 @@
 __author__ = 'Raphael'
 
-PRINT = True
-IMAGES = False
+SHOW_CV2_IMAGES = False
+
 SAVE_IMAGES = False
 TRACKBAR = False
 MORPHOLOGY_IMAGES = False
@@ -12,3 +12,9 @@ MATLABLIB = False #This causes crashes, probably because opencv has some matplot
 NORMALIZE_GRAYSCALE = True
 START_TRUTH_FROM_PREV = True
 VERIFY_TRUTH = True
+
+#DEBUG WINDOW
+DEBUG_PUPIL_DETECTOR = False
+
+#PRINT DEBUG
+PRINT_HEURISTICS = True

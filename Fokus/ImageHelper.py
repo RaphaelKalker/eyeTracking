@@ -34,7 +34,7 @@ class ImageHelper(object):
             pass
 
 
-        elif Utils.isMac() and FeatureDebug.IMAGES:
+        elif Utils.isMac() and FeatureDebug.SHOW_CV2_IMAGES:
 
             cv2.imshow(title, image)
             shape = image.shape

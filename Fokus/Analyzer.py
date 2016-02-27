@@ -122,19 +122,19 @@ class Analyzer:
         #IR LED
         # self.findIrReflection(imageGray)
 
-        if FeatureDebug.PRINT:
+        if FeatureDebug.PRINT_HEURISTICS:
             self.printDebugInfo()
 
         #Parameter Tuner
         if Utils.isMac():
             tb.initHoughOptions(self.cameraType, self.updateParams)
-            cv2.waitKey(1)
+            # self.waitForKeyPress()
 
         else:
             print 'WARNING! Disabled parameter tuner, must test on BB'
 
-        if Utils.isMac():
-            keyPressed = cv2.waitKey()
+        if Utils.isMac() and FeatureDebug.SHOW_CV2_IMAGES:
+            keyPressed = self.waitForKeyPress()
             if keyPressed == ord('n'):
                 cv2.destroyAllWindows()
             elif keyPressed == ord('e'):
@@ -358,8 +358,8 @@ class Analyzer:
         return self.eyeball
 
     def printDebugInfo(self):
+        print '\n Heuristics:'
         pprint.pprint(self.eyeball.dict['heuristics'])
-        print '\n'
 
 
     @staticmethod
@@ -376,3 +376,10 @@ class Analyzer:
         roiFrame = image[y1:y2, x1:x2]
 
         return roiFrame
+
+    def waitForKeyPress(self, delay=None):
+        print 'Waiting for key press....'
+        if  delay is None:
+            return cv2.waitKey()
+        else:
+            return cv2.waitKey(delay)
