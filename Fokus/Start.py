@@ -14,8 +14,9 @@ logger = logging.getLogger(__name__)
 
 if Utils.isBeagalBone():
     sys.path.insert(0, '../pyCam/')
-    import Cam1
-    import Cam2
+    import Cam
+else:
+    from db import Database
 
 DEFAULT_DIRECTORY = 'imageLeftCam'
 IMAGE_DIRECTORY = './processing/'
@@ -58,8 +59,8 @@ if  __name__ == '__main__':
         logger.info('Init BB System')
 
         # initialize cameras
-        camRight = Cam1.Cam1(IMAGE_DIRECTORY)
-        camLeft = Cam2.Cam2(IMAGE_DIRECTORY)
+        camRight = Cam.Cam(IMAGE_DIRECTORY, "R")
+        camLeft = Cam.Cam(IMAGE_DIRECTORY, "L")
 
         # looping to capture and process images
         for i in range(1,100):
@@ -70,12 +71,21 @@ if  __name__ == '__main__':
             rightImg = camRight.getImg(timestamp)
             leftImg = camLeft.getImg(timestamp)
 
-#            print "process image in Analyzer2"
-            time.sleep(1)
+            params = ParamsConstructor().constructDefaultParams()
+            right = Analyzer(rightImg, params)
+            right_pupil = right.getEyeData().getRandomPupilTruth()
+            left = Analyzer(leftImg, params)
+            left_pupil = left.getEyeData().getRandomPupilTruth()
+
+
+            print "right pupil"
+            print right_pupil
+            print "left pupil"
+            print left_pupil
 
         # close connections to cameras
-        cam1.closeConn()
-        cam2.closeConn()
+        camRight.closeConn()
+        camLeft.closeConn()
 
     else:
         logger.info('Init Mac System')
