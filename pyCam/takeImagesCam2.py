@@ -2,9 +2,20 @@ import sys
 import time
 import serial
 import copy
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('port', type=int, help='1 for port tty01, 4 for port tty04')
+parser.add_argument('output_dir', type=str, help='output directory for the image')
+args = parser.parse_args()
 
 BAUD = 38400 
-PORT = "/dev/ttyO4"      # change this to your com port!
+if args.port == 1:
+    PORT = "/dev/ttyO1"
+elif args.port == 4:
+    PORT = "/dev/ttyO4"
+
+
 TIMEOUT = 0.2
 
 SERIALNUM = 0x00
@@ -140,7 +151,9 @@ for i in range(1):
 							lowbit=buff_len[3])
 
 		if buff:
-			with open("./output/cam2/image" + str(int(time.time())) + ".jpg", 'w') as f:
+                        img_path = args.output_dir + str(int(time.time())) + ".jpg"
+#			with open("./output/cam2/image" + str(int(time.time())) + ".jpg", 'w') as f:
+                        with open(img_path, 'w') as f:
 				for i in buff:
 					f.write(chr(i))
 			print "got photo :D"
