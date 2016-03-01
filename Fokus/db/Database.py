@@ -1,5 +1,7 @@
 import os
-from tinydb import TinyDB, Query
+import Utils
+if Utils.isMac():
+    from tinydb import TinyDB, Query
 
 __author__ = 'Raphael'
 
