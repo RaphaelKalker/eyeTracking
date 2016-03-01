@@ -7,8 +7,8 @@ import CV_
 # import database
 import FeatureDebug
 from ImageHelper import ImageHelper
-from db import Database
-from debug.AdjustableImage import AdjustableImage
+#from db import Database
+#from debug.AdjustableImage import AdjustableImage
 
 __author__ = 'Raphael'
 
@@ -52,11 +52,11 @@ class PupilDetector(object):
         self.params = params
         self.eyeBall = eyeball
 
-        if FeatureDebug.DEBUG_PUPIL_DETECTOR:
-            self.debug = AdjustableImage()
-            self.debug.doIt(self.originalImg, self.updateHoughCallback, self.params)
+#        if FeatureDebug.DEBUG_PUPIL_DETECTOR:
+#            self.debug = AdjustableImage()
+#            self.debug.doIt(self.originalImg, self.updateHoughCallback, self.params)
 
-        self.__drawTruth__()
+#        self.__drawTruth__()
 
     def doHoughTransform(self, param1=None, param2 = None, minRadius = None, maxRadius = None):
 
@@ -132,15 +132,16 @@ class PupilDetector(object):
                 # self.saveInfo({(DEBUG_RADIUS, radius), (DEBUG_CENTER, center), (DEBUG_RECT, (x,y,width,height))})
 
     def __drawTruth__(self):
-        fileName = self.eyeBall.getFileName()
+        if Utils.isMac():
+            fileName = self.eyeBall.getFileName()
 
-        if 'img1398289259' in fileName:
-            print 'FUCK'
+            if 'img1398289259' in fileName:
+                print 'FUCK'
 
 
-        annotated, (x,y) = Database.getTruth(self.eyeBall.getFileName())
-        if annotated:
-            cv2.circle(self.originalImg, (x,y), 5, YELLOW, -1)
+            annotated, (x,y) = Database.getTruth(self.eyeBall.getFileName())
+            if annotated:
+                cv2.circle(self.originalImg, (x,y), 5, YELLOW, -1)
 
 
     def updateHoughCallback(self, param1=None, param2=None, minRad=None, maxRad=None):
