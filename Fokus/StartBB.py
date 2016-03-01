@@ -5,6 +5,8 @@ from Analyzer import Analyzer
 import Test2
 import Utils
 import logging
+import Cam
+
 from learning.ParamsConstructor import ParamsConstructor
 
 __author__ = 'Raphael'
@@ -21,8 +23,8 @@ def retrieveImageBB(imageDir, lock, pipe):
     logger.info('Init BB System')
 
     # initialize cameras
-    camRight = Cam1.Cam1(IMAGE_DIRECTORY)
-    camLeft = Cam2.Cam2(IMAGE_DIRECTORY)
+    camRight = Cam.Cam(IMAGE_DIRECTORY, "R")
+    camLeft = Cam.Cam(IMAGE_DIRECTORY, "L")
 
     # looping to capture and process images
     for i in range(1,100):
