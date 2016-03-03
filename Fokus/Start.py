@@ -3,6 +3,7 @@ import time
 import sys
 import logging
 import os
+import Cam
 
 from Analyzer import Analyzer
 import Test2
@@ -55,35 +56,7 @@ def processImages():
         compareResults(results)
 
 
-#BeagleBone
-def retrieveImageBB(imageDir, lock, pipe):
-    logger.info('Init BB System')
 
-    # initialize cameras
-    camRight = Cam1.Cam1(IMAGE_DIRECTORY)
-    camLeft = Cam2.Cam2(IMAGE_DIRECTORY)
-
-    # looping to capture and process images
-    for i in range(1,100):
-        timestamp = int(time.time())
-        camRight.takeImg()
-        camLeft.takeImg()
-
-        rightImg = camRight.getImg(timestamp)
-        leftImg = camLeft.getImg(timestamp)
-
-        # Must be locked when setting
-        Test2.setLeftImage(leftImg)
-        Test2.setRightImage(rightImg)
-
-        #Send something through the pipe
-        pipe.send(leftImg)
-
-        time.sleep(1)
-
-    # close connections to cameras
-    cam1.closeConn()
-    cam2.closeConn()
 
 def analyzeImageBB(lock):
     (xL, yL) = Analyzer(Test2.getLeftImage()).getEyeData().getRandomPupilTruth()

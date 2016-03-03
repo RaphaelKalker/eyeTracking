@@ -6,6 +6,7 @@ import numpy as np
 
 from ip.Blob import Blob
 from Eyeball import Eyeball
+from ip.ReflectionReduction import ReflectionReduction
 from learning import Parameters
 from ip.CornerDetection import CornerDetection
 import DebugOptions as tb
@@ -59,6 +60,7 @@ class Analyzer:
             self.cameraType = 0 # deprecated
             self.originalImage = cv2.imread(src)
             self.eyeball = Eyeball(src)
+            self.fileName = src
 
         if  self.originalImage is None:
             raise ValueError('Original Image was null')
@@ -72,8 +74,17 @@ class Analyzer:
 
     def analyze(self):
 
+
+
         originalImage = self.originalImage.copy()
         self.imageCanny = self.originalImage.copy()
+
+        if True:
+            rr = ReflectionReduction(originalImage)
+            self.hue_masked = rr.doStuff(self.fileName)
+            # self.waitForKeyPress()
+
+            # return
 
         if originalImage is None:
             raise NameError('Image not found!')
@@ -82,7 +93,8 @@ class Analyzer:
 
         #Invert image with ~ and convert to grayscale
         processedImage = cv2.cvtColor(~originalImage, cv2.COLOR_BGR2GRAY)
-        ImageHelper.showImage('Grey Image', processedImage)
+        # processedImage = cv2.cvtColor(~self.hue_masked, cv2.COLOR_BGR2GRAY)
+        # ImageHelper.showImage('Grey Image', processedImage)
 
         if True:
             blobbed = Blob(processedImage).detect()
