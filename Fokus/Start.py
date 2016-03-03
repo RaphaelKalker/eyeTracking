@@ -1,11 +1,11 @@
+from multiprocessing import Process, Lock, Pipe
 import time
 import sys
 import logging
-from multiprocessing import Lock
-
 import os
 
 from Analyzer import Analyzer
+import Test2
 from db import Database
 import Utils
 from learning.ParamsConstructor import ParamsConstructor
@@ -25,7 +25,6 @@ PROCESSING_DIR_JAN_11 = 'image/Jan11'
 PROCESSING_DIR_JAN_13 = 'image/tim_jan13'
 
 lockObj = Lock()
-
 
 def compareResults(results, THRESHOLD=20):
     annotated , (truthX, truthY) = Database.getTruth(results.getFileName())
@@ -56,7 +55,8 @@ def processImages():
         compareResults(results)
 
 
-def retrieveImagesBB(imageDir, lock, pipe):
+#BeagleBone
+def retrieveImageBB(imageDir, lock, pipe):
     logger.info('Init BB System')
 
     # initialize cameras
@@ -72,17 +72,36 @@ def retrieveImagesBB(imageDir, lock, pipe):
         rightImg = camRight.getImg(timestamp)
         leftImg = camLeft.getImg(timestamp)
 
+        # Must be locked when setting
+        Test2.setLeftImage(leftImg)
+        Test2.setRightImage(rightImg)
+
+        #Send something through the pipe
+        pipe.send(leftImg)
+
         time.sleep(1)
 
     # close connections to cameras
     cam1.closeConn()
     cam2.closeConn()
 
+def analyzeImageBB(lock):
+    (xL, yL) = Analyzer(Test2.getLeftImage()).getEyeData().getRandomPupilTruth()
+    (xR, yR) = Analyzer(Test2.getRightImage()).getEyeData().getRandomPupilTruth()
+
 
 if  __name__ == '__main__':
 
     if Utils.isBeagalBone():
-        retrieveImagesBB(IMAGE_DIRECTORY, lockObj, None)
+        # Pipe for connecting retrieval to analysis
+        analyzePipe, retrievePipe = Pipe()
+
+        # Processes for
+        imageRetrieval = Process(target=retrieveImagesBB, name = "CAMERA", args=(IMAGE_DIRECTORY, lockObj, retrievePipe))
+        imageAnalysis = Process(target=retrieveImageBB, name = "ANALYZER", args=(lockObj))
+
+        imageRetrieval.start()
+        imageAnalysis.start()
 
     else:
         logger.info('Init Mac System')
