@@ -4,7 +4,45 @@ from tinydb import TinyDB, Query
 __author__ = 'Raphael'
 
 SUBPATH = 'database'
-DB = SUBPATH + '/imgDB.json'
+DB = SUBPATH + '/imgDB-2.json'
+
+
+###
+
+global helper
+
+databasePath = DB
+if not os.path.exists(SUBPATH):
+    os.makedirs(SUBPATH)
+
+helper = TinyDB(databasePath)
+
+def getImage(identifier):
+    return helper.get(Query().fileName == identifier)
+
+def getTruth(identifier):
+    entry = getImage(identifier)
+
+    x = entry['truth']['x']
+    y = entry['truth']['y']
+
+    #some times the value is stored as a unicode string, we need an int
+    if isinstance(x, basestring):
+        x = int(x)
+        y = int(y)
+
+    validEntry =  False if entry is None or x == -1 or y == -1 else True
+
+    # if (entry is None or
+    #     x == -1 or
+    #     y == -1):
+    #     return False, (x, x)
+
+
+    return validEntry, (x, y)
+
+###
+
 
 class Database(object):
 
@@ -17,10 +55,10 @@ class Database(object):
 
         self.db = TinyDB(databasePath)
         self.Eyeball = Query()
-        self.getImage('')
 
     def getImage(self, identifier):
-        print self.db.search(self.Eyeball.fileName == '1234567899.jpg')
+        return self.db.search(self.Eyeball.fileName == identifier)
+        item = self.db.get(eid =3)
 
     def cycleThroughImages(self, path):
 
@@ -46,6 +84,10 @@ class Database(object):
         else:
             retVal = self.db.insert(eyeBallObj.getDict())
             print 'Added new item with eid: ' + str(retVal)
+
+
+    def eyeBallExists(self, fileName):
+        return self.db.contains(self.Eyeball.fileName == fileName)
 
 
 

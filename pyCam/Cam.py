@@ -7,7 +7,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 BAUD = 38400 
-PORT = "/dev/ttyO4"      # change this to your com port!
 TIMEOUT = 0.2
 
 SERIALNUM = 0x00
@@ -31,9 +30,17 @@ setBaudRateCmd = [0x56, 0x00, 0x31, 0x05, 0x04, 0x01, 0x00, 0x00, 0x00]
 baudrates = {115200: [0x1A,0x26], 38400: [0x2A, 0xF2]}
 
 
-class Cam2():
-	def __init__(self, outputDir ):
+class Cam():
+	def __init__(self, outputDir, side):
 		self.opDir = outputDir
+
+                self.eyeSide = side
+                if side == 'L':
+                    port_num = 1
+                elif side == 'R':
+                    port_num = 4
+
+                PORT = "/dev/ttyO" + str(port_num)
 		self.conn = serial.Serial(PORT, baudrate=BAUD, timeout=TIMEOUT)
                 logger.info("port: %s", PORT)
 
@@ -149,7 +156,7 @@ class Cam2():
 								lowbit=buff_len[3])
 
 			if buff:
-				fileName = self.opDir + "L" +str(timestamp) + ".jpg"
+				fileName = self.opDir + self.eyeSide + str(timestamp) + ".jpg"
 				with open(fileName, 'w') as f:
 					for i in buff:
 						f.write(chr(i))

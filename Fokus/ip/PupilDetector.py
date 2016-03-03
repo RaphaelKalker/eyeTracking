@@ -1,9 +1,13 @@
-import cv2
 import math
+
+import cv2
 import numpy as np
+
 import CV_
-import Const
+# import database
+import FeatureDebug
 from ImageHelper import ImageHelper
+from debug.AdjustableImage import AdjustableImage
 
 __author__ = 'Raphael'
 
@@ -11,6 +15,7 @@ MIN_AREA = 30 #the min value for creating circles
 RED = (0,0,255)
 GREEN = (0,255,0)
 BLUE = (255,0,0)
+YELLOW = (0,255,255)
 DIFF_VALUES = 1
 DP = 10 #Dimension in circle space (lower is faster to compute)
 CROSSHAIRS = 5
@@ -38,11 +43,22 @@ DEBUG_CANDIDATE_CORNER = 'CandidateCorner'
 
 class PupilDetector(object):
 
-    def __init__(self, originalImg, processedImg, cameraType, callback):
+    def __init__(self, originalImg, processedImg, cameraType, callback, params = None, eyeball=None):
         self.originalImg = originalImg
         self.processedImg = processedImg
         self.cameraType = cameraType
         self.callback = callback
+        self.params = params
+        self.eyeBall = eyeball
+
+        if FeatureDebug.DEBUG_PUPIL_DETECTOR:
+            self.debug = AdjustableImage()
+            self.debug.doIt(self.originalImg, self.updateHoughCallback, self.params)
+
+        if FeatureDebug.DEBUG_DRAW_TRUTH:
+            from db import Database as db
+            self.db = db
+            self.__drawTruth__()
 
     def doHoughTransform(self, param1=None, param2 = None, minRadius = None, maxRadius = None):
 
@@ -50,7 +66,7 @@ class PupilDetector(object):
         result = self.originalImg.copy()
 
         if param1 is None or param2 is None or minRadius is None or maxRadius is None:
-            (param1, param2, minRadius, maxRadius) = Const.HoughParamaters.getParams(self.cameraType)
+            (param1, param2, minRadius, maxRadius) = self.params.hough.getParams()
             # houghMinDistance = HOUGH_MIN_DIST
 
         houghCircles = CV_.HoughCirclesWithDefaultGradient(self.processedImg, DP, HOUGH_MIN_DIST,
@@ -64,7 +80,10 @@ class PupilDetector(object):
                 cv2.line(result,(x - CROSSHAIRS, y - CROSSHAIRS),(x + CROSSHAIRS, y + CROSSHAIRS), RED, 1)
                 cv2.line(result,(x + CROSSHAIRS, y - CROSSHAIRS),(x - CROSSHAIRS, y + CROSSHAIRS), RED, 1)
 
+                self.eyeBall.addHoughCircle(x,y,r)
+
                 ImageHelper.showImage('Hough Circle', result)
+            return result
         else:
             # self.saveInfo({('Hough Circle', False)})
             pass
@@ -109,7 +128,23 @@ class PupilDetector(object):
 
                 ImageHelper.showImage('Pupil Circle', result)
 
-                self.callback({('DEBUG_RADIUS', radius), ('DEBUG_CENTER', center), ('DEBUG_RECT', (x,y,width,height))})
+                # self.callback({('DEBUG_RADIUS', radius), ('DEBUG_CENTER', center), ('DEBUG_RECT', (x,y,width,height))})
+                self.eyeBall.addContourCircle(x, y, radius)
 
                 # self.saveInfo({(DEBUG_RADIUS, radius), (DEBUG_CENTER, center), (DEBUG_RECT, (x,y,width,height))})
 
+    def __drawTruth__(self):
+        fileName = self.eyeBall.getFileName()
+
+        if 'img1398289259' in fileName:
+            print 'FUCK'
+
+
+        annotated, (x,y) = self.db.getTruth(self.eyeBall.getFileName())
+        if annotated:
+            cv2.circle(self.originalImg, (x,y), 5, YELLOW, -1)
+
+
+    def updateHoughCallback(self, param1=None, param2=None, minRad=None, maxRad=None):
+        self.debug.updateImage(self.doHoughTransform(param1, param2, minRad, maxRad))
+        print 'updateHough'

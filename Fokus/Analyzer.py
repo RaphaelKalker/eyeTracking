@@ -1,18 +1,22 @@
-import cv2
+import pprint
 import sys
-import CV_
-import math
-import copy
-import Const
-from CornerDetection import CornerDetection
-import DebugOptions as tb
+
+import cv2
 import numpy as np
+
+from ip.Blob import Blob
+from Eyeball import Eyeball
+from ip.ReflectionReduction import ReflectionReduction
+from learning import Parameters
+from ip.CornerDetection import CornerDetection
+import DebugOptions as tb
 import FeatureDebug
 from ImageHelper import ImageHelper
-from Morphology import Morphology
-from PupilDetector import PupilDetector
-from Threshold import Threshold
+from ip.Morphology import Morphology
+from ip.PupilDetector import PupilDetector
+from ip.Threshold import Threshold
 import Utils
+from ip.EdgeDetection import EdgeDetection
 
 selecting = False
 startX = -1
@@ -31,6 +35,16 @@ def forceExit():
     sys.exit()
 
 
+class Blur(object):
+
+    def __init__(self, image):
+        self.image = image
+
+    def applyGaussianBlur(self):
+        return cv2.GaussianBlur(self.image, (3, 3), 0)
+    pass
+
+
 class Analyzer:
 
     #global variables
@@ -39,31 +53,38 @@ class Analyzer:
     startY = 0
 
     #src is either a file name, or an image buffer
-    def __init__(self, src, cameraType):
+    def __init__(self, src, params=None):
 
         if isinstance(src, basestring):
-            self.debugStats = dict({('Filename', src), ('CameraType', cameraType)})
-            self.cameraType = cameraType
+            self.eyeHeuristics = dict({('Filename', src), ('CameraType', 0)})
+            self.cameraType = 0 # deprecated
             self.originalImage = cv2.imread(src)
-
-        elif type(src).__module__ == 'numpy':
-            self.debugStats = dict({('Buffer', True)})
-            self.originalImage = cv2.imdecode(src, 1)
-
-        else:
-            raise AssertionError('Source input is invalid')
+            self.eyeball = Eyeball(src)
+            self.fileName = src
 
         if  self.originalImage is None:
             raise ValueError('Original Image was null')
 
         self.imgWidth, self.imgHeight = self.originalImage.shape[:2]
         self.imgIndex = 0
+        self.params = Parameters.Parameters if params is None else params
+
+        self.analyze()
 
 
-    def loadImage(self):
+    def analyze(self):
+
+
 
         originalImage = self.originalImage.copy()
         self.imageCanny = self.originalImage.copy()
+
+        if True:
+            rr = ReflectionReduction(originalImage)
+            self.hue_masked = rr.doStuff(self.fileName)
+            # self.waitForKeyPress()
+
+            # return
 
         if originalImage is None:
             raise NameError('Image not found!')
@@ -71,49 +92,65 @@ class Analyzer:
         ImageHelper.showImage('Original Image', originalImage)
 
         #Invert image with ~ and convert to grayscale
-        self.imageGray = cv2.cvtColor(~originalImage, cv2.COLOR_BGR2GRAY)
-        ImageHelper.showImage('Grey Image', self.imageGray)
+        processedImage = cv2.cvtColor(~originalImage, cv2.COLOR_BGR2GRAY)
+        # processedImage = cv2.cvtColor(~self.hue_masked, cv2.COLOR_BGR2GRAY)
+        # ImageHelper.showImage('Grey Image', processedImage)
 
-        #Threshold image -> req. new Threshold obj
+        if True:
+            blobbed = Blob(processedImage).detect()
+            ImageHelper.showImage('BLOBBED', blobbed)
 
-        self.thresholder = Threshold(self.imageGray, self.cameraType)
-        self.imageThreshold = self.thresholder.getBinaryThreshold()
-        self.thresholder.getAdaptiveThreshold(150, 3, -5)
+        if FeatureDebug.BLUR:
+            blur = Blur(processedImage)
+            processedImage = blur.applyGaussianBlur()
+
+        if FeatureDebug.THRESHOLD:
+            thresholder = Threshold(processedImage, self.cameraType, self.params)
+            processedImage = thresholder.getBinaryThreshold()
+            thresholder.getAdaptiveThreshold(150, 3, -5)
+
+
+        #Canny Edge it
+        self.canny = EdgeDetection(self.originalImage, self.params)
+        cannyImage = self.canny.doAutoCanny()
+        ImageHelper.showImage('CannyImage', cannyImage)
 
         #Clean up the binary threshold image to get a better pupil representation
-        morpher = Morphology(self.imageThreshold)
-        processedImage = morpher.cleanImage()
+        if FeatureDebug.MORPHOLOGY:
+            morpher = Morphology(self.processedImage)
+            processedImage = morpher.cleanImage()
+        # else
 
-        ####TEMP
-        blur = cv2.GaussianBlur(self.imageCanny, (9, 9), 0)
-        ImageHelper.showImage('Blurred', blur)
-        lB, uB = Const.Canny.getParams(self.cameraType)
-        canny = cv2.Canny(blur, lB, uB)
+        # ####TEMP
+        # blur = cv2.GaussianBlur(self.imageCanny, (9, 9), 0)
+        # ImageHelper.showImage('Blurred', blur)
+        # lB, uB = self.params.Canny.getParams(self.cameraType)
+        # canny = cv2.Canny(blur, lB, uB)
 
-        self.pupilDetector = PupilDetector(originalImage, processedImage, self.cameraType, self.saveInfo)
+        self.pupilDetector = PupilDetector(originalImage, processedImage, self.cameraType, self.saveInfo, self.params, self.eyeball)
         self.pupilDetector.doHoughTransform()
         self.pupilDetector.findPupilCircle()
 
         #IR LED
         # self.findIrReflection(imageGray)
 
-        if FeatureDebug.PRINT:
+        if FeatureDebug.PRINT_HEURISTICS:
             self.printDebugInfo()
 
         #Parameter Tuner
         if Utils.isMac():
             tb.initHoughOptions(self.cameraType, self.updateParams)
-            cv2.waitKey(1)
+            # self.waitForKeyPress()
 
         else:
             print 'WARNING! Disabled parameter tuner, must test on BB'
 
-        if Utils.isMac():
-            keyPressed = cv2.waitKey()
-            if keyPressed == ord('n'):
-                cv2.destroyAllWindows()
-            elif keyPressed == ord('e'):
-                forceExit()
+        if Utils.isMac() and FeatureDebug.SHOW_CV2_IMAGES:
+            self.waitForKeyPress()
+        elif Utils.isBeagalBone():
+            pass
+
+
 
     def updateStats(self, info):
         self.saveInfo(info)
@@ -205,136 +242,133 @@ class Analyzer:
         print 'Updated Params ' + kwargs.__str__()
         self.saveInfo(kwargs)
 
-        if type is Const.Trackbar.Canny:
+        if type is Parameters.Const.Trackbar.Canny:
             cannyLb = kwargs.get('cannyLb')
             cannyUp = kwargs.get('cannyUb')
             CornerDetection.findCornerCandidate(self.imageCanny, cannyLb, cannyUp)
 
-        elif type is Const.Trackbar.Hough:
-            param1 = kwargs.get(Const.HoughParamaters.PARAM_1)
-            param2 = kwargs.get(Const.HoughParamaters.PARAM_2)
-            minRad = kwargs.get(Const.HoughParamaters.MIN_RAD)
-            maxRad = kwargs.get(Const.HoughParamaters.MAX_RAD)
+        elif type is Parameters.Const.Trackbar.Hough:
+            param1 = kwargs.get(Parameters.Const.PARAM_1)
+            param2 = kwargs.get(Parameters.Const.PARAM_2)
+            minRad = kwargs.get(Parameters.Const.MIN_RAD)
+            maxRad = kwargs.get(Parameters.Const.MAX_RAD)
             self.pupilDetector.doHoughTransform(param1, param2, minRad, maxRad)
 
-        elif type is Const.Trackbar.AdaptiveThreshold:
-            blockSize = kwargs.get(Const.Threshold.BLOCKSIZE)
+        elif type is Parameters.Const.Trackbar.AdaptiveThreshold:
+            blockSize = kwargs.get(Parameters.Const.BLOCKSIZE)
             self.thresholder.getAdaptiveThreshold(blockSize)
 
-    def doSelectiveHoughTransform(self, srcImage, param1=None, param2 = None, minRadius = None, maxRadius = None):
+    # def doSelectiveHoughTransform(self, srcImage, param1=None, param2 = None, minRadius = None, maxRadius = None):
+    #
+    #     houghTransformed = copy.deepcopy(self.originalImage)
+    #
+    #     houghCircles = CV_.HoughCirclesWithDefaultGradient(srcImage, DP, HOUGH_MIN_DIST,
+    #                                None, param1, param2, minRadius, maxRadius)
+    #
+    #     #reset Image
+    #     self.imgIndex = 0
+    #
+    #     if houghCircles is not None:
+    #         circles = np.round(houghCircles[0, :]).astype("int")
+    #         for (x,y,r) in circles:
+    #             cv2.circle(houghTransformed, (x,y), r, RED, 1)
+    #             lineLength = 2
+    #             cv2.line(houghTransformed,(x - CROSSHAIRS, y - CROSSHAIRS),(x + CROSSHAIRS, y + CROSSHAIRS),(0,0,255),1)
+    #             cv2.line(houghTransformed,(x + CROSSHAIRS, y - CROSSHAIRS),(x - CROSSHAIRS, y + CROSSHAIRS),(0,0,255),1)
+    #
+    #         ImageHelper.showImage('Hough Circle', houghTransformed)
+    #
+    #     else:
+    #         width, height = srcImage.shape
+    #         cv2.putText(houghTransformed,"FAILED", (width/2, height/2), cv2.FONT_HERSHEY_SIMPLEX, 1,(0,0,255))
+    #         ImageHelper.showImage('Hough Circle', houghTransformed)
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #     #use selective for iteration instead
+    #     # while(houghCircles is None):
+    #     #
+    #     #     if (param2 is 1):
+    #     #         print 'Failed!!!!'
+    #     #         width, height = srcImage.shape
+    #     #         cv2.putText(houghTransformed,"FAILED", (width/2, height/2), cv2.FONT_HERSHEY_SIMPLEX, 1,(0,0,255))
+    #     #         Imager.showImage('Hough Circle', houghTransformed)
+    #     #
+    #     #         break
+    #     #
+    #     #     param2 -= 1
+    #     #     houghCircles = CV_.HoughCirclesWithDefaultGradient(srcImage, DP, houghMinDistance,
+    #     #                            None, param1, param2, minRadius, maxRadius)
+    #     #
+    #     #     if houghCircles is not None:
+    #     #         circles = np.round(houghCircles[0, :]).astype("int")
+    #     #         for (x,y,r) in circles:
+    #     #             cv2.circle(houghTransformed, (x,y), r, RED, 1)
+    #     #             cv2.line(houghTransformed,(x - CROSSHAIRS, y - CROSSHAIRS),(x + CROSSHAIRS, y + CROSSHAIRS), RED, 1)
+    #     #             cv2.line(houghTransformed,(x + CROSSHAIRS, y - CROSSHAIRS),(x - CROSSHAIRS, y + CROSSHAIRS), RED, 1)
+    #     #
+    #     #             Imager.showImage('Hough Circle', houghTransformed)
 
-        houghTransformed = copy.deepcopy(self.originalImage)
-
-        houghCircles = CV_.HoughCirclesWithDefaultGradient(srcImage, DP, HOUGH_MIN_DIST,
-                                   None, param1, param2, minRadius, maxRadius)
-
-        #reset Image
-        self.imgIndex = 0
-
-        if houghCircles is not None:
-            circles = np.round(houghCircles[0, :]).astype("int")
-            for (x,y,r) in circles:
-                cv2.circle(houghTransformed, (x,y), r, RED, 1)
-                lineLength = 2
-                cv2.line(houghTransformed,(x - CROSSHAIRS, y - CROSSHAIRS),(x + CROSSHAIRS, y + CROSSHAIRS),(0,0,255),1)
-                cv2.line(houghTransformed,(x + CROSSHAIRS, y - CROSSHAIRS),(x - CROSSHAIRS, y + CROSSHAIRS),(0,0,255),1)
-
-            ImageHelper.showImage('Hough Circle', houghTransformed)
-
-        else:
-            width, height = srcImage.shape
-            cv2.putText(houghTransformed,"FAILED", (width/2, height/2), cv2.FONT_HERSHEY_SIMPLEX, 1,(0,0,255))
-            ImageHelper.showImage('Hough Circle', houghTransformed)
-
-
-
-
-
-
-
-
-        #use selective for iteration instead
-        # while(houghCircles is None):
-        #
-        #     if (param2 is 1):
-        #         print 'Failed!!!!'
-        #         width, height = srcImage.shape
-        #         cv2.putText(houghTransformed,"FAILED", (width/2, height/2), cv2.FONT_HERSHEY_SIMPLEX, 1,(0,0,255))
-        #         Imager.showImage('Hough Circle', houghTransformed)
-        #
-        #         break
-        #
-        #     param2 -= 1
-        #     houghCircles = CV_.HoughCirclesWithDefaultGradient(srcImage, DP, houghMinDistance,
-        #                            None, param1, param2, minRadius, maxRadius)
-        #
-        #     if houghCircles is not None:
-        #         circles = np.round(houghCircles[0, :]).astype("int")
-        #         for (x,y,r) in circles:
-        #             cv2.circle(houghTransformed, (x,y), r, RED, 1)
-        #             cv2.line(houghTransformed,(x - CROSSHAIRS, y - CROSSHAIRS),(x + CROSSHAIRS, y + CROSSHAIRS), RED, 1)
-        #             cv2.line(houghTransformed,(x + CROSSHAIRS, y - CROSSHAIRS),(x - CROSSHAIRS, y + CROSSHAIRS), RED, 1)
-        #
-        #             Imager.showImage('Hough Circle', houghTransformed)
-
-    def findIrReflection(self, imageGray):
-
-        irImage = copy.deepcopy(self.originalImage)
-
-        center = self.debugStats.get(DEBUG_CENTER)
-        radius = self.debugStats.get(DEBUG_RADIUS)
-        xPupil, yPupil, widthPupil, heightPupil = self.debugStats.get(DEBUG_RECT)
-
-        # cropping to find ir led reflection
-        xBoundLow = max(0, xPupil - 20)
-        xBoundHigh = min(self.imgWidth, xPupil + radius*2 + 40)
-        yBoundLow = max(0, yPupil - 20)
-        yBoundHigh = min(self.imgHeight, yPupil + radius*2 + 30)
-        cv2.rectangle(irImage, (yBoundHigh, xBoundHigh), (yBoundLow,xBoundLow), GREEN, 1)
-        imgGrayCropped = ~imageGray[xBoundLow:xBoundHigh, yBoundLow:yBoundHigh]
-        imgGrayBin = copy.deepcopy(imgGrayCropped)
-        cv2.threshold(imgGrayBin, 200, MAXVAL, cv2.THRESH_BINARY, imgGrayBin)
-
-
-        # get ir led reflection contour
-        irContours, hier = CV_.findContours(imgGrayBin,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
-
-        # take the first found contour
-        if irContours:
-            cnt = irContours[0]
-
-            # calculate centroid of ir contour
-            M = cv2.moments(cnt)
-            if M['m00'] == 0:
-                pass
-
-            cx = int(M['m10']/M['m00'])
-            cy = int(M['m01']/M['m00'])
-
-            # transform centroid back to original image coordinates
-            irX = yBoundLow + cx
-            irY = xBoundLow + cy
-            cv2.circle(irImage, (irX,irY), 1, RED, 1)
-
-            # calculate distance between pupil and contour
-            lenIrPupil = math.sqrt((irX-center[0])**2 + (irY-center[1])**2 )
-            print lenIrPupil
-
-        # Analyzer.showImage(self, 'IR Reflection', irImage)
+    # def findIrReflection(self, imageGray):
+    #
+    #     irImage = copy.deepcopy(self.originalImage)
+    #
+    #     center = self.debugStats.get(DEBUG_CENTER)
+    #     radius = self.debugStats.get(DEBUG_RADIUS)
+    #     xPupil, yPupil, widthPupil, heightPupil = self.debugStats.get(DEBUG_RECT)
+    #
+    #     # cropping to find ir led reflection
+    #     xBoundLow = max(0, xPupil - 20)
+    #     xBoundHigh = min(self.imgWidth, xPupil + radius*2 + 40)
+    #     yBoundLow = max(0, yPupil - 20)
+    #     yBoundHigh = min(self.imgHeight, yPupil + radius*2 + 30)
+    #     cv2.rectangle(irImage, (yBoundHigh, xBoundHigh), (yBoundLow,xBoundLow), GREEN, 1)
+    #     imgGrayCropped = ~imageGray[xBoundLow:xBoundHigh, yBoundLow:yBoundHigh]
+    #     imgGrayBin = copy.deepcopy(imgGrayCropped)
+    #     cv2.threshold(imgGrayBin, 200, MAXVAL, cv2.THRESH_BINARY, imgGrayBin)
+    #
+    #
+    #     # get ir led reflection contour
+    #     irContours, hier = CV_.findContours(imgGrayBin,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
+    #
+    #     # take the first found contour
+    #     if irContours:
+    #         cnt = irContours[0]
+    #
+    #         # calculate centroid of ir contour
+    #         M = cv2.moments(cnt)
+    #         if M['m00'] == 0:
+    #             pass
+    #
+    #         cx = int(M['m10']/M['m00'])
+    #         cy = int(M['m01']/M['m00'])
+    #
+    #         # transform centroid back to original image coordinates
+    #         irX = yBoundLow + cx
+    #         irY = xBoundLow + cy
+    #         cv2.circle(irImage, (irX,irY), 1, RED, 1)
+    #
+    #         # calculate distance between pupil and contour
+    #         lenIrPupil = math.sqrt((irX-center[0])**2 + (irY-center[1])**2 )
+    #         print lenIrPupil
+    #
+    #     # Analyzer.showImage(self, 'IR Reflection', irImage)
 
     def saveInfo(self, info):
-        self.debugStats.update(info)
+        self.eyeHeuristics.update(info)
+
+    def getEyeData(self):
+        return self.eyeball
 
     def printDebugInfo(self):
+        print '\n Heuristics:'
+        pprint.pprint(self.eyeball.dict['heuristics'])
 
-        print '\n'
-
-        for k, v in self.debugStats.iteritems():
-            print k + ':\t\t' + str(v)
-
-        print '\n'
-        # cv2.putText(background,'Debug Info coming soon',(10,100), font, 1,(255,255,255),1)
-        # cv2.imshow(q'Debug Information', background)
 
     @staticmethod
     def findRegionOfInterest(image):
@@ -350,3 +384,15 @@ class Analyzer:
         roiFrame = image[y1:y2, x1:x2]
 
         return roiFrame
+
+    def waitForKeyPress(self, delay=None):
+        print 'Waiting for key press....'
+        if  delay is None:
+            keyPressed =  cv2.waitKey()
+        else:
+            keyPressed = cv2.waitKey(delay)
+
+        if keyPressed == ord('n'):
+            cv2.destroyAllWindows()
+        elif keyPressed == ord('e'):
+            forceExit()
