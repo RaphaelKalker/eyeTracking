@@ -45,8 +45,8 @@ def retrieveImageBB(imageDir, lock, pipe):
         time.sleep(1)
 
     # close connections to cameras
-    cam1.closeConn()
-    cam2.closeConn()
+    camLeft.closeConn()
+    camRight.closeConn()
 
 
 def analyzeImageBB(lock):
