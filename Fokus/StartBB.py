@@ -5,6 +5,8 @@ from Analyzer import Analyzer
 import Test2
 import Utils
 import logging
+
+sys.path.insert(0, '../pyCam/')
 import Cam
 
 from learning.ParamsConstructor import ParamsConstructor
