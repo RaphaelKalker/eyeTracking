@@ -1,4 +1,4 @@
-from multiprocessing import Process
+from multiprocessing import Process, Lock, Pipe
 import sys
 import time
 from Analyzer import Analyzer
@@ -17,6 +17,8 @@ logger = logging.getLogger(__name__)
 #GLOBAL VARS
 PARAMS = ParamsConstructor().constructDefaultParams()
 IMAGE_DIRECTORY = './processing/'
+
+LOCK_OBJ = Lock()
 
 
 def retrieveImageBB(imageDir, lock, pipe):
@@ -63,8 +65,8 @@ if  __name__ == '__main__':
     analyzePipe, retrievePipe = Pipe()
 
     # Processes for
-    imageRetrieval = Process(target=retrieveImagesBB, name = "CAMERA", args=(IMAGE_DIRECTORY, lockObj, retrievePipe))
-    imageAnalysis = Process(target=retrieveImageBB, name = "ANALYZER", args=(lockObj))
+    imageRetrieval = Process(target=retrieveImageBB, name = "CAMERA", args=(IMAGE_DIRECTORY, LOCK_OBJ, retrievePipe))
+    imageAnalysis = Process(target=analyzeImageBB, name = "ANALYZER", args=())
 
     imageRetrieval.start()
     imageAnalysis.start()
