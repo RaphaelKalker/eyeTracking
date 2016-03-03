@@ -134,11 +134,7 @@ class Analyzer:
             print 'WARNING! Disabled parameter tuner, must test on BB'
 
         if Utils.isMac() and FeatureDebug.SHOW_CV2_IMAGES:
-            keyPressed = self.waitForKeyPress()
-            if keyPressed == ord('n'):
-                cv2.destroyAllWindows()
-            elif keyPressed == ord('e'):
-                forceExit()
+            self.waitForKeyPress()
         elif Utils.isBeagalBone():
             pass
 
@@ -380,6 +376,11 @@ class Analyzer:
     def waitForKeyPress(self, delay=None):
         print 'Waiting for key press....'
         if  delay is None:
-            return cv2.waitKey()
+            keyPressed =  cv2.waitKey()
         else:
-            return cv2.waitKey(delay)
+            keyPressed = cv2.waitKey(delay)
+
+        if keyPressed == ord('n'):
+            cv2.destroyAllWindows()
+        elif keyPressed == ord('e'):
+            forceExit()
