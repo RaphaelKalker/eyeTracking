@@ -1,6 +1,7 @@
 import time
 import sys
 import logging
+from multiprocessing import Lock
 
 import os
 
@@ -22,6 +23,8 @@ IMAGE_DIRECTORY = './processing/'
 PROCESSING_DIR = 'processing/'
 PROCESSING_DIR_JAN_11 = 'image/Jan11'
 PROCESSING_DIR_JAN_13 = 'image/tim_jan13'
+
+lockObj = Lock()
 
 
 def compareResults(results, THRESHOLD=20):
@@ -52,30 +55,34 @@ def processImages():
         logger.info('Random Pupil Truth: x: {}, y: {}'.format(x,y))
         compareResults(results)
 
+
+def retrieveImagesBB(imageDir, lock, pipe):
+    logger.info('Init BB System')
+
+    # initialize cameras
+    camRight = Cam1.Cam1(IMAGE_DIRECTORY)
+    camLeft = Cam2.Cam2(IMAGE_DIRECTORY)
+
+    # looping to capture and process images
+    for i in range(1,100):
+        timestamp = int(time.time())
+        camRight.takeImg()
+        camLeft.takeImg()
+
+        rightImg = camRight.getImg(timestamp)
+        leftImg = camLeft.getImg(timestamp)
+
+        time.sleep(1)
+
+    # close connections to cameras
+    cam1.closeConn()
+    cam2.closeConn()
+
+
 if  __name__ == '__main__':
 
     if Utils.isBeagalBone():
-        logger.info('Init BB System')
-
-        # initialize cameras
-        camRight = Cam1.Cam1(IMAGE_DIRECTORY)
-        camLeft = Cam2.Cam2(IMAGE_DIRECTORY)
-
-        # looping to capture and process images
-        for i in range(1,100):
-            timestamp = int(time.time())
-            camRight.takeImg()
-            camLeft.takeImg()
-
-            rightImg = camRight.getImg(timestamp)
-            leftImg = camLeft.getImg(timestamp)
-
-#            print "process image in Analyzer2"
-            time.sleep(1)
-
-        # close connections to cameras
-        cam1.closeConn()
-        cam2.closeConn()
+        retrieveImagesBB(IMAGE_DIRECTORY, lockObj, None)
 
     else:
         logger.info('Init Mac System')
