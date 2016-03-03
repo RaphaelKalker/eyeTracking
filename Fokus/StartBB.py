@@ -54,8 +54,13 @@ def retrieveImageBB(imageDir, lock, pipe):
 
 
 def analyzeImageBB(lock):
-    (xL, yL) = Analyzer(Test2.getLeftImage()).getEyeData().getRandomPupilTruth()
-    (xR, yR) = Analyzer(Test2.getRightImage()).getEyeData().getRandomPupilTruth()
+    if Test2.getLeftImage() is not None:
+        logger.log('Getting Left image is valid')
+        (xL, yL) = Analyzer(Test2.getLeftImage()).getEyeData().getRandomPupilTruth()
+
+    if Test2.getRightImage() is not None:
+        logger.log('Getting right image is valid')
+        (xR, yR) = Analyzer(Test2.getRightImage()).getEyeData().getRandomPupilTruth()
 
 
 if  __name__ == '__main__':
