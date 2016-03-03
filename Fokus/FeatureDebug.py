@@ -1,6 +1,8 @@
+import Utils
+
 __author__ = 'Raphael'
 
-SHOW_CV2_IMAGES = False
+SHOW_CV2_IMAGES = True
 
 SAVE_IMAGES = False
 TRACKBAR = False
@@ -18,3 +20,4 @@ DEBUG_PUPIL_DETECTOR = False
 
 #PRINT DEBUG
 PRINT_HEURISTICS = True
+DEBUG_DRAW_TRUTH = False if Utils.isBeagalBone() else False

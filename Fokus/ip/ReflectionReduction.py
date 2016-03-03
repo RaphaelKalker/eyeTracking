@@ -1,7 +1,7 @@
 import cv2
+import FeatureDebug
 from ImageHelper import ImageHelper
 import Utils
-from db import Database
 from ip.PupilDetector import YELLOW
 
 __author__ = 'Raphael'
@@ -17,7 +17,11 @@ class ReflectionReduction:
         hsvImg = cv2.cvtColor(self.image, cv2.COLOR_RGB2HSV)
         h,s,v = cv2.split(hsvImg)
 
-        self.image = self.__drawTruth__(self.image, fileName)
+        if FeatureDebug.DEBUG_DRAW_TRUTH:
+            from db import Database as db
+            self.db = db
+            self.image = self.__drawTruth__(self.image, fileName)
+
         processedH = self.image.copy()
         processedS = self.image.copy()
 
@@ -35,16 +39,16 @@ class ReflectionReduction:
         ImageHelper.showImage('S', s)
         ImageHelper.showImage('V', v)
         ImageHelper.showImage('h_threshed',h_thresh)
-        ImageHelper.showImage('h_mask_threshed', self.__drawTruth__(processedH, fileName))
+        # ImageHelper.showImage('h_mask_threshed', self.__drawTruth__(processedH, fileName))
         ImageHelper.showImage('s_threshed', s_threshed)
-        ImageHelper.showImage('s_mask_threshed', self.__drawTruth__(processedS, fileName))
+        # ImageHelper.showImage('s_mask_threshed', self.__drawTruth__(processedS, fileName))
 
         return processedH
 
 
 
     def __drawTruth__(self, image, fileName):
-        annotated, (x,y) = Database.getTruth(fileName)
+        annotated, (x,y) = self.db.getTruth(fileName)
         if annotated:
             cv2.circle(image, (x,y), 5, YELLOW, -1)
             return image
