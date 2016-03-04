@@ -1,3 +1,4 @@
+import datetime
 import Utils
 from learning.ParamsNew import ParamsNew
 import copy
@@ -16,6 +17,7 @@ RADIUS = 'radius'
 HEURISTICS = 'heuristics'
 HOUGH = "hough"
 CONTOUR = "contour"
+UPDATED_AT = "updated_at"
 
 CENTRE = 60
 
@@ -25,7 +27,7 @@ class Eyeball():
 
 
     def __init__(self, fileName = None):
-        self.dict = Utils.newDict({"fileName":"","truth":{"x":"","y":""},"heuristics":[]})
+        self.dict = Utils.newDict({"fileName":"","updated_at":"","truth":{"x":"","y":""},"heuristics":[]})
         self.dict['fileName'] = fileName
 
     def getDict(self):
@@ -55,11 +57,11 @@ class Eyeball():
 
         return (x, y)
 
-
     def addPupilTruth(self, x, y):
         self.dict[TRUTH][X] = x
         self.dict[TRUTH][Y] = y
         pprint.pprint(self.dict)
+        self.updateTimeStamp()
         pass
 
     def addThreshold(self, min, max, isNormalized):
@@ -76,6 +78,8 @@ class Eyeball():
         heuristics[HOUGH][RADIUS] = r
 
         self.dict[HEURISTICS].append(heuristics)
+        self.updateTimeStamp()
+
 
     def addContourCircle(self, x, y, r):
         heuristics = {}
@@ -87,5 +91,10 @@ class Eyeball():
         heuristics[CONTOUR][RADIUS] = r
 
         self.dict[HEURISTICS].append(heuristics)
+        self.updateTimeStamp()
+
+
+    def updateTimeStamp(self):
+        self.dict[UPDATED_AT] = datetime.datetime.now()
 
 
