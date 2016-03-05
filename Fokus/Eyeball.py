@@ -1,3 +1,4 @@
+import datetime
 import Utils
 from learning.ParamsNew import ParamsNew
 import copy
@@ -16,6 +17,12 @@ RADIUS = 'radius'
 HEURISTICS = 'heuristics'
 HOUGH = "hough"
 CONTOUR = "contour"
+UPDATED_AT = "updated_at"
+CAMERA = "camera"
+FILENAME = "fileName"
+CREATED_AT = "created_at"
+PRESCRIPTION_TYPE = "prescription_type"
+PERSON = "person"
 
 CENTRE = 60
 
@@ -23,9 +30,25 @@ CENTRE = 60
 
 class Eyeball():
 
+    class PrescriptionType():
+        READING = 'reading'
+        NON_READING = 'non_reading'
+        UNKNOWN = '-1'
+
+    class Person():
+        TIM = 'tim'
+        ANNI = 'anni'
+        RAPH = 'raph'
+        RYAN = 'ryan'
+
+    class Camera():
+        LEFT = 'left'
+        RIGHT = 'right'
+        UNKNOWN = '-1'
+
 
     def __init__(self, fileName = None):
-        self.dict = Utils.newDict({"fileName":"","truth":{"x":"","y":""},"heuristics":[]})
+        self.dict = Utils.newDict({"fileName":"","camera":"","created_at":"","prescription_type":"","person":"","truth":{"x":"","y":""},"heuristics":[]})
         self.dict['fileName'] = fileName
 
     def getDict(self):
@@ -35,7 +58,19 @@ class Eyeball():
         return self.getDict()[HEURISTICS]
 
     def getFileName(self):
-        return self.dict['fileName']
+        return self.dict[FILENAME]
+
+    def getCreatedAt(self):
+        return self.dict[CREATED_AT]
+
+    def getPrescriptionType(self):
+        return self.dict[PRESCRIPTION_TYPE]
+
+    def getPerson(self):
+        return self.dict[PERSON]
+
+    def getCameraType(self):
+        return self.dict[CAMERA]
 
     def getRandomPupilTruth(self):
         heuristics = self.getDict()[HEURISTICS]
@@ -55,11 +90,10 @@ class Eyeball():
 
         return (x, y)
 
-
     def addPupilTruth(self, x, y):
         self.dict[TRUTH][X] = x
         self.dict[TRUTH][Y] = y
-        pprint.pprint(self.dict)
+        self.setTimeStamp()
         pass
 
     def addThreshold(self, min, max, isNormalized):
@@ -76,6 +110,8 @@ class Eyeball():
         heuristics[HOUGH][RADIUS] = r
 
         self.dict[HEURISTICS].append(heuristics)
+        self.setTimeStamp()
+
 
     def addContourCircle(self, x, y, r):
         heuristics = {}
@@ -87,5 +123,19 @@ class Eyeball():
         heuristics[CONTOUR][RADIUS] = r
 
         self.dict[HEURISTICS].append(heuristics)
+        self.setTimeStamp()
+
+
+    def setTimeStamp(self):
+        self.dict[CREATED_AT] = datetime.datetime.now().isoformat()
+
+    def setPerson(self, personName):
+        self.dict[PERSON] = personName
+
+    def setCamera(self, cameraType):
+        self.dict[CAMERA] = cameraType
+
+    def setPrescriptionType(self, prescriptionType):
+        self.dict[PRESCRIPTION_TYPE] = prescriptionType
 
 
