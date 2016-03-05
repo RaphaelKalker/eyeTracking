@@ -5,7 +5,7 @@ import numpy as np
 
 import CV_
 # import database
-import FeatureDebug
+from debug import FeatureDebug
 from ImageHelper import ImageHelper
 from debug.AdjustableImage import AdjustableImage
 

@@ -1,4 +1,4 @@
-import FeatureDebug
+from debug import FeatureDebug
 from learning.ParamsNew import ParamsNew
 
 __author__ = 'Raphael'

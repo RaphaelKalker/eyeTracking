@@ -1,11 +1,12 @@
 import pprint
-import os
-import cv2
 import time
 
+import os
+import cv2
+
 from db.Database import Database
-from Eyeball import Eyeball
-import FeatureDebug
+from db.Eyeball import Eyeball
+from debug import FeatureDebug
 
 if True:
     cv2.destroyAllWindows()  # avoids crash
