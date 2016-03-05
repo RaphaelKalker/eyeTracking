@@ -13,13 +13,14 @@ if True:
 
 RED = (0,0,255)
 
-class TruthSet(object):
+class TruthAnnotator(object):
 
-    def __init__(self, filePath):
+    def __init__(self, filePath, dbName):
         pass
 
         self.dbHelper = Database()
         self.cycle(filePath)
+        self.dbName = dbName
 
 
     def onKeyPressed(self, event):
@@ -89,7 +90,8 @@ class TruthSet(object):
 
 
 #run your stuff here
-ts = TruthSet('image/tim_jan13')
+databaseName = 'img-database-jan11'
+ts = TruthAnnotator('image/tim_jan13', databaseName)
 
 
 
