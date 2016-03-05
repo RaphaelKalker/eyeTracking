@@ -1,5 +1,7 @@
+import pprint
 import os
 import cv2
+import time
 
 from db.Database import Database
 from Eyeball import Eyeball
@@ -13,14 +15,24 @@ if True:
 
 RED = (0,0,255)
 
+class AnnotationSession():
+    def __init__(self, dbName, person, prescriptionType, imagePath, cameraType):
+        self.dbName = dbName
+        self.person = person
+        self.prescriptionType = prescriptionType
+        self.filePath = imagePath
+        self.cameraType = cameraType
+
 class TruthAnnotator(object):
 
-    def __init__(self, filePath, dbName):
-        pass
+    def __init__(self, session):
 
-        self.dbHelper = Database()
-        self.cycle(filePath)
-        self.dbName = dbName
+        if not isinstance(session, AnnotationSession):
+            raise AssertionError('Use the DatabaseConstructor to build params for annotation')
+
+        self.dbHelper = Database(session.dbName)
+        self.session = session
+        self.cycle(session.filePath)
 
 
     def onKeyPressed(self, event):
@@ -31,10 +43,6 @@ class TruthAnnotator(object):
 
         else:
             plt.waitforbuttonpress()
-
-
-
-
 
 
     def onPointSelected(self, event):
@@ -50,8 +58,8 @@ class TruthAnnotator(object):
         self.addEyeBall(self.fileName, event.xdata, event.ydata)
 
 
-    def cycle(self, filePath):
-        os.chdir(filePath)
+    def cycle(self):
+        os.chdir(self.session.filePath)
         files = [f for f in os.listdir('.') if os.path.isfile(f) and f.endswith('.jpeg') or f.endswith('.jpg')]
 
         for file in files:
@@ -84,14 +92,29 @@ class TruthAnnotator(object):
     def addEyeBall(self, fileName, x, y):
         eyeball = Eyeball(fileName)
         eyeball.addPupilTruth(str(int(x)), str(int(y)))
-        self.dbHelper.addEyeball(eyeball)
+        eyeball.setTimeStamp()
+        eyeball.setPerson(self.session.person)
+        eyeball.setCamera(self.session.cameraType)
+        eyeball.setPrescriptionType(self.session.prescriptionType)
+        self.dbHelper.addEyeball(eyeball) #change this
+        pprint.pprint(eyeball.getDict())
 
         pass
 
-
 #run your stuff here
-databaseName = 'img-database-jan11'
-ts = TruthAnnotator('image/tim_jan13', databaseName)
+annotator = TruthAnnotator(
+    AnnotationSession(
+        dbName= 'db-{}'.format(int(round(time.time() * 1000))),
+        person = Eyeball.Person.TIM,
+        prescriptionType = Eyeball.PrescriptionType.READING,
+        imagePath= 'image/tim_jan13',
+        cameraType = Eyeball.Camera.LEFT
+    )
+)
+
+annotator.cycle()
+
+
 
 
 
