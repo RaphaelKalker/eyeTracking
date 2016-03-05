@@ -10,14 +10,14 @@ MORPHOLOGY_IMAGES = False
 MORPHOLOGY = False
 BLUR = True
 THRESHOLD = True
-MATLABLIB = False #This causes crashes, probably because opencv has some matplotlib stuff
+MATLABLIB = False if Utils.isMac() else False
 NORMALIZE_GRAYSCALE = True
-START_TRUTH_FROM_PREV = True
+START_TRUTH_FROM_PREV = False
 VERIFY_TRUTH = True
 
 #DEBUG WINDOW
-DEBUG_PUPIL_DETECTOR = False
+DEBUG_PUPIL_DETECTOR = False if Utils.isMac() else False
 
 #PRINT DEBUG
 PRINT_HEURISTICS = True
-DEBUG_DRAW_TRUTH = False if Utils.isBeagalBone() else False
+DEBUG_DRAW_TRUTH = False if Utils.isMac() else False
