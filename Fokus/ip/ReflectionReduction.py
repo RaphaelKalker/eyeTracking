@@ -1,7 +1,7 @@
 import cv2
-import FeatureDebug
+
+from debug import FeatureDebug
 from ImageHelper import ImageHelper
-import Utils
 from ip.PupilDetector import YELLOW
 
 __author__ = 'Raphael'

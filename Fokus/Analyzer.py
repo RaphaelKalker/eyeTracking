@@ -5,12 +5,11 @@ import cv2
 import numpy as np
 
 from ip.Blob import Blob
-from Eyeball import Eyeball
+from db.Eyeball import Eyeball
 from ip.ReflectionReduction import ReflectionReduction
 from learning import Parameters
 from ip.CornerDetection import CornerDetection
-import DebugOptions as tb
-import FeatureDebug
+from debug import DebugOptions as tb, FeatureDebug
 from ImageHelper import ImageHelper
 from ip.Morphology import Morphology
 from ip.PupilDetector import PupilDetector
