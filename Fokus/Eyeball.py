@@ -19,7 +19,7 @@ HOUGH = "hough"
 CONTOUR = "contour"
 UPDATED_AT = "updated_at"
 CAMERA = "camera"
-FILENAME = "filename"
+FILENAME = "fileName"
 CREATED_AT = "created_at"
 PRESCRIPTION_TYPE = "prescription_type"
 PERSON = "person"
@@ -30,9 +30,25 @@ CENTRE = 60
 
 class Eyeball():
 
+    class PrescriptionType():
+        READING = 'reading'
+        NON_READING = 'non_reading'
+        UNKNOWN = '-1'
+
+    class Person():
+        TIM = 'tim'
+        ANNI = 'anni'
+        RAPH = 'raph'
+        RYAN = 'ryan'
+
+    class Camera():
+        LEFT = 'left'
+        RIGHT = 'right'
+        UNKNOWN = '-1'
+
 
     def __init__(self, fileName = None):
-        self.dict = Utils.newDict({{"fileName":"","camera":"","created_at":"","prescription_type":"","person":"","truth":{"x":"","y":""},"heuristics":[]}})
+        self.dict = Utils.newDict({"fileName":"","camera":"","created_at":"","prescription_type":"","person":"","truth":{"x":"","y":""},"heuristics":[]})
         self.dict['fileName'] = fileName
 
     def getDict(self):
@@ -77,7 +93,6 @@ class Eyeball():
     def addPupilTruth(self, x, y):
         self.dict[TRUTH][X] = x
         self.dict[TRUTH][Y] = y
-        pprint.pprint(self.dict)
         self.setTimeStamp()
         pass
 
@@ -112,7 +127,7 @@ class Eyeball():
 
 
     def setTimeStamp(self):
-        self.dict[CREATED_AT] = datetime.datetime.now()
+        self.dict[CREATED_AT] = datetime.datetime.now().isoformat()
 
     def setPerson(self, personName):
         self.dict[PERSON] = personName
