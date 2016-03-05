@@ -8,12 +8,14 @@ from Eyeball import Eyeball
 import FeatureDebug
 
 if True:
-    cv2.destroyAllWindows() #avoids crash
+    cv2.destroyAllWindows()  # avoids crash
     import matplotlib
+
     matplotlib.use('TkAgg')
     import matplotlib.pyplot as plt
 
-RED = (0,0,255)
+RED = (0, 0, 255)
+
 
 class AnnotationSession():
     def __init__(self, dbName, person, prescriptionType, imagePath, cameraType):
@@ -23,8 +25,8 @@ class AnnotationSession():
         self.filePath = imagePath
         self.cameraType = cameraType
 
-class TruthAnnotator(object):
 
+class TruthAnnotator(object):
     def __init__(self, session):
 
         if not isinstance(session, AnnotationSession):
@@ -32,8 +34,6 @@ class TruthAnnotator(object):
 
         self.dbHelper = Database(session.dbName)
         self.session = session
-        self.cycle(session.filePath)
-
 
     def onKeyPressed(self, event):
 
@@ -44,19 +44,17 @@ class TruthAnnotator(object):
         else:
             plt.waitforbuttonpress()
 
-
     def onPointSelected(self, event):
 
         if event.xdata is None or event.ydata is None:
-            #wasn't a valid click, don't close the window yet!
+            # wasn't a valid click, don't close the window yet!
             plt.waitforbuttonpress()
             return
 
-        print ' x=%d, y=%d, xdata=%f, ydata=%f'%(
+        print ' x=%d, y=%d, xdata=%f, ydata=%f' % (
             event.x, event.y, event.xdata, event.ydata)
 
         self.addEyeBall(self.fileName, event.xdata, event.ydata)
-
 
     def cycle(self):
         os.chdir(self.session.filePath)
@@ -96,25 +94,21 @@ class TruthAnnotator(object):
         eyeball.setPerson(self.session.person)
         eyeball.setCamera(self.session.cameraType)
         eyeball.setPrescriptionType(self.session.prescriptionType)
-        self.dbHelper.addEyeball(eyeball) #change this
+        self.dbHelper.addEyeball(eyeball)  # change this
         pprint.pprint(eyeball.getDict())
 
         pass
 
-#run your stuff here
+
+# run your stuff here
 annotator = TruthAnnotator(
     AnnotationSession(
-        dbName= 'db-{}'.format(int(round(time.time() * 1000))),
-        person = Eyeball.Person.TIM,
-        prescriptionType = Eyeball.PrescriptionType.READING,
-        imagePath= 'image/tim_jan13',
-        cameraType = Eyeball.Camera.LEFT
+        dbName='db-{}'.format(int(round(time.time() * 1000))),
+        person=Eyeball.Person.TIM,
+        prescriptionType=Eyeball.PrescriptionType.READING,
+        imagePath='image/tim_jan13',
+        cameraType=Eyeball.Camera.LEFT
     )
 )
 
 annotator.cycle()
-
-
-
-
-
