@@ -1,0 +1,50 @@
+{
+  "fileName": "",
+  "truth": {
+    "x": "",
+    "y": ""
+  },
+  "heuristics": []
+}
+
+
+
+{
+  "fileName": "",
+  "cameraType": "",
+  "color": "",
+  "verified": {
+    "x": "",
+    "y": "",
+    "isReading": "True",
+    "radius": ""
+  },
+  "imageProperties": {
+    "mean": "",
+    "variance": ""
+  },
+  "heuristics": []
+}
+
+
+
+{
+  "histogramNormalized": "",
+  "thresholdMin": "",
+  "thresholdMax": "",
+  "param1": "",
+  "param2": "",
+  "minRadius": "",
+  "maxRadius": "",
+  "minContourRadius": "",
+  "hough": {
+    "x": "",
+    "y": "",
+    "radius": ""
+  },
+  "contour": {
+    "x": "",
+    "y": "",
+    "radius": ""
+  }
+}
