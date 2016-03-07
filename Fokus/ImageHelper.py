@@ -2,7 +2,7 @@ import time
 
 import cv2
 
-import FeatureDebug
+from debug import FeatureDebug
 
 
 #

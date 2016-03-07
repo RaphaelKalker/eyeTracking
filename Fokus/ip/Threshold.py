@@ -1,5 +1,6 @@
 import cv2
-import FeatureDebug
+
+from debug import FeatureDebug
 from ImageHelper import ImageHelper
 
 __author__ = 'Raphael'
