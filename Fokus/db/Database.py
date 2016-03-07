@@ -6,41 +6,41 @@ if Utils.isMac():
 __author__ = 'Raphael'
 
 SUBPATH = 'database'
-#DB = SUBPATH + '/imgDB-2.json'
-#
-#global helper
-#
-#databasePath = DB
-#if not os.path.exists(SUBPATH):
-#    os.makedirs(SUBPATH)
-#
-#helper = TinyDB(databasePath)
+DB = SUBPATH + '/imgDB-2.json'
+
+global helper
+
+databasePath = DB
+if not os.path.exists(SUBPATH):
+    os.makedirs(SUBPATH)
+
+helper = TinyDB(databasePath)
 
 
-#def getImage(identifier):
-#    return helper.get(Query().fileName == identifier)
-#
-#
-#def getTruth(identifier):
-#    entry = getImage(identifier)
-#
-#    x = entry['truth']['x']
-#    y = entry['truth']['y']
-#
-#    # some times the value is stored as a unicode string, we need an int
-#    if isinstance(x, basestring):
-#        x = int(x)
-#        y = int(y)
-#
-#    validEntry = False if entry is None or x == -1 or y == -1 else True
-#
-#    # if (entry is None or
-#    #     x == -1 or
-#    #     y == -1):
-#    #     return False, (x, x)
-#
-#
-#    return validEntry, (x, y)
+def getImage(identifier):
+    return helper.get(Query().fileName == identifier)
+
+
+def getTruth(identifier):
+    entry = getImage(identifier)
+
+    x = entry['truth']['x']
+    y = entry['truth']['y']
+
+    # some times the value is stored as a unicode string, we need an int
+    if isinstance(x, basestring):
+        x = int(x)
+        y = int(y)
+
+    validEntry = False if entry is None or x == -1 or y == -1 else True
+
+    # if (entry is None or
+    #     x == -1 or
+    #     y == -1):
+    #     return False, (x, x)
+
+
+    return validEntry, (x, y)
 
 
 class Database(object):
