@@ -1,0 +1,56 @@
+close all; clear all;
+data = csvread('pupils.csv',1,0);
+
+tree_cnt = 0;
+test_arr = [];
+train_arr = [];
+num_nodes = [];
+
+% 80% train, 20% test
+train_size = floor(size(data,1)*0.8);
+test_size = size(data,1) - train_size;
+
+while tree_cnt < 100
+    [train, train_i] = datasample(data(:,1:4), train_size,'Replace',false);
+
+    test_i = setdiff(1:size(data,1), train_i);
+    test = data(test_i,1:4);
+
+    t = fitctree(train, data(train_i,5));
+
+    test_res = predict(t, test);
+    train_res = predict(t, train);
+    
+    test_truth = data(test_i,5);
+    train_truth = data(train_i,5);
+    test_cnt = 0;
+    train_cnt = 0;
+    for i = 1:test_size
+        if (test_res(i) == test_truth(i)) == 1
+            test_cnt = test_cnt + 1;
+        end
+    end
+    
+    for i = 1:train_size
+        if (train_res(i) == train_truth(i)) == 1
+            train_cnt = train_cnt + 1;
+        end
+    end
+    tree_cnt = tree_cnt + 1;
+
+    test_arr = [test_arr test_cnt/double(test_size)];
+    train_arr = [train_arr train_cnt/double(train_size)];
+    
+    num_nodes = [num_nodes size(t.Children, 1)];
+    disp(tree_cnt)
+    disp(size(t.Children,1))
+    disp(test_cnt)
+    disp(train_cnt)
+end
+
+figure;
+hist(test_arr); title('test data classification accuracy');
+figure;
+hist(train_arr); title('train data classification accuracy');
+figure;
+hist(num_nodes); title('number of children in the trees');
