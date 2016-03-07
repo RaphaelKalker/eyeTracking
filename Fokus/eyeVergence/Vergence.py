@@ -1,11 +1,5 @@
-import sys
-import time
-import serial
-import copy
 import logging
 import math
-from db import Database
-from tinydb import TinyDB, Query
 
 logger = logging.getLogger(__name__)
 
@@ -16,17 +10,14 @@ class Vergence():
  
         self.l_id = leftImg_f
         self.r_id = rightImg_f
-        
-        valid, self.l_pupil = Database.getTruth(self.l_id)
-        valid, self.r_pupil = Database.getTruth(self.r_id)
 
-    def detectVergence(self, ):
+    def detectVergence(self, l_pupil, r_pupil):
         reading = False
         
-        l_deltaX = self.l_pupil[0] - self.refPt[0]
-        l_deltaY = self.l_pupil[1] - self.refPt[1]
-        r_deltaX = self.r_pupil[0] - self.refPt[0]
-        r_deltaY = self.r_pupil[1] - self.refPt[1]
+        l_deltaX = l_pupil[0] - self.refPt[0]
+        l_deltaY = l_pupil[1] - self.refPt[1]
+        r_deltaX = r_pupil[0] - self.refPt[0]
+        r_deltaY = r_pupil[1] - self.refPt[1]
 
         l_vec = math.sqrt(l_deltaX**2 + l_deltaY**2)
         r_vec = math.sqrt(r_deltaX**2 + r_deltaY**2)
