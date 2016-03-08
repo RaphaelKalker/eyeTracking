@@ -116,9 +116,10 @@ class Analyzer:
 
 
         #Canny Edge it
-        self.canny = EdgeDetection(self.originalImage, self.params)
-        cannyImage = self.canny.doAutoCanny()
-        ImageHelper.showImage('CannyImage', cannyImage)
+        #fails on the BB
+        # self.canny = EdgeDetection(self.originalImage, self.params)
+        # cannyImage = self.canny.doAutoCanny()
+        # ImageHelper.showImage('CannyImage', cannyImage)
 
         #Clean up the binary threshold image to get a better pupil representation
         if FeatureDebug.MORPHOLOGY:
