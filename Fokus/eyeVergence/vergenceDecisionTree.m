@@ -49,10 +49,10 @@ while tree_cnt < 100
     
     fName = sprintf('./trees/tree%i.csv', tree_cnt);
     fID = fopen(fName,'w');
-    fprintf(fID,'%s,%s,%s,%s\n', 'CutPredictor', 'CutPoint', 'IsBranchNode', 'NodeClass');
+    fprintf(fID,'%s,%s,%s,%s,%s\n', 'CutPredictor', 'CutPoint', 'IsBranchNode', 'NodeClass', 'Parent');
 
     for i=1:size(t.CutPredictor,1)
-        r = fprintf(fID,'%s,%.3f,%u,%s\n', t.CutPredictor{i}, t.CutPoint(i), t.IsBranchNode(i), t.NodeClass{i});
+        r = fprintf(fID,'%s,%.3f,%u,%s,%u\n', t.CutPredictor{i}, t.CutPoint(i), t.IsBranchNode(i), t.NodeClass{i}, t.Parent(i));
     end
     fclose(fID);
 end
@@ -64,5 +64,3 @@ subplot(132)
 hist(train_arr); title('train data classification accuracy');
 subplot(133)
 hist(num_nodes); title('number of children in the trees');
-
-
