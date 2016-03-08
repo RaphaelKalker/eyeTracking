@@ -1,5 +1,6 @@
 import pprint
 import time
+import argparse
 
 import os
 import cv2
@@ -19,12 +20,11 @@ RED = (0, 0, 255)
 
 
 class AnnotationSession():
-    def __init__(self, dbName, person, prescriptionType, imagePath, cameraType):
+    def __init__(self, dbName, person, prescriptionType, imagePath):
         self.dbName = dbName
         self.person = person
         self.prescriptionType = prescriptionType
         self.filePath = imagePath
-        self.cameraType = cameraType
 
 
 class TruthAnnotator(object):
@@ -93,22 +93,31 @@ class TruthAnnotator(object):
         eyeball.addPupilTruth(str(int(x)), str(int(y)))
         eyeball.setTimeStamp()
         eyeball.setPerson(self.session.person)
-        eyeball.setCamera(self.session.cameraType)
+        # first character of file name indicates left or right side camera
+        cameraSide = "left" if fileName[0] == "L" else "right" if fileName[0] == "R" else "none"  
+        eyeball.setCamera(cameraSide)
         eyeball.setPrescriptionType(self.session.prescriptionType)
         self.dbHelper.addEyeball(eyeball)  # change this
         pprint.pprint(eyeball.getDict())
 
         pass
 
+parser = argparse.ArgumentParser()
+parser.add_argument("person", type=str, help="whose eyeballs? tim, raph, ryan, or anni")
+parser.add_argument("image_path", type=str, help="image directory")
+parser.add_argument("prescriptionType", type=str, help="r for reading or d for distance")
+parser.add_argument("database_name", type=str, help="existing or new database name")
+args = parser.parse_args()
+
+prescription="reading" if args.prescriptionType == "r" else "distance" if args.prescriptionType == "d" else "unknown"
 
 # run your stuff here
 annotator = TruthAnnotator(
     AnnotationSession(
-        dbName='db-{}'.format(int(round(time.time() * 1000))),
-        person=Eyeball.Person.TIM,
-        prescriptionType=Eyeball.PrescriptionType.READING,
-        imagePath='image/tim_jan13',
-        cameraType=Eyeball.Camera.LEFT
+        dbName="db-" + args.database_name,
+        person=args.person.lower(),
+        prescriptionType=prescription,
+        imagePath=args.image_path
     )
 )
 

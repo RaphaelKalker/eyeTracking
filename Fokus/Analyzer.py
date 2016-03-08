@@ -3,6 +3,7 @@ import sys
 
 import cv2
 import numpy as np
+import math
 
 from ip.Blob import Blob
 from db.Eyeball import Eyeball
@@ -95,7 +96,7 @@ class Analyzer:
         # processedImage = cv2.cvtColor(~self.hue_masked, cv2.COLOR_BGR2GRAY)
         # ImageHelper.showImage('Grey Image', processedImage)
 
-        if True:
+        if False:
             blobbed = Blob(processedImage).detect()
             ImageHelper.showImage('BLOBBED', blobbed)
 
@@ -110,9 +111,9 @@ class Analyzer:
 
 
         #Canny Edge it
-        self.canny = EdgeDetection(self.originalImage, self.params)
-        cannyImage = self.canny.doAutoCanny()
-        ImageHelper.showImage('CannyImage', cannyImage)
+#        self.canny = EdgeDetection(self.originalImage, self.params)
+#        cannyImage = self.canny.doAutoCanny()
+#        ImageHelper.showImage('CannyImage', cannyImage)
 
         #Clean up the binary threshold image to get a better pupil representation
         if FeatureDebug.MORPHOLOGY:

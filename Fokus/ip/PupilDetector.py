@@ -51,9 +51,9 @@ class PupilDetector(object):
         self.params = params
         self.eyeBall = eyeball
 
-        if FeatureDebug.DEBUG_PUPIL_DETECTOR:
-            self.debug = AdjustableImage()
-            self.debug.doIt(self.originalImg, self.updateHoughCallback, self.params)
+#        if FeatureDebug.DEBUG_PUPIL_DETECTOR:
+#            self.debug = AdjustableImage()
+#            self.debug.doIt(self.originalImg, self.updateHoughCallback, self.params)
 
         if FeatureDebug.DEBUG_DRAW_TRUTH:
             from db import Database as db
@@ -134,10 +134,11 @@ class PupilDetector(object):
                 # self.saveInfo({(DEBUG_RADIUS, radius), (DEBUG_CENTER, center), (DEBUG_RECT, (x,y,width,height))})
 
     def __drawTruth__(self):
-        fileName = self.eyeBall.getFileName()
+        if Utils.isMac():
+            fileName = self.eyeBall.getFileName()
 
-        if 'img1398289259' in fileName:
-            print 'FUCK'
+            if 'img1398289259' in fileName:
+                print 'FUCK'
 
 
         annotated, (x,y) = self.db.getTruth(self.eyeBall.getFileName())

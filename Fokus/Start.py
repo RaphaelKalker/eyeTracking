@@ -1,11 +1,9 @@
 import time
+from Analyzer import Analyzer
+#from db import Database
 import sys
 import logging
-
 import os
-
-from Analyzer import Analyzer
-from db import Database
 import Utils
 from learning.ParamsConstructor import ParamsConstructor
 
