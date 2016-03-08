@@ -2,7 +2,6 @@ from multiprocessing import Process, Lock, Pipe
 import sys
 import time
 from Analyzer import Analyzer
-import Test2
 import Utils
 import logging
 
@@ -14,24 +13,28 @@ from learning.ParamsConstructor import ParamsConstructor
 __author__ = 'Raphael'
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
-logger = logging.getLogger(__name__)
+# logger = logging.getLogger(__name__)
+
+loggerBB = logging.getLogger("BeagleBone")
+loggerProcessor = logging.getLogger("Processing")
 
 #GLOBAL VARS
 PARAMS = ParamsConstructor().constructDefaultParams()
 IMAGE_DIRECTORY = './processing/'
+ANALYZE_IMAGES = True #warning threadsafety
+RETRIEVE_IMAGES = True #warning threadsafety
 
-LOCK_OBJ = Lock()
 
-
-def retrieveImageBB(imageDir, lock, pipe):
-    logger.info('Init BB System')
+def retrieveImageBB(imageDir, pipe, captureDelay):
+    loggerBB.info('Init Camera Loop')
 
     # initialize cameras
     camRight = Cam.Cam(IMAGE_DIRECTORY, "R")
     camLeft = Cam.Cam(IMAGE_DIRECTORY, "L")
 
     # looping to capture and process images
-    for i in range(1,100):
+    # for i in range(1,100):
+    while RETRIEVE_IMAGES:
         timestamp = int(time.time())
         camRight.takeImg()
         camLeft.takeImg()
@@ -39,32 +42,35 @@ def retrieveImageBB(imageDir, lock, pipe):
         rightImg = camRight.getImg(timestamp)
         leftImg = camLeft.getImg(timestamp)
 
-        # Must be locked when setting
-        Test2.setLeftImage(leftImg)
-        Test2.setRightImage(rightImg)
-
-        #Send something through the pipe
+        #Send images through the pipe to be received by the Analyzer
         pipe.send(leftImg)
+        pipe.send(rightImg)
 
-        time.sleep(1)
+        if captureDelay:
+            time.sleep(captureDelay)
 
     # close connections to cameras
     camLeft.closeConn()
     camRight.closeConn()
 
 
-def analyzeImageBB(lock):
-    if Test2.getLeftImage() is not None:
-        logger.info('Getting Left image is valid')
-        (xL, yL) = Analyzer(Test2.getLeftImage()).getEyeData().getRandomPupilTruth()
-        logger.info("Got Result from Left - x: {} y: {}".format(xL, yL))
+def analyzeImageBB(pipe):
 
-    if Test2.getRightImage() is not None:
-        logger.log('Getting right image is valid')
-        (xR, yR) = Analyzer(Test2.getRightImage()).getEyeData().getRandomPupilTruth()
-        logger.info("Got Result from Left - x: {} y: {}".format(xR, yR))
+    loggerBB.info('Init Analyzing Loop')
 
+    while ANALYZE_IMAGES:
+        pass
 
+        leftImg = pipe.recv()
+        rightImg = pipe.recv()
+
+        if leftImg is not None and rightImg is not None:
+            (xL, yL) = Analyzer(leftImg).getEyeData().getRandomPupilTruth()
+            (xR, yR) = Analyzer(rightImg).getEyeData().getRandomPupilTruth()
+            loggerBB.info('Got x: {} y: {}'.format(xL, yL))
+            loggerBB.info('Got x: {} y: {}'.format(xR, yR))
+        else:
+            loggerBB.error('Image was none')
 
 if  __name__ == '__main__':
 
@@ -74,9 +80,8 @@ if  __name__ == '__main__':
     # Pipe for connecting retrieval to analysis
     analyzePipe, retrievePipe = Pipe()
 
-    # Processes for
-    imageRetrieval = Process(target=retrieveImageBB, name = "CAMERA", args=(IMAGE_DIRECTORY, LOCK_OBJ, retrievePipe))
-    imageAnalysis = Process(target=analyzeImageBB, name = "ANALYZER", args=())
+    imageRetrieval = Process(target=retrieveImageBB, name = "CAMERA", args=(IMAGE_DIRECTORY, retrievePipe, 1))
+    imageAnalysis = Process(target=analyzeImageBB, name = "ANALYZER", args=(analyzePipe,))
 
     imageRetrieval.start()
     imageAnalysis.start()

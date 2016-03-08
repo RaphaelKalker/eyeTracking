@@ -3,7 +3,7 @@ import sys
 
 import cv2
 import numpy as np
-import math
+import logging
 
 from ip.Blob import Blob
 from db.Eyeball import Eyeball
@@ -17,6 +17,7 @@ from ip.PupilDetector import PupilDetector
 from ip.Threshold import Threshold
 import Utils
 from ip.EdgeDetection import EdgeDetection
+from learning.ParamsConstructor import ParamsConstructor
 
 selecting = False
 startX = -1
@@ -26,6 +27,9 @@ INVALID = -1
 
 COLOR_WHITE_LB = np.array([0,0,0])
 COLOR_WHITE_UB = np.array([151,35,95])
+
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 def close():
     cv2.destroyAllWindows()
@@ -55,24 +59,25 @@ class Analyzer:
     #src is either a file name, or an image buffer
     def __init__(self, src, params=None):
 
+        logger.info('INIT: ' + src)
+
         if isinstance(src, basestring):
             self.eyeHeuristics = dict({('Filename', src), ('CameraType', 0)})
             self.cameraType = 0 # deprecated
             self.originalImage = cv2.imread(src)
             self.eyeball = Eyeball(src)
             self.fileName = src
-
-        if  self.originalImage is None:
-            raise ValueError('Original Image was null')
-
-        self.imgWidth, self.imgHeight = self.originalImage.shape[:2]
-        self.imgIndex = 0
-        self.params = Parameters.Parameters if params is None else params
-
-        self.analyze()
+            self.params = ParamsConstructor().constructDefaultParams() if params is None else params
+            self.imgWidth, self.imgHeight = self.originalImage.shape[:2]
+            self.imgIndex = 0
+            self.__analyze__()
 
 
-    def analyze(self):
+        if self.originalImage is None:
+            raise ValueError('Failed to get image with src: ' + src)
+
+
+    def __analyze__(self):
 
 
 
@@ -96,7 +101,7 @@ class Analyzer:
         # processedImage = cv2.cvtColor(~self.hue_masked, cv2.COLOR_BGR2GRAY)
         # ImageHelper.showImage('Grey Image', processedImage)
 
-        if False:
+        if True:
             blobbed = Blob(processedImage).detect()
             ImageHelper.showImage('BLOBBED', blobbed)
 
@@ -111,9 +116,10 @@ class Analyzer:
 
 
         #Canny Edge it
-#        self.canny = EdgeDetection(self.originalImage, self.params)
-#        cannyImage = self.canny.doAutoCanny()
-#        ImageHelper.showImage('CannyImage', cannyImage)
+        #fails on the BB
+        # self.canny = EdgeDetection(self.originalImage, self.params)
+        # cannyImage = self.canny.doAutoCanny()
+        # ImageHelper.showImage('CannyImage', cannyImage)
 
         #Clean up the binary threshold image to get a better pupil representation
         if FeatureDebug.MORPHOLOGY:
