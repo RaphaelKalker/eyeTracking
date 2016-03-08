@@ -7,7 +7,6 @@ import CV_
 # import database
 from debug import FeatureDebug
 from ImageHelper import ImageHelper
-from debug.AdjustableImage import AdjustableImage
 
 __author__ = 'Raphael'
 
@@ -52,6 +51,7 @@ class PupilDetector(object):
         self.eyeBall = eyeball
 
         if FeatureDebug.DEBUG_PUPIL_DETECTOR:
+            from debug.AdjustableImage import AdjustableImage
             self.debug = AdjustableImage()
             self.debug.doIt(self.originalImg, self.updateHoughCallback, self.params)
 
