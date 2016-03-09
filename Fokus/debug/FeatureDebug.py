@@ -14,6 +14,7 @@ MATLABLIB = False if Utils.isMac() else False
 NORMALIZE_GRAYSCALE = True
 START_TRUTH_FROM_PREV = False
 VERIFY_TRUTH = True
+BLOB_DETECTOR = True if Utils.isMac() else False
 
 #DEBUG WINDOW
 DEBUG_PUPIL_DETECTOR = False if Utils.isMac() else False
