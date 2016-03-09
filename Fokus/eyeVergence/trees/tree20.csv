@@ -1,0 +1,8 @@
+Index,CutPredictor,CutPoint,IsBranchNode,NodeClass,Parent,ChildL,ChildR
+1,x4,53.500,1,0,0,2,3
+2,x1,68.500,1,0,1,4,5
+3,x3,62.500,1,1,1,6,7
+4,,NaN,0,1,2,0,0
+5,,NaN,0,0,2,0,0
+6,,NaN,0,0,3,0,0
+7,,NaN,0,1,3,0,0
