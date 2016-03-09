@@ -2,6 +2,8 @@ from multiprocessing import Process, Lock, Pipe
 import sys
 import time
 from Analyzer import Analyzer
+from actuation import Actuate
+from eyeVergence.BinaryTree import DecisionTree
 import Utils
 import logging
 
@@ -21,6 +23,7 @@ loggerProcessor = logging.getLogger("Processing")
 #GLOBAL VARS
 PARAMS = ParamsConstructor().constructDefaultParams()
 IMAGE_DIRECTORY = './processing/'
+TREE_DIRECTORY = './eyeVergence/trees/tree1.csv'
 ANALYZE_IMAGES = True #warning threadsafety
 RETRIEVE_IMAGES = True #warning threadsafety
 
@@ -58,6 +61,15 @@ def analyzeImageBB(pipe):
 
     loggerBB.info('Init Analyzing Loop')
 
+    dTree = DecisionTree()
+    dTree.importTree(TREE_DIRECTORY)
+
+    actuator = Actuate.Actuate("P8_13", 3,-1)
+    actuator.startup()
+    actuator.actuate("FAR")
+
+    currentPrescription = "FAR"
+    
     while ANALYZE_IMAGES:
         pass
 
@@ -69,6 +81,17 @@ def analyzeImageBB(pipe):
             (xR, yR) = Analyzer(rightImg).getEyeData().getRandomPupilTruth()
             loggerBB.info('Got x: {} y: {}'.format(xL, yL))
             loggerBB.info('Got x: {} y: {}'.format(xR, yR))
+            
+            if all(v != -1 for v in (xL, yL, xR, yR)):
+                pupils = {'x1': xR, 'x2': yR, 'x3': xL,'x4': yL}
+                prescription = dTree.traverseTree(pupils, dTree.root) 
+                loggerBB.info('vergence computed: %s', prescription)
+
+                if currentPrescription is not prescription:
+                    actuation.actuate(prescription)
+                    currentPrescription = prescription
+            else:
+                loggerBB.info('no pupils')
         else:
             loggerBB.error('Image was none')
 
