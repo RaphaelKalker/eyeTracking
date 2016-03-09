@@ -49,10 +49,11 @@ while tree_cnt < 100
     
     fName = sprintf('./trees/tree%i.csv', tree_cnt);
     fID = fopen(fName,'w');
-    fprintf(fID,'%s,%s,%s,%s,%s\n', 'CutPredictor', 'CutPoint', 'IsBranchNode', 'NodeClass', 'Parent');
-
+    fprintf(fID,'%s,%s,%s,%s,%s,%s,%s,%s\n', 'Index', 'CutPredictor', 'CutPoint', 'IsBranchNode', 'NodeClass', 'Parent', 'ChildL', 'ChildR');
+    
+    index = [1:1:size(t.CutPredictor,1)]';
     for i=1:size(t.CutPredictor,1)
-        r = fprintf(fID,'%s,%.3f,%u,%s,%u\n', t.CutPredictor{i}, t.CutPoint(i), t.IsBranchNode(i), t.NodeClass{i}, t.Parent(i));
+        r = fprintf(fID,'%i,%s,%.3f,%u,%s,%u,%u,%u\n', index(i), t.CutPredictor{i}, t.CutPoint(i), t.IsBranchNode(i), t.NodeClass{i}, t.Parent(i), t.Children(i,1), t.Children(i, 2));
     end
     fclose(fID);
 end

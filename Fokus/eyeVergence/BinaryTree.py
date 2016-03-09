@@ -2,13 +2,15 @@ import csv
 
 class Node():
     def __init__(self, *args):
-        cutPredictor, cutPoint, isBranch, NodeClass, Parent = args[0] 
-        self.cutPredictor = cutPredictor
-        self.cutPoint = cutPoint
-        self.isBranch = isBranch
-        self.NodeClass = NodeClass
-        self.Parent = Parent
-        self.Index = args[1] 
+        Index,CutPredictor,CutPoint,IsBranchNode,NodeClass,Parent,ChildL,ChildR = args[0] 
+        self.index = Index
+        self.cutPredictor = CutPredictor
+        self.cutPoint = float(CutPoint)
+        self.isBranch = IsBranchNode
+        self.nodeClass = "reading" if NodeClass == str(0) else "distance"
+        self.parent = Parent
+        self.childL = int(ChildL)
+        self.childR = int(ChildR)
 
         self.right = None
         self.left = None
@@ -21,38 +23,41 @@ class DecisionTree():
         with open(file_path, 'r') as f: 
             csvReader = csv.reader(f, delimiter=',')
             fields = next(csvReader)
-            print fields
 
-            i = 1;
+            nodes = []
             for r in csvReader:
-                self.add(r, i)
-                i += 1
-        t = ""
-        return t
+                n = Node(r)
+                nodes.append(n)
+            self.constructTree(nodes)
+    
+    def constructTree(self, nodes):
+        self.root = nodes[0]
+        for n in nodes:
+            if n.childL != 0 and n.childR != 0:
+                # minus one for silly matlab indexing
+                n.left = nodes[n.childL-1]
+                n.right = nodes[n.childR-1]
 
-    def add(self, *args):
-        if self.root is None:
-            self.root = Node(args[0], args[1])
-        else:
-            self._add(args[0], self.root, args[1])
-
-    def _add(self, *args):
-        cutPredictor, cutPoint, isBranch, NodeClass, Parent = args[0] 
-        rootNode = args[1]
-        Index = args[2]
+    def traverseTree(self, *args):
+        x, node = args
         
-#        if rootNode.Index == Parent:
-#            if rootNode.left is None:
-#                rootNode.left = Node(args[0], Index)
-#            else:
-#                self._add(args[0], rootNode, Index)
-#            if rootNode.right is None:
-#                rootNode.right = Node(args[0], Index)
-#            else:
-#                self._add(args[0], rootNode, Index)
+        if not node.cutPredictor:
+            return node.nodeClass
+
+        if node.cutPoint < x[node.cutPredictor]:
+            nextNode = node.left
+        else:
+            nextNode = node.right
+
+        return self.traverseTree(x, nextNode)
+
+#    def printTree(self):
+#        if self.root is not None:
+#            self._printTree(self.root)
 #
-#
-#    def traverseTree(self, l_xy, r_xy):
-#        ret = "READING" if res == 0 else "DISTANCE"
-#        if 
-#        return ret
+#    def _printTree(self, node):
+#        if node is not None:
+#            self._printTree(node.left)
+#            print node.index
+#            self._printTree(node.right)
+
