@@ -90,8 +90,6 @@ def analyzeImageBB(pipe):
                 if currentPrescription is not prescription:
                     motor.actuate(prescription)
                     currentPrescription = prescription
-            else:
-                loggerBB.info('no pupils')
         else:
             loggerBB.error('Image was none')
 
