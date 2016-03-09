@@ -101,7 +101,7 @@ class Analyzer:
         # processedImage = cv2.cvtColor(~self.hue_masked, cv2.COLOR_BGR2GRAY)
         # ImageHelper.showImage('Grey Image', processedImage)
 
-        if True:
+        if FeatureDebug.BLOB_DETECTOR:
             blobbed = Blob(processedImage).detect()
             ImageHelper.showImage('BLOBBED', blobbed)
 
