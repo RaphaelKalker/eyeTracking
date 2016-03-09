@@ -7,7 +7,7 @@ class Node():
         self.cutPredictor = CutPredictor
         self.cutPoint = float(CutPoint)
         self.isBranch = IsBranchNode
-        self.nodeClass = "reading" if NodeClass == str(0) else "distance"
+        self.nodeClass = "NEAR" if NodeClass == str(0) else "FAR"
         self.parent = Parent
         self.childL = int(ChildL)
         self.childR = int(ChildR)

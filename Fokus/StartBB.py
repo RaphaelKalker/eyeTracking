@@ -64,9 +64,9 @@ def analyzeImageBB(pipe):
     dTree = DecisionTree()
     dTree.importTree(TREE_DIRECTORY)
 
-    actuator = Actuate.Actuate("P8_13", 3,-1)
-    actuator.startup()
-    actuator.actuate("FAR")
+    motor = Actuate.Actuate("P8_13", 3,-1)
+    motor.startup()
+    motor.actuate("FAR")
 
     currentPrescription = "FAR"
     
@@ -88,7 +88,7 @@ def analyzeImageBB(pipe):
                 loggerBB.info('vergence computed: %s', prescription)
 
                 if currentPrescription is not prescription:
-                    actuation.actuate(prescription)
+                    motor.actuate(prescription)
                     currentPrescription = prescription
             else:
                 loggerBB.info('no pupils')
