@@ -45,6 +45,8 @@ def retrieveImageBB(imageDir, pipe, captureDelay):
         rightImg = camRight.getImg(timestamp)
         leftImg = camLeft.getImg(timestamp)
 
+        loggerBB.info('image transmission: elapsed \t %i', (int(time.time() - timestamp)))
+
         #Send images through the pipe to be received by the Analyzer
         pipe.send(leftImg)
         pipe.send(rightImg)
@@ -77,6 +79,7 @@ def analyzeImageBB(pipe):
         rightImg = pipe.recv()
 
         if leftImg is not None and rightImg is not None:
+            ipTime = int(time.time())
             (xL, yL) = Analyzer(leftImg).getEyeData().getRandomPupilTruth()
             (xR, yR) = Analyzer(rightImg).getEyeData().getRandomPupilTruth()
             loggerBB.info('Got x: {} y: {}'.format(xL, yL))
@@ -90,6 +93,10 @@ def analyzeImageBB(pipe):
                 if currentPrescription is not prescription:
                     motor.actuate(prescription)
                     currentPrescription = prescription
+            timestamp = int(leftImg[ leftImg.index('/L') + 2 :-4])
+            currentTime = int(time.time())
+            loggerBB.info('image processing : elapsed \t %i', (currentTime - ipTime))
+            loggerBB.info('camera shutter -> pupil detected : elapsed \t %i', (currentTime - timestamp))
         else:
             loggerBB.error('Image was none')
 
@@ -101,7 +108,8 @@ if  __name__ == '__main__':
     # Pipe for connecting retrieval to analysis
     analyzePipe, retrievePipe = Pipe()
 
-    imageRetrieval = Process(target=retrieveImageBB, name = "CAMERA", args=(IMAGE_DIRECTORY, retrievePipe, 1))
+#    imageRetrieval = Process(target=retrieveImageBB, name = "CAMERA", args=(IMAGE_DIRECTORY, retrievePipe, 1))
+    imageRetrieval = Process(target=retrieveImageBB, name = "CAMERA", args=(IMAGE_DIRECTORY, retrievePipe, 0))
     imageAnalysis = Process(target=analyzeImageBB, name = "ANALYZER", args=(analyzePipe,))
 
     imageRetrieval.start()

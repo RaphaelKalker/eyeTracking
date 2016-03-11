@@ -61,13 +61,13 @@ class Cam():
 		try:
 			r = map (ord, r)
 			if (r[0] == 0x76 and r[1] == SERIALNUM and r[2] == b and r[3] == 0x00):
-                                logger.info("check reply is true")
+                                logger.warning("check reply is true")
 				return True
 			else:
-                                logger.info("check reply is false")
+                                logger.warning("check reply is false")
 		except:
 			e = sys.exc_info()[0]
-                        logger.warning("checkreply error: %s", e)
+                        logger.error("checkreply error: %s", e)
 		return False
 
 	def getVersion(self, cmd, replyCheck):
@@ -106,8 +106,6 @@ class Cam():
 		lowbit = kwargs['lowbit']
 		length = highbit << 8 | lowbit
 		
-                logger.info("reading buffer")
-                
 		rp = self.serialComm(read_fbuf_cmd, length+10000)
 
 		dataStart = [0x76, 0x00, 0x32, 0x00, 0x00, 0xFF, 0xD8]
@@ -143,6 +141,7 @@ class Cam():
 		self.controlFrame(FBUF_CTRL, 0x00)
 
 	def getImg(self, timestamp):
+                t1 = time.time()
 		# Send GET_FBUF_LEN command to get image lengths in FBUF.
 		buff_len = self.getBufferLen(GET_FBUF_LEN, 0x00)
 
@@ -163,6 +162,7 @@ class Cam():
 
 			# Send FBUF_CTRL command to resume frame,
 			self.controlFrame(FBUF_CTRL, 0x02)
+                        logger.info('saving bytes to file time: %i', int(time.time()) - int(t1))
 			return fileName 
 
 	def closeConn(self):
