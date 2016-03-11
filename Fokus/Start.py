@@ -18,6 +18,7 @@ PROCESSING_DIR = 'processing/'
 PROCESSING_DIR_JAN_11 = 'image/Jan11'
 PROCESSING_DIR_JAN_13 = 'image/tim_jan13'
 TEST_DIR = 'image/DISTANCE_IMAGE'
+PROCESSING_DIR_READING = 'image/READING_IMAGE'
 
 
 # def compareResults(results, THRESHOLD=20):
