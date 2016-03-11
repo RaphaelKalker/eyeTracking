@@ -21,15 +21,15 @@ IMAGE_DIRECTORY = './processing/'
 PROCESSING_DIR = 'processing/'
 PROCESSING_DIR_JAN_11 = 'image/Jan11'
 #PROCESSING_DIR_JAN_13 = 'image/tim_jan13'
-PROCESSING_DIR_JAN_13 = 'image/READING_IMAGE'
-#PROCESSING_DIR_JAN_13 = 'image/DISTANCE_IMAGE'
+#PROCESSING_DIR_JAN_13 = 'image/READING_IMAGE'
+PROCESSING_DIR_JAN_13 = 'image/DISTANCE_IMAGE'
 
 hist = []
 successCount = 0
 totalCount = 0
 
-#DB = Database.Database("database/db-tim_distance.json")
-DB = Database.Database("database/imgDB-2.json")
+DB = Database.Database("database/db-tim_distance.json")
+#DB = Database.Database("database/imgDB-2.json")
 
 #compare the results (x,y) pair with the true values in the DB 
 def compareResults(imagePath, (x,y), THRESHOLD=10):
@@ -64,7 +64,7 @@ def findPupilFromCircles(circles):
                 cv2.circle(tempImage, (x,y), r, incrementDepth, -1)
                 accumulator = cv2.add(tempImage, accumulator)
                 
-        #cv2.imshow("accumulator", accumulator)
+        cv2.imshow("accumulator", accumulator)
         #scale up incase not all circles are in same place
         minVal, maxVal, _, _ = cv2.minMaxLoc(accumulator)
         if maxVal < 250:
@@ -87,9 +87,9 @@ prevImage = None
 def playground(imagePath):
 
     global prevImage
-    
+
     #segmentation in HSV space:
-    #logger.info("playground")
+    logger.info("%s", imagePath)
     image = cv2.imread(imagePath)
     height, width, channels = image.shape
     
@@ -115,7 +115,7 @@ def playground(imagePath):
     Schannel = (img[:,:,1]*255.0/float(maxS)).astype(np.uint8)
     #cv2.imshow("H", Hchannel)
     #cv2.imshow("S", Schannel)
-    #cv2.imshow("V", img[:,:,2])
+    cv2.imshow("V", image)
 
     #if prevImage is not None:
     #    img = cv2.absdiff(image, prevImage)
@@ -129,14 +129,15 @@ def playground(imagePath):
     #cv2.imshow("TEST", thresh2)
 
     segmentedImage = cv2.bitwise_and(img[:,:,2], minImg)
-    #cv2.imshow("AND", segmentedImage) #,cv2.bitwise_and(thresh, thresh2)))
+    cv2.imshow("AND", segmentedImage) #,cv2.bitwise_and(thresh, thresh2)))
 
     #do the canny
     edgeSegment = cv2.bitwise_and(cv2.Canny(minImg, 100, 50), mask[:,:,0])#minImg)
-    #cv2.imshow("EDGE", edgeSegment) 
+    cv2.imshow("EDGE", edgeSegment) 
 
     #do the circle
-    circles = cv2.HoughCircles(edgeSegment, cv2.cv.CV_HOUGH_GRADIENT, 2, 10, None, 10, 35, 7, 35)
+    #circles = cv2.HoughCircles(edgeSegment, cv2.cv.CV_HOUGH_GRADIENT, 2, 10, None, 10, 35, 7, 35)
+    circles = cv2.HoughCircles(edgeSegment, cv2.cv.CV_HOUGH_GRADIENT, 2, 10, None, 20, 35, 7, 35)
 
     if circles is not None and circles.shape > 0:
             circ = np.round(circles[0, :]).astype("int")
@@ -147,13 +148,13 @@ def playground(imagePath):
 
     cv2.circle(image, centre, 3, 255)
     
-    #cv2.imshow("circles", image)
+    cv2.imshow("circles", image)
 
     
     
     prevImage = image
     
-    #    cv2.waitKey()    
+    cv2.waitKey()    
 
 
     return centre
