@@ -106,6 +106,7 @@ class Cam():
 		lowbit = kwargs['lowbit']
 		length = highbit << 8 | lowbit
 		
+        logger.info("reading buffer")
 		rp = self.serialComm(read_fbuf_cmd, length+10000)
 
 		dataStart = [0x76, 0x00, 0x32, 0x00, 0x00, 0xFF, 0xD8]
@@ -154,16 +155,17 @@ class Cam():
 								highbit=buff_len[2],
 								lowbit=buff_len[3])
 
-			if buff:
-				fileName = self.opDir + self.eyeSide + str(timestamp) + ".jpg"
-				with open(fileName, 'w') as f:
-					for i in buff:
-						f.write(chr(i))
+			# if buff:
+			# 	fileName = self.opDir + self.eyeSide + str(timestamp) + ".jpg"
+			# 	with open(fileName, 'w') as f:
+			# 		for i in buff:
+			# 			f.write(chr(i))
 
 			# Send FBUF_CTRL command to resume frame,
-			self.controlFrame(FBUF_CTRL, 0x02)
                         logger.info('saving bytes to file time: %i', int(time.time()) - int(t1))
 			return fileName 
+			self.controlFrame(FBUF_CTRL, 0x02)
+			return buff
 
 	def closeConn(self):
 		self.setBaudRate(38400)

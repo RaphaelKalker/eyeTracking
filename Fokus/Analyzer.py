@@ -42,12 +42,19 @@ class Analyzer:
 
     def __init__(self, src, params=None):
 
-        logger.info('INIT: ' + src)
-
         if isinstance(src, basestring):
-            self.eyeHeuristics = dict({('Filename', src), ('CameraType', 0)})
-            self.cameraType = 0 # deprecated
             self.originalImage = cv2.imread(src)
+            self.eyeHeuristics = dict({('Filename', src), ('CameraType', 0)})
+
+        if isinstance(src, list):
+            leBuf = np.asarray(bytearray(src))
+            self.originalImage = cv2.imdecode(leBuf, 1)
+            self.eyeHeuristics = dict({('Filename', 'STREAM'), ('CameraType', 0)})
+
+        if self.originalImage is None:
+            raise ValueError('Failed to get image with src: ' + src)
+        else:
+            self.cameraType = 0 # deprecated
             self.eyeball = Eyeball(src)
             self.fileName = src
             self.params = ParamsConstructor().constructDefaultParams() if params is None else params
@@ -55,8 +62,6 @@ class Analyzer:
             self.imgIndex = 0
             self.__analyze__()
 
-        if self.originalImage is None:
-            raise ValueError('Failed to get image with src: ' + src)
 
 
     def __analyze__(self):
