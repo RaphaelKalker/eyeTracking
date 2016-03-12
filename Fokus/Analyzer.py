@@ -97,50 +97,6 @@ class Analyzer:
         if Utils.isMac() and FeatureDebug.SHOW_CV2_IMAGES:
             self.waitForKeyPress()
 
-    def updateStats(self, info):
-        self.saveInfo(info)
-
-    def updateSelector(self, img, topRight, bottomLeft):
-        pass
-
-        cv2.rectangle(img, topRight, bottomLeft, BLUE, 2)
-        # Imager.showImage('Yoloy', img)
-
-    def onPointSelected(self, event,x,y,flags,param):
-
-        # print 'onPointSelected -> x: {} y: {}'.format(x,y)
-        regionSelected, x1,x2, y1, y2 = Analyzer.drawRectSelection(self, self.imageGray, event, x, y)
-
-        if regionSelected:
-            print 'region selected true'
-            window = self.roi[y1+1:y2-1, x1+1:x2-1]
-            hsvWindow = cv2.cvtColor(window, cv2.COLOR_BGR2HSV)
-            hsvImage = cv2.cvtColor(self.originalImage, cv2.COLOR_BGR2HSV)
-            ImageHelper.showImage('HSV Image', hsvImage[:,:,0])
-            ImageHelper.showImage('HSV Image2', hsvImage[:,:,1])
-            ImageHelper.showImage('HSV Image3e', hsvImage[:,:,2])
-            hVals = hsvWindow[:, :, 0]
-            sVals = hsvWindow[:, :, 1]
-            vVals = hsvWindow[:, :, 2]
-
-            avgH = np.mean(hVals)
-            avgS = np.mean(sVals)
-            avgV = np.mean(vVals)
-
-            lb = np.array([avgH - 10, avgS - 10, avgV - 10], dtype=np.uint8, ndmin=1)
-            up = np.array([avgH + 10, avgV + 10, avgV + 10], dtype=np.uint8, ndmin=1)
-
-            mask = cv2.inRange(hsvImage, lb, up)
-
-            # Imager.showImage('MASKKK', mask)
-
-            result = cv2.bitwise_and(self.originalImage, self.originalImage, mask=mask)
-
-            ImageHelper.showImage('HSV Selection', self.roi)
-            ImageHelper.showImage('Result', result)
-
-            print 'region selected'
-
     def getEyeData(self):
         return self.eyeball
 
