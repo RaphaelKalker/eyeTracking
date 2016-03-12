@@ -1,27 +1,19 @@
 import pprint
 import sys
+import logging
 
 import cv2
 import numpy as np
-import logging
 
 from ip.Blob import Blob
 from db.Eyeball import Eyeball
-from ip.ReflectionReduction import ReflectionReduction
-from learning import Parameters
-from ip.CornerDetection import CornerDetection
-from debug import DebugOptions as tb, FeatureDebug
+from debug import FeatureDebug
 from ImageHelper import ImageHelper
 from ip.Morphology import Morphology
 from ip.PupilDetector import PupilDetector
 from ip.Threshold import Threshold
 import Utils
-from ip.EdgeDetection import EdgeDetection
 from learning.ParamsConstructor import ParamsConstructor
-
-selecting = False
-startX = -1
-startY = -1
 
 INVALID = -1
 
@@ -59,8 +51,6 @@ class Analyzer:
             self.imgWidth, self.imgHeight = self.originalImage.shape[:2]
             self.imgIndex = 0
             self.__analyze__()
-
-
 
     def __analyze__(self):
 
