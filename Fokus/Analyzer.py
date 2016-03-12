@@ -44,12 +44,10 @@ class Analyzer:
 
         if isinstance(src, basestring):
             self.originalImage = cv2.imread(src)
-            self.eyeHeuristics = dict({('Filename', src), ('CameraType', 0)})
 
         if isinstance(src, list):
             leBuf = np.asarray(bytearray(src))
             self.originalImage = cv2.imdecode(leBuf, 1)
-            self.eyeHeuristics = dict({('Filename', 'STREAM'), ('CameraType', 0)})
 
         if self.originalImage is None:
             raise ValueError('Failed to get image with src: ' + src)
@@ -89,7 +87,7 @@ class Analyzer:
             morpher = Morphology(self.processedImage)
             processedImage = morpher.cleanImage()
 
-        self.pupilDetector = PupilDetector(originalImage, processedImage, self.cameraType, self.saveInfo, self.params, self.eyeball)
+        self.pupilDetector = PupilDetector(originalImage, processedImage, self.cameraType, self.params, self.eyeball)
         self.pupilDetector.doHoughTransform()
         self.pupilDetector.findPupilCircle()
 
@@ -142,9 +140,6 @@ class Analyzer:
             ImageHelper.showImage('Result', result)
 
             print 'region selected'
-
-    def saveInfo(self, info):
-        self.eyeHeuristics.update(info)
 
     def getEyeData(self):
         return self.eyeball

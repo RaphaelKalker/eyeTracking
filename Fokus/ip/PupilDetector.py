@@ -42,11 +42,10 @@ DEBUG_CANDIDATE_CORNER = 'CandidateCorner'
 
 class PupilDetector(object):
 
-    def __init__(self, originalImg, processedImg, cameraType, callback, params = None, eyeball=None):
+    def __init__(self, originalImg, processedImg, cameraType, params = None, eyeball=None):
         self.originalImg = originalImg
         self.processedImg = processedImg
         self.cameraType = cameraType
-        self.callback = callback
         self.params = params
         self.eyeBall = eyeball
 
@@ -144,7 +143,7 @@ class PupilDetector(object):
         if annotated:
             cv2.circle(self.originalImg, (x,y), 5, YELLOW, -1)
 
-
+    #deprecated
     def updateHoughCallback(self, param1=None, param2=None, minRad=None, maxRad=None):
         self.debug.updateImage(self.doHoughTransform(param1, param2, minRad, maxRad))
         print 'updateHough'
