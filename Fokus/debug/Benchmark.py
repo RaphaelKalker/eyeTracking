@@ -11,9 +11,10 @@ class Benchmark:
         self.__start__()
 
     def __start__(self):
-        self.start = time.time()
+        self.startTime = time.time()
 
     def end(self):
-        self.end = time.time()
-        self.log.debug(self.benchmarkName + " -> {}s".format( "%.2f" % (self.end - self.start)))
+        self.endTime = time.time()
+        self.log.debug(self.benchmarkName + " -> {}s".format("%.2f" % (self.endTime - self.startTime)))
+        self.__start__()
 
