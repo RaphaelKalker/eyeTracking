@@ -10,9 +10,11 @@ import pprint
 
 
 
+RELFECTION_BLOB = 'reflection'
 TRUTH = 'truth'
 X = 'x'
 Y = 'y'
+SIZE = 'size'
 RADIUS = 'radius'
 HEURISTICS = 'heuristics'
 HOUGH = "hough"
@@ -48,7 +50,7 @@ class Eyeball():
 
 
     def __init__(self, fileName = None):
-        self.dict = Utils.newDict({"fileName":"","camera":"","created_at":"","prescription_type":"","person":"","truth":{"x":"","y":""},"heuristics":[]})
+        self.dict = Utils.newDict({"fileName":"","camera":"","created_at":"","prescription_type":"","person":"","truth":{"x":"","y":""},"heuristics":[], "reflection":[]})
         self.dict['fileName'] = fileName
 
     def getDict(self):
@@ -97,7 +99,7 @@ class Eyeball():
         pass
 
     def addThreshold(self, min, max, isNormalized):
-        self.dict[HEURISTICS]
+        raise NotImplementedError('threshold not implemented')
 
     #warning immuatable errors here
     def addHoughCircle(self, x, y, r):
@@ -124,6 +126,18 @@ class Eyeball():
 
         self.dict[HEURISTICS].append(heuristics)
         self.setTimeStamp()
+
+    def addReflection(self, x, y, size):
+        reflection = {}
+        self.dict[RELFECTION_BLOB]
+        reflection[X] = x
+        reflection[Y] = y
+        reflection[SIZE] = size
+        self.dict[RELFECTION_BLOB].append(reflection)
+        self.setTimeStamp()
+
+    def getReflection(self):
+        return self.getDict()[RELFECTION_BLOB]
 
 
     def setTimeStamp(self):
