@@ -1,5 +1,17 @@
 # Hocus-Pocus-Focus
 
+### Installing OPEN CV 3
+
+Copy and paste this in terminal (not iterm) within the build folder after pulling from github
+
+  cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local \
+	-D PYTHON2_PACKAGES_PATH=~/.virtualenvs/cv/lib/python2.7/site-packages \
+	-D PYTHON2_LIBRARY=/usr/local/Cellar/python/2.7.10/Frameworks/Python.framework/Versions/2.7/bin \
+	-D PYTHON2_INCLUDE_DIR=/usr/local/Frameworks/Python.framework/Headers \
+	-D INSTALL_C_EXAMPLES=OFF -D INSTALL_PYTHON_EXAMPLES=ON \
+	-D BUILD_EXAMPLES=ON \
+	-D OPENCV_EXTRA_MODULES_PATH=~/opencv_contrib/modules ..
+
 ### Python 
  - Setup your python environment properly and make sure you are using 2.7x with openCV3. 
  - Download PyCharm
