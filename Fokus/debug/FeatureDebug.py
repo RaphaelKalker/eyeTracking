@@ -23,3 +23,5 @@ DEBUG_BLOB_DETECTOR = True if Utils.isMac() else False
 #PRINT DEBUG
 PRINT_HEURISTICS = False
 DEBUG_DRAW_TRUTH = False if Utils.isMac() else False
+
+LOG_BLOB = False
