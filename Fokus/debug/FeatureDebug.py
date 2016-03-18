@@ -2,7 +2,7 @@ import Utils
 
 __author__ = 'Raphael'
 
-SHOW_CV2_IMAGES = True
+SHOW_CV2_IMAGES = False
 
 SAVE_IMAGES = False
 TRACKBAR = False
@@ -15,9 +15,10 @@ NORMALIZE_GRAYSCALE = True
 START_TRUTH_FROM_PREV = False
 VERIFY_TRUTH = True
 BLOB_DETECTOR = True if Utils.isMac() else False
+COMPARE_WITH_MATPLOTLIB = True
 
-#DEBUG WINDOW
 DEBUG_PUPIL_DETECTOR = False if Utils.isMac() else False
+DEBUG_BLOB_DETECTOR = True if Utils.isMac() else False
 
 #PRINT DEBUG
 PRINT_HEURISTICS = False
