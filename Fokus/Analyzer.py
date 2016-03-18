@@ -11,6 +11,7 @@ from debug import FeatureDebug
 from ImageHelper import ImageHelper
 from ip.Morphology import Morphology
 from ip.PupilDetector import PupilDetector
+from ip.Segmentation import Segmentation
 from ip.Threshold import Threshold
 import Utils
 from learning.ParamsConstructor import ParamsConstructor
@@ -61,11 +62,15 @@ class Analyzer:
 
         #Invert image with ~ and convert to grayscale
         processedImage = cv2.cvtColor(~originalImage, cv2.COLOR_BGR2GRAY)
-        ImageHelper.showImage('Grey Image', processedImage)
+        # ImageHelper.showImage('Grey Image', processedImage)
+        cv2.equalizeHist(processedImage, processedImage)
+
 
         if FeatureDebug.BLOB_DETECTOR:
-            blobbed = Blob(processedImage).detect()
-            ImageHelper.showImage('BLOBBED', blobbed)
+            mask = Segmentation(originalImage).getMask()
+            blobDetector = Blob(processedImage, self.eyeball, mask, self.params)
+            blobDetector.findReflectionPoints()
+            # self.waitForKeyPress()
 
         if FeatureDebug.THRESHOLD:
             thresholder = Threshold(processedImage, self.cameraType, self.params)
