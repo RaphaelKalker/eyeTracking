@@ -1,3 +1,6 @@
+from cv2 import SimpleBlobDetector_Params
+import cv2
+
 __author__ = 'Raphael'
 
 MAC = 'Darwin'
@@ -15,6 +18,7 @@ class ParamsNew(object):
         self.thresh = Threshold()
         self.hough = Hough()
         self.canny = Canny()
+        self.blob = SimpleBlobDetector_Params()
         # self.TrackBar = Trackbar()
 
 
@@ -35,6 +39,13 @@ class ParamsNew(object):
         self.canny.lowerBound = lowerBound
         self.canny.upperBound = upperBound
 
+    #Note this follows the Params structure from the SimpleBlobDetector params
+    def setSimpleDetectorParams(self, useNormalized = None, minThreshold = None, maxThreshold = None, filterByArea = None, minArea = None):
+        # self.blob.useNormalized = useNormalized
+        self.blob.minThreshold = minThreshold
+        self.blob.maxThreshold = maxThreshold
+        self.blob.filterByArea = filterByArea
+        self.blob.minArea = minArea
 
 class Threshold():
 
@@ -76,8 +87,6 @@ class Threshold():
 
     def __str__(self):
         return "Threshold -> min: %d | max: %d | normalizedMin: %d" % (self.minThresh, self.maxThresh, self.minNormalizedThresh)
-
-
 
 class Hough():
 
@@ -139,8 +148,51 @@ class Canny():
         self.upperBound = value
         pass
 
+# class SimpleBlobDetector():
 #
-#     class Camera():
+#     @property
+#     def useNormalized(self):
+#         return self.useNormalized
+#
+#     @useNormalized.setter
+#     def useNormalized(self, value):
+#         self.useNormalized = value
+#         pass
+#
+#     @property
+#     def minThreshold(self):
+#         return self.minThreshold
+#
+#     @minThreshold.setter
+#     def minThreshold(self, value):
+#         self.minThreshold = value
+#
+#     @property
+#     def maxThreshold(self):
+#         return self.maxThreshold
+#
+#     @maxThreshold.setter
+#     def maxThreshold(self, value):
+#         self.maxThreshold = value
+#
+#     @property
+#     def filterByArea(self):
+#         return self.filterByArea
+#
+#     @filterByArea.setter
+#     def filterByArea(self, value):
+#         self.filterByArea = value
+#         pass
+#
+#     @property
+#     def minArea(self):
+#         return self.minArea
+#
+#     @minArea.setter
+#     def minArea(self, value):
+#         self.minArea = value
+
+#      class Camera():
 #         LEFT    = 0
 #         RIGHT   = 1
 #

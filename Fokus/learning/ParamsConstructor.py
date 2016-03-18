@@ -30,6 +30,14 @@ class ParamsConstructor():
             upperBound = 255
         )
 
+        params.setSimpleDetectorParams(
+            useNormalized = True,
+            minThreshold = 1,
+            maxThreshold = 50,
+            filterByArea = True,
+            minArea = 1
+        )
+
         return params
 
 
