@@ -8,6 +8,7 @@ import numpy as np
 import os
 
 from Analyzer import Analyzer
+import CV_
 from db import Database
 import Utils
 from learning.ParamsConstructor import ParamsConstructor
@@ -73,7 +74,7 @@ def findPupilFromCircles(circles):
         #now find the location of the centre of this maximum region
         #threshold first
         _, accumulator = cv2.threshold(accumulator, 250, 255, cv2.THRESH_BINARY)
-        contour, _ = cv2.findContours(accumulator, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+        contour, _ = CV_.findContours(accumulator, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
         x,y,w,h = cv2.boundingRect(contour[0])
         
         #return the centre value
@@ -113,8 +114,8 @@ def playground(imagePath):
 
     Hchannel = (img[:,:,0]*255.0/float(maxH)).astype(np.uint8)
     Schannel = (img[:,:,1]*255.0/float(maxS)).astype(np.uint8)
-    #cv2.imshow("H", Hchannel)
-    #cv2.imshow("S", Schannel)
+    cv2.imshow("H", Hchannel)
+    cv2.imshow("S", Schannel)
     cv2.imshow("V", image)
 
     #if prevImage is not None:
@@ -137,7 +138,8 @@ def playground(imagePath):
 
     #do the circle
     #circles = cv2.HoughCircles(edgeSegment, cv2.cv.CV_HOUGH_GRADIENT, 2, 10, None, 10, 35, 7, 35)
-    circles = cv2.HoughCircles(edgeSegment, cv2.cv.CV_HOUGH_GRADIENT, 2, 10, None, 20, 35, 7, 35)
+    circles = CV_.HoughCirclesWithDefaultGradient(edgeSegment, 2, 10, None, 10, 35, 7, 35)
+    # circles = cv2.HoughCircles(edgeSegment, cv2.HOUGH_GRADIENT, 2, 10, None, 20, 35, 7, 35)
 
     if circles is not None and circles.shape > 0:
             circ = np.round(circles[0, :]).astype("int")
