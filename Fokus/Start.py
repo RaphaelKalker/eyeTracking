@@ -23,8 +23,8 @@ IMAGE_DIRECTORY = './processing/'
 PROCESSING_DIR = 'processing/'
 PROCESSING_DIR_JAN_11 = 'image/Jan11'
 PROCESSING_DIR_JAN_13 = 'image/tim_jan13'
-TEST_DIR = 'image/DISTANCE_IMAGE'
-TEST_DB = 'db-tim_distance'
+TEST_DIR = 'image/march20-readLamp'
+TEST_DB = 'db-LAMPread'
 PROCESSING_DIR_READING = 'image/READING_IMAGE'
 
 dist_error = []
