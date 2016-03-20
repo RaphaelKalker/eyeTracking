@@ -65,11 +65,12 @@ class Analyzer:
         # ImageHelper.showImage('Grey Image', processedImage)
         cv2.equalizeHist(processedImage, processedImage)
 
+        reflectionPoints = []
 
         if FeatureDebug.BLOB_DETECTOR:
             mask = Segmentation(originalImage).getMask()
             blobDetector = Blob(processedImage, self.eyeball, mask, self.params)
-            blobDetector.findReflectionPoints()
+            reflectionPoints = blobDetector.findReflectionPoints()
             # self.waitForKeyPress()
 
         if FeatureDebug.THRESHOLD:
@@ -82,7 +83,7 @@ class Analyzer:
             morpher = Morphology(self.processedImage)
             processedImage = morpher.cleanImage()
 
-        self.pupilDetector = PupilDetector(originalImage, processedImage, self.cameraType, self.params, self.eyeball)
+        self.pupilDetector = PupilDetector(originalImage, processedImage, self.params, self.eyeball)
         self.pupilDetector.doHoughTransform()
         self.pupilDetector.findPupilCircle()
 
