@@ -27,23 +27,6 @@ TEST_DIR = 'image/DISTANCE_IMAGE'
 TEST_DB = 'db-tim_distance'
 PROCESSING_DIR_READING = 'image/READING_IMAGE'
 
-
-# def compareResults(results, THRESHOLD=20):
-#    annotated , (truthX, truthY) = Database.getTruth(results.getFileName())
-#
-#    if annotated:
-#
-#        for entry in results.getHeuristics():
-#            heuristic = entry.itervalues().next()
-#            xDiff = abs(heuristic['x'] - truthX)
-#            yDiff = abs(heuristic['y'] - truthY)
-#
-#            if xDiff < THRESHOLD and yDiff < THRESHOLD:
-#                pass
-#                # print 'SUCCESS'
-
-
-# global dist_error
 dist_error = []
 successCount = 0
 totalImages = 0
@@ -63,13 +46,13 @@ def compareResults(img_file, pupil):
         deltaY = (pupil[1] - truthY)
             
         errorLen = math.sqrt(deltaX**2 + deltaY**2)
-        logger.info('error: %s', errorLen)
+        # logger.info('error: %s', errorLen)
 
         dist_error.append(errorLen)
 
 def logStats():
     correct = sum(1 for x in dist_error if x < 10)
-    logger.info('Final Stats: \n\t Successful Pupils Detected: {} \n\t Total Images: {} \n\t Success Rate: {}'.format(successCount, totalImages, float(correct)/totalImages))
+    logger.info('Final Stats: \n\t Pupils Annoted: {} \n\t Total Images: {} \n\t Success Rate: {}'.format(successCount, totalImages, float(correct)/totalImages))
     pass
 
 def processImages():
@@ -91,15 +74,13 @@ def processImages():
 
         if reflections:
             (xReflect, yReflect) = (reflections[0]['x'], reflections[0]['y'])
-            logger.info('Reflection Location : x: {}, y: {}'.format(xReflect,yReflect))
+            # logger.info('Reflection Location : x: {}, y: {}'.format(xReflect,yReflect))
         else:
             (xReflect, yReflect) = (-1, -1)
 
         logger.info(image)
         if FeatureDebug.COMPARE_WITH_MATPLOTLIB:
             compareResults(image, likelyCandidate)
-
-
 
     logStats()
 
@@ -109,9 +90,6 @@ def processImages():
         plt.xlabel('pixel distance')
         plt.ylabel('counts')
         plt.show()
-
-
-
 
 if  __name__ == '__main__':
 
