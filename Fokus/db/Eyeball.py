@@ -1,4 +1,5 @@
 import datetime
+import math
 import Utils
 from learning.ParamsNew import ParamsNew
 import copy
@@ -48,6 +49,9 @@ class Eyeball():
         RIGHT = 'right'
         UNKNOWN = '-1'
 
+    class FilterOptions():
+        REFLECTION = 'reflection'
+
 
     def __init__(self, fileName = None):
         self.dict = Utils.newDict({"fileName":"","camera":"","created_at":"","prescription_type":"","person":"","truth":{"x":"","y":""},"heuristics":[], "reflection":[]})
@@ -92,6 +96,38 @@ class Eyeball():
 
         return (x, y)
 
+    def getPupilCentreCandidate(self, filterOptions = None):
+
+        minDistance = -1
+        xLikely,yLikely = 0, 0
+
+        if filterOptions == self.FilterOptions.REFLECTION:
+            heuristics = self.getDict()[HEURISTICS]
+            referencePoints = self.getDict()[RELFECTION_BLOB]
+
+            if not referencePoints:
+                return self.getRandomPupilTruth()
+
+
+            for h in heuristics:
+                if HOUGH in h:
+                    xHough = h[HOUGH][X]
+                    yHough = h[HOUGH][Y]
+
+                    for ref in referencePoints:
+                        xRef = ref[Y] #yes this is flipped, probably because of the way the mask was created
+                        yRef = ref[X]
+
+                        newDist = math.sqrt((xRef - xHough)**2 + (yRef - yHough)**2)
+
+                        if newDist < minDistance or minDistance == -1:
+                            minDistance = newDist
+                            xLikely, yLikely = xHough, yHough
+
+            return xLikely, yLikely
+
+        else:
+            return self.getRandomPupilTruth()
     def addPupilTruth(self, x, y):
         self.dict[TRUTH][X] = x
         self.dict[TRUTH][Y] = y
