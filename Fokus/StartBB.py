@@ -3,6 +3,7 @@ import sys
 import time
 from Analyzer import Analyzer
 from actuation import Actuate
+import db
 from eyeVergence.BinaryTree import DecisionTree
 import Utils
 import logging
@@ -80,8 +81,8 @@ def analyzeImageBB(pipe):
 
         if leftImg is not None and rightImg is not None:
             ipTime = int(time.time())
-            (xL, yL) = Analyzer(leftImg).getEyeData().getRandomPupilTruth()
-            (xR, yR) = Analyzer(rightImg).getEyeData().getRandomPupilTruth()
+            (xL, yL) = Analyzer(leftImg).getEyeData().getPupilCentreCandidate(db.Eyeball.FilterOptions.REFLECTION)
+            (xR, yR) = Analyzer(rightImg).getEyeData().getPupilCentreCandidate(db.Eyeball.FilterOptions.REFLECTION)
             loggerBB.info('Got x: {} y: {}'.format(xL, yL))
             loggerBB.info('Got x: {} y: {}'.format(xR, yR))
             
