@@ -1,4 +1,5 @@
 import time
+import numpy
 from Analyzer import Analyzer
 from db import Database
 import sys
@@ -67,15 +68,16 @@ def compareResults(img_file, pupil):
         dist_error.append(errorLen)
 
 def logStats():
-    logger.info('Final Stats: \n\t Successful Pupils Detected: {} \n\t Total Images: {} \n\t Success Rate: {}'.format(successCount, totalImages, successCount/totalImages))
+    correct = sum(1 for x in dist_error if x < 10)
+    logger.info('Final Stats: \n\t Successful Pupils Detected: {} \n\t Total Images: {} \n\t Success Rate: {}'.format(successCount, totalImages, float(correct)/totalImages))
     pass
 
 def processImages():
     global totalImages
     os.chdir(TEST_DIR)
 
-
     params = ParamsConstructor().constructDefaultParams()
+
 
     files = [f for f in os.listdir('.') if os.path.isfile(f) and f.endswith('jpg') or f.endswith('jpeg') ]
     totalImages = len(files)
@@ -84,8 +86,8 @@ def processImages():
         analysis = Analyzer(image, params)
         eyeData = analysis.getEyeData()
 
-        (x,y) = eyeData.getRandomPupilTruth()
         reflections = eyeData.getReflection()
+        likelyCandidate = eyeData.getPupilCentreCandidate(db.Eyeball.Eyeball.FilterOptions.REFLECTION)
 
         if reflections:
             (xReflect, yReflect) = (reflections[0]['x'], reflections[0]['y'])
@@ -93,10 +95,11 @@ def processImages():
         else:
             (xReflect, yReflect) = (-1, -1)
 
-        # logger.info('Random Pupil Truth: x: {}, y: {}'.format(x,y))
         logger.info(image)
         if FeatureDebug.COMPARE_WITH_MATPLOTLIB:
-            compareResults(image, [xReflect,yReflect])
+            compareResults(image, likelyCandidate)
+
+
 
     logStats()
 
