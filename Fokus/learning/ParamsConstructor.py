@@ -13,7 +13,7 @@ class ParamsConstructor():
         params = ParamsNew()
 
         params.setThresholdParams(
-            minThresh=180 if not FeatureDebug.NORMALIZE_GRAYSCALE else 251,
+            minThresh=180 if not FeatureDebug.NORMALIZE_GRAYSCALE else 230,
             maxThresh=255,
             isNormalized=FeatureDebug.NORMALIZE_GRAYSCALE
         )
