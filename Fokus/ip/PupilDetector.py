@@ -42,10 +42,9 @@ DEBUG_CANDIDATE_CORNER = 'CandidateCorner'
 
 class PupilDetector(object):
 
-    def __init__(self, originalImg, processedImg, cameraType, params = None, eyeball=None):
+    def __init__(self, originalImg, processedImg, params = None, eyeball=None):
         self.originalImg = originalImg
         self.processedImg = processedImg
-        self.cameraType = cameraType
         self.params = params
         self.eyeBall = eyeball
 
