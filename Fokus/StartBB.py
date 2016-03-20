@@ -18,7 +18,7 @@ __author__ = 'Raphael'
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 # logger = logging.getLogger(__name__)
 
-loggerBB = logging.getLogger("BeagleBone")
+loggerRetrieval = logging.getLogger("ImageRetrieval")
 loggerProcessor = logging.getLogger("Processing")
 
 #GLOBAL VARS
@@ -30,7 +30,7 @@ RETRIEVE_IMAGES = True #warning threadsafety
 
 
 def retrieveImageBB(imageDir, pipe, captureDelay):
-    loggerBB.info('Init Camera Loop')
+    loggerRetrieval.info('Init Camera Loop')
 
     # initialize cameras
     camRight = Cam.Cam(IMAGE_DIRECTORY, "R")
@@ -46,8 +46,6 @@ def retrieveImageBB(imageDir, pipe, captureDelay):
         rightImg = camRight.getImg(timestamp)
         leftImg = camLeft.getImg(timestamp)
 
-        loggerBB.info('image transmission: elapsed \t %i', (int(time.time() - timestamp)))
-
         #Send images through the pipe to be received by the Analyzer
         pipe.send(leftImg)
         pipe.send(rightImg)
@@ -62,7 +60,7 @@ def retrieveImageBB(imageDir, pipe, captureDelay):
 
 def analyzeImageBB(pipe):
 
-    loggerBB.info('Init Analyzing Loop')
+    loggerProcessor.info('Init Analyzing Loop')
 
     dTree = DecisionTree()
     dTree.importTree(TREE_DIRECTORY)
@@ -89,17 +87,13 @@ def analyzeImageBB(pipe):
             if all(v != -1 for v in (xL, yL, xR, yR)):
                 pupils = {'x1': xR, 'x2': yR, 'x3': xL,'x4': yL}
                 prescription = dTree.traverseTree(pupils, dTree.root) 
-                loggerBB.info('vergence computed: %s', prescription)
+                loggerProcessor.info('vergence computed: %s', prescription)
 
                 if currentPrescription is not prescription:
                     motor.actuate(prescription)
                     currentPrescription = prescription
-            timestamp = int(leftImg[ leftImg.index('/L') + 2 :-4])
-            currentTime = int(time.time())
-            loggerBB.info('image processing : elapsed \t %i', (currentTime - ipTime))
-            loggerBB.info('camera shutter -> pupil detected : elapsed \t %i', (currentTime - timestamp))
         else:
-            loggerBB.error('Image was none')
+            loggerProcessor.error('Image was none')
 
 if  __name__ == '__main__':
 
