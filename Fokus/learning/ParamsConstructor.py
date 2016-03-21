@@ -34,28 +34,34 @@ class ParamsConstructor():
 
         params.setSimpleDetectorParams(
             #default ones
+            minThreshold = 1,
+            maxThreshold = 150,
             thresholdStep = 10,
+
             minRepeatability = 2,
             minDistBetweenBlobs = 10,
-            filterByColor = True,
+
+            filterByColor = False,
             blobColor = 0,
-            maxArea = 5000,
-            filterByCircularity = False,
+
+            filterByArea = True,
+            minArea = 1,
+            maxArea = 10000,
+
+            filterByCircularity = True,
             minCircularity = 0.8,
             maxCircularity = FUCKING_HUGE_NUMBER,
+
             filterByInertia = True,
             minInertiaRatio = 0.1,
             maxInertiaRatio = FUCKING_HUGE_NUMBER,
+
             filterByConvexity = True,
             minConvexity = .95,
             maxConvexity = FUCKING_HUGE_NUMBER,
 
             #We set these ones
-            useNormalized = True,
-            minThreshold = 1,
-            maxThreshold = 50,
-            filterByArea = True,
-            minArea = 1
+            useNormalized = True
         )
 
         return params

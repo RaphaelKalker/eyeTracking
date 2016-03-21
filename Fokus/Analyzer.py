@@ -70,9 +70,7 @@ class Analyzer:
 
         if FeatureDebug.BLOB_DETECTOR:
             mask = Segmentation(originalImage).getMask()
-            # blobDetector = Blob(processedImage, self.eyeball, mask, self.params)
-            blobDetector = Blob_Detector(processedImage, mask, self.params, self.eyeball)
-            blobDetector.findBlobs()
+            blobDetector = BlobDetector(processedImage, mask, self.params, self.eyeball)
             reflectionPoints = blobDetector.findReflectionPoints()
             # self.waitForKeyPress()
 

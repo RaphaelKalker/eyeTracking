@@ -3,11 +3,11 @@ import math
 import numpy as np
 import cv2
 import CV_
+import BlobCenter
 
 logger = logging.getLogger(__name__)
 
-class Blob_Detector():
-#    def __init__(self, minThresh, maxThresh, threshStep, filterByArea, minArea, maxArea, minDistBetweenBlobs):
+class BlobDetector():
     def __init__(self, image, mask, params, eyeball):
 
         self.image = image
@@ -36,11 +36,9 @@ class Blob_Detector():
         self.filterByConvexity = params.blob.filterByConvexity
         self.minConvexity = params.blob.minConvexity
         self.maxConvexity = params.blob.maxConvexity
-        
-    # def detect(self, img):
-    #     blobs = self.findBlobs(img)
-    #     return blobs
 
+        self.minRepeatability = params.blob.minRepeatability
+        
     def find_if_close(self, cnt1, cnt2):
         row1, row2 = cnt1.shape[0], cnt2.shape[0]
         for i in xrange(row1):
@@ -54,15 +52,17 @@ class Blob_Detector():
     def computeRadius(self, center, contour):
         dists = []
         for cnt_xy in contour:
-            dists.append([center[0] - cnt_xy[0][0], center[1] - cnt_xy[0][1]])
-        xy = np.mean(dists, 0)
-        radius = math.sqrt(xy[0]**2 + xy[1]**2)
+            dists.append(np.linalg.norm([center[0] - cnt_xy[0][0], center[1] - cnt_xy[0][1]]))
+
+        dists.sort()
+        radius = dists[(len(dists)-1)/2]/2.0 + dists[(len(dists)/2)]/2.0
+        
         return radius
     
     def computeCenter(self, M):
         cx = int(M['m10']/M['m00'])
         cy = int(M['m01']/M['m00'])
-        return [cx, cy] 
+        return [cx, cy]
 
     def f_filterByInertia(self, M):
         den = math.sqrt( (2*M['mu11'])**2 + (M['mu20']-M['mu02'])**2 )
@@ -77,17 +77,18 @@ class Blob_Detector():
             imax = 0.5*(M['mu20'] + M['mu02']) - 0.5*(M['mu20'] + M['mu02'])*cosmax - M['mu11']*sinmax
 
             if imax == 0:
-                return None
+                return True
 
             ratio = imin / imax
         else:
             ratio = 1
 
         if (ratio < self.minInertiaRatio or ratio >= self.maxInertiaRatio):
-            return None
+            return True
 
         center_confidence = ratio * ratio
-        return center_confidence 
+        return float(center_confidence)
+    
 
     def f_filterByConvexity(self, contour):
         hull = cv2.convexHull(contour)
@@ -96,101 +97,131 @@ class Blob_Detector():
         ratio = area/hullArea
 
         if (ratio < self.minConvexity or ratio >= self.maxConvexity):
-            return None
-        return True
+            return True
+        return False
     
     def f_filterByCircularity(self, M, contour):
         area = M['m00']
         perimeter = cv2.arcLength(contour, True)
         ratio = 4*math.pi*area / (perimeter * perimeter)
         if (ratio < self.minCircularity or ratio >= self.maxCircularity):
-            return None
-        return True
+            return True 
+        return False
+    
+    def f_filterByArea(self, M):
+        area = M['m00']
+        if (area < self.minArea or area > self.maxArea):
+            return True 
+        return False
 
-    def findBlobs(self):
+    def detect(self):
         numSteps = (self.maxThreshold - self.minThreshold)/self.thresholdStep + 1
         thresholds = np.linspace(self.minThreshold, self.maxThreshold, numSteps, endpoint=True)
 
-        contours = []
-        for i in np.arange(numSteps):
-            _, img_thresh = cv2.threshold(self.image, thresholds[i], 255, cv2.THRESH_BINARY)
-            img_contours, _ = CV_.findContours(img_thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
-
-            print "threshold %i" % (thresholds[i])
-            print "%i number of contours for threshold" % (len(img_contours))
-
-            # filter the contours if needed
-            for cnt in img_contours:
-                M = cv2.moments(cnt)
-                
-                if M['m00'] == 0:
-                    continue
-
-                if self.filterByArea:
-                    area = M['m00']
-                    if (area < self.minArea or area > self.maxArea):
-                        continue
-                if self.filterByCircularity and self.f_filterByCircularity(M, cnt):
-                        continue
-                if self.filterByInertia and self.f_filterByInertia(M) is None:
-                        continue
-                if self.filterByConvexity and self.f_filterByConvexity(cnt) is None:
-                        continue
-
-                contours.append(cnt)
-
-        # merge the centers from all the thresholded images by minDistBetweenBlobs
-        LENGTH = len(contours)
-        status = np.zeros((LENGTH,1))
-        print "number contours to merge %i" % (LENGTH)
-
-        for i,cnt1 in enumerate(contours):
-            x = i    
-            if i != LENGTH-1:
-                for j,cnt2 in enumerate(contours[i+1:]):
-                    x = x+1
-                    dist = self.find_if_close(cnt1, cnt2)
-                    if dist == True:
-                        val = min(status[i],status[x])
-                        status[x] = status[i] = val
-                    else:
-                        if status[x]==status[i]:
-                            status[x] = i+1
-
-        unified = []
-        maximum = int(status.max())+1
         centers = []
-        radi = []
-        for i in xrange(maximum):
-            pos = np.where(status==i)[0]
-            if pos.size != 0:
-                cont = np.vstack(contours[i] for i in pos)
-                hull = cv2.convexHull(cont)
+        keypoints = []
+        newCenters = []
+        for thresh in thresholds:
+            currentCenters = self.findBlobs(thresh)
 
-                #find center and radius of hull
-                M = cv2.moments(hull)
-                if M['m00'] == 0:
+            for curCenter in currentCenters:
+                isNew = True
+                for j in np.arange(len(centers)):
+#                    print "j %i.............." % (j)
+                    curPt = curCenter.center
+                    midIndex = len(centers[j])/2
+                    centerPt = centers[j][midIndex].center
+#                    print curPt
+#                    print centerPt
+                    diff = (curPt[0] - centerPt[0], curPt[1] - centerPt[1])
+                    dist = np.linalg.norm(diff)
+#                    print dist
+                    isNew = dist >= self.minDistBetweenBlobs and dist >= centers[j][midIndex].radius and dist >= curCenter.radius
+
+                    if not isNew:
+                        centers[j].append(curCenter)
+
+                        k = len(centers[j]) - 1
+                        while( k > 0 and centers[j][k].radius < centers[j][k-1].radius):
+                            centers[j][k] = centers[j][k-1]
+                            k -= 1
+                        centers[j][k] = curCenter
+                        break 
+                if isNew:
+                    newCenters.append([curCenter])
+#            print len(centers)
+#            print len(newCenters)
+            centers = centers + newCenters
+#            print len(centers)
+
+        for i in np.arange(len(centers)):
+            if (len(centers[i]) < self.minRepeatability):
+                continue
+
+            sumPoint = np.asarray([0.0,0.0])
+            normalizer = 0.0
+            for j in np.arange(len(centers[i])):
+                x = centers[i][j].confidence * centers[i][j].center[0]
+                y = centers[i][j].confidence * centers[i][j].center[1]
+                sumPoint += np.asarray([x,y])           
+                normalizer += centers[i][j].confidence
+
+#            print "sum point"
+            sumPoint  = sumPoint * ( 1/ float(normalizer))
+#            print sumPoint
+            radius = centers[i][len(centers[i])/2].radius * 2.0
+            keyPt = BlobCenter.BlobCenter( (int(sumPoint[0]), int(sumPoint[1])), radius, 1)
+            keypoints.append(keyPt)
+
+        print "number of merged contours %i" % (len(keypoints))
+        return keypoints 
+
+    def findBlobs(self, thresh):
+
+        _, img_thresh = cv2.threshold(self.image, thresh, 255, cv2.THRESH_BINARY)
+        img_contours, _ = CV_.findContours(img_thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
+
+        for cnt in img_contours:
+            M = cv2.moments(cnt)
+            
+            if M['m00'] == 0:
+                continue
+
+            if self.filterByArea and self.f_filterByArea(M):
                     continue
-                center = self.computeCenter(M)
-                radius = self.computeRadius(center, cnt)
-                centers.append(center)
-                radi.append(radius)
-                # cv2.circle(img, (center[0], center[1]), int(radius),(0,0,255))
-                # cv2.circle(img, (center[0], center[1]), 3, (255,0, 0))
-                unified.append(hull)
-        return centers, radi
+            if self.filterByCircularity and self.f_filterByCircularity(M, cnt):
+                    continue
+
+            confidence = 1
+            if self.filterByInertia:
+                ret = self.f_filterByInertia(M)
+                if isinstance(ret, (int)):
+                    continue
+                confidence = ret
+
+            if self.filterByConvexity and self.f_filterByConvexity(cnt):
+                    continue
+
+            center = self.computeCenter(M)
+            radius = self.computeRadius(center, cnt)
+
+            blobCenter = BlobCenter.BlobCenter(center, radius, confidence)
+            yield blobCenter 
+
+
+
 
     def findReflectionPoints(self):
 
         # detector = cv2.SimpleBlobDetector_create(self.params.blob)
 
-        keypoints, radi = self.findBlobs()
+        keypoints = self.detect() 
         validKP = []
 
-        for i in np.arange(len(keypoints)):
-            x = int(keypoints[i][0])
-            y = int(keypoints[i][1])
-            size = '%.2f' % radi[i]
+        for keyPt in keypoints:
+            x = keyPt.center[0]
+            y = keyPt.center[1]
+            size = '%.2f' % keyPt.radius
 
 
             # Filter out key points according to mask
@@ -212,7 +243,3 @@ class Blob_Detector():
         #     ImageHelper.showImage('Mask applied', cv2.bitwise_and(im_with_keypoints,im_with_keypoints, mask=self.mask))
 
         return validKP
-
-#        cv2.imshow('image', img)
-#        cv2.waitKey()
-#        cv2.destroyAllWindows() 
