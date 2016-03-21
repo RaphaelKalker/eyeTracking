@@ -1,5 +1,3 @@
-# from cv2 import SimpleBlobDetector_Params
-import cv2
 
 __author__ = 'Raphael'
 
@@ -7,10 +5,6 @@ MAC = 'Darwin'
 
 
 #Responsible for holding all the parameters using by the Analyzer object
-
-
-
-
 class ParamsNew(object):
 
     def __init__(self):
