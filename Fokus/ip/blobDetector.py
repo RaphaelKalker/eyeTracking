@@ -2,12 +2,17 @@ import logging
 import math
 import numpy as np
 import cv2
+import CV_
 
 logger = logging.getLogger(__name__)
 
-class blobDetector():
+class BlobDetector():
 #    def __init__(self, minThresh, maxThresh, threshStep, filterByArea, minArea, maxArea, minDistBetweenBlobs):
-    def __init__(self, params):
+    def __init__(self, image, mask, params, eyeball):
+
+        self.image = image
+        self.mask = mask
+        self.eyeBall = eyeball
 
         # init all the params
         self.minThreshold = params.blob.minThreshold
@@ -32,9 +37,9 @@ class blobDetector():
         self.minConvexity = params.blob.minConvexity
         self.maxConvexity = params.blob.maxConvexity
         
-    def detect(self, img):
-        blobs = self.findBlobs(img)
-        return blobs 
+    # def detect(self, img):
+    #     blobs = self.findBlobs(img)
+    #     return blobs
 
     def find_if_close(self, cnt1, cnt2):
         row1, row2 = cnt1.shape[0], cnt2.shape[0]
@@ -102,14 +107,14 @@ class blobDetector():
             return None
         return True
 
-    def findBlobs(self, img):
+    def findBlobs(self):
         numSteps = (self.maxThreshold - self.minThreshold)/self.thresholdStep + 1
         thresholds = np.linspace(self.minThreshold, self.maxThreshold, numSteps, endpoint=True)
 
         contours = []
         for i in np.arange(numSteps):
-            _, img_thresh = cv2.threshold(~img, thresholds[i], 255, cv2.THRESH_BINARY)
-            img_contours, _ = cv2.findContours(img_thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+            _, img_thresh = cv2.threshold(self.image, thresholds[i], 255, cv2.THRESH_BINARY)
+            img_contours, _ = CV_.findContours(img_thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 
             print "threshold %i" % (thresholds[i])
             print "%i number of contours for threshold" % (len(img_contours))
@@ -155,6 +160,7 @@ class blobDetector():
         unified = []
         maximum = int(status.max())+1
         centers = []
+        radi = []
         for i in xrange(maximum):
             pos = np.where(status==i)[0]
             if pos.size != 0:
@@ -168,10 +174,44 @@ class blobDetector():
                 center = self.computeCenter(M)
                 radius = self.computeRadius(center, cnt)
                 centers.append(center)
-                cv2.circle(img, (center[0], center[1]), int(radius),(0,0,255))
-                cv2.circle(img, (center[0], center[1]), 3, (255,0, 0))
+                radi.append(radius)
+                # cv2.circle(img, (center[0], center[1]), int(radius),(0,0,255))
+                # cv2.circle(img, (center[0], center[1]), 3, (255,0, 0))
                 unified.append(hull)
-        return centers
+        return centers, radi
+
+    def findReflectionPoints(self):
+
+        # detector = cv2.SimpleBlobDetector_create(self.params.blob)
+
+        keypoints, radi = self.findBlobs()
+        validKP = []
+
+        for i in np.arange(len(keypoints)):
+            x = int(keypoints[i][0])
+            y = int(keypoints[i][1])
+            size = '%.2f' % radi[i]
+
+
+            # Filter out key points according to mask
+            # We do this because the mask passed into the Simple Blob Detector doesn't work
+            # WARNING orientation is reverse so use y, x coordinates
+            if  self.mask[y,x] == 255:
+                # logging.debug('REFLECTION: x={} y={} size={}'.format(x,y, size))
+                self.eyeBall.addReflection(y,x, size)
+                validKP.append((x,y,size))
+            else:
+                # logger.debug('IGNORED: x={} y={} size={}'.format(x,y, size))
+                pass
+
+        # if  FeatureDebug.SHOW_CV2_IMAGES and FeatureDebug.DEBUG_BLOB_DETECTOR:
+        #     mask_with_keypoints = cv2.drawKeypoints(self.mask, keypoints, None, (0,0,255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+        #     im_with_keypoints = cv2.drawKeypoints(self.image, validKP, None, (0,0,255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+        #     ImageHelper.showImage('Blob Starting Image', self.image)
+        #     ImageHelper.showImage('Mask with Points', mask_with_keypoints)
+        #     ImageHelper.showImage('Mask applied', cv2.bitwise_and(im_with_keypoints,im_with_keypoints, mask=self.mask))
+
+        return validKP
 
 #        cv2.imshow('image', img)
 #        cv2.waitKey()
