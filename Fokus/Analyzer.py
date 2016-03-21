@@ -13,7 +13,7 @@ from ip.Morphology import Morphology
 from ip.PupilDetector import PupilDetector
 from ip.Segmentation import Segmentation
 from ip.Threshold import Threshold
-from ip.Blob_Detector import Blob_Detector
+from ip.BlobDetector import BlobDetector
 import Utils
 from learning.ParamsConstructor import ParamsConstructor
 
