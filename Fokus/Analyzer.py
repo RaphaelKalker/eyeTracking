@@ -13,7 +13,7 @@ from ip.Morphology import Morphology
 from ip.PupilDetector import PupilDetector
 from ip.Segmentation import Segmentation
 from ip.Threshold import Threshold
-from ip.BlobDetector import BlobDetector
+from ip.Blob_Detector import Blob_Detector
 import Utils
 from learning.ParamsConstructor import ParamsConstructor
 
@@ -71,7 +71,7 @@ class Analyzer:
         if FeatureDebug.BLOB_DETECTOR:
             mask = Segmentation(originalImage).getMask()
             # blobDetector = Blob(processedImage, self.eyeball, mask, self.params)
-            blobDetector = BlobDetector(processedImage, mask, self.params, self.eyeball)
+            blobDetector = Blob_Detector(processedImage, mask, self.params, self.eyeball)
             blobDetector.findBlobs()
             reflectionPoints = blobDetector.findReflectionPoints()
             # self.waitForKeyPress()

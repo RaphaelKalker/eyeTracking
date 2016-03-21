@@ -6,7 +6,7 @@ import CV_
 
 logger = logging.getLogger(__name__)
 
-class BlobDetector():
+class Blob_Detector():
 #    def __init__(self, minThresh, maxThresh, threshStep, filterByArea, minArea, maxArea, minDistBetweenBlobs):
     def __init__(self, image, mask, params, eyeball):
 
