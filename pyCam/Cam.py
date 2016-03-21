@@ -36,9 +36,9 @@ class Cam():
 
                 self.eyeSide = side
                 if side == 'L':
-                    port_num = 1
-                elif side == 'R':
                     port_num = 4
+                elif side == 'R':
+                    port_num = 1
 
                 PORT = "/dev/ttyO" + str(port_num)
 		self.conn = serial.Serial(PORT, baudrate=BAUD, timeout=TIMEOUT)
