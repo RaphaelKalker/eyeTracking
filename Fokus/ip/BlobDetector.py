@@ -127,15 +127,11 @@ class BlobDetector():
             for curCenter in currentCenters:
                 isNew = True
                 for j in np.arange(len(centers)):
-#                    print "j %i.............." % (j)
                     curPt = curCenter.center
                     midIndex = len(centers[j])/2
                     centerPt = centers[j][midIndex].center
-#                    print curPt
-#                    print centerPt
                     diff = (curPt[0] - centerPt[0], curPt[1] - centerPt[1])
                     dist = np.linalg.norm(diff)
-#                    print dist
                     isNew = dist >= self.minDistBetweenBlobs and dist >= centers[j][midIndex].radius and dist >= curCenter.radius
 
                     if not isNew:
@@ -149,10 +145,7 @@ class BlobDetector():
                         break 
                 if isNew:
                     newCenters.append([curCenter])
-#            print len(centers)
-#            print len(newCenters)
             centers = centers + newCenters
-#            print len(centers)
 
         for i in np.arange(len(centers)):
             if (len(centers[i]) < self.minRepeatability):
@@ -166,14 +159,11 @@ class BlobDetector():
                 sumPoint += np.asarray([x,y])           
                 normalizer += centers[i][j].confidence
 
-#            print "sum point"
             sumPoint  = sumPoint * ( 1/ float(normalizer))
-#            print sumPoint
             radius = centers[i][len(centers[i])/2].radius * 2.0
             keyPt = BlobCenter.BlobCenter( (int(sumPoint[0]), int(sumPoint[1])), radius, 1)
             keypoints.append(keyPt)
 
-        print "number of merged contours %i" % (len(keypoints))
         return keypoints 
 
     def findBlobs(self, thresh):
