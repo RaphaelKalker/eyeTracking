@@ -1,4 +1,4 @@
-from cv2 import SimpleBlobDetector_Params
+# from cv2 import SimpleBlobDetector_Params
 import cv2
 
 __author__ = 'Raphael'
@@ -18,7 +18,7 @@ class ParamsNew(object):
         self.thresh = Threshold()
         self.hough = Hough()
         self.canny = Canny()
-        self.blob = SimpleBlobDetector_Params()
+        self.blob = SimpleBlobDetector()
         # self.TrackBar = Trackbar()
 
 
@@ -40,12 +40,27 @@ class ParamsNew(object):
         self.canny.upperBound = upperBound
 
     #Note this follows the Params structure from the SimpleBlobDetector params
-    def setSimpleDetectorParams(self, useNormalized = None, minThreshold = None, maxThreshold = None, filterByArea = None, minArea = None):
-        # self.blob.useNormalized = useNormalized
+    def setSimpleDetectorParams(self, maxArea = None, maxInertiaRatio = None, minInertiaRatio = None, filterByInertia = None, maxCircularity = None, minCircularity = None, maxConvexity = None, thresholdStep = None, minRepeatability = None, minDistBetweenBlobs = None, filterByColor = None, blobColor = None, filterByCircularity = None,  filterByConvexity = None , minConvexity = None, useNormalized = None, minThreshold = None, maxThreshold = None, filterByArea = None, minArea = None):
+        self.blob.useNormalized = useNormalized
         self.blob.minThreshold = minThreshold
         self.blob.maxThreshold = maxThreshold
         self.blob.filterByArea = filterByArea
         self.blob.minArea = minArea
+        self.blob.thresholdStep = thresholdStep
+        self.blob.minRepeatability = minRepeatability
+        self.blob.minDistBetweenBlobs = minDistBetweenBlobs
+        self.blob.filterByColor = filterByColor
+        self.blob.blobColor = blobColor
+        self.blob.maxArea = maxArea
+        self.blob.filterByCircularity = filterByCircularity
+        self.blob.filterByConvexity = filterByConvexity
+        self.blob.minConvexity = minConvexity
+        self.blob.maxConvexity = maxConvexity
+        self.blob.maxInertiaRatio = maxInertiaRatio
+        self.blob.minInertiaRatio = minInertiaRatio
+        self.blob.filterByInertia = filterByInertia
+        self.blob.maxCircularity = maxCircularity
+        self.blob.minCircularity = minCircularity
 
 class Threshold():
 
@@ -148,93 +163,178 @@ class Canny():
         self.upperBound = value
         pass
 
-# class SimpleBlobDetector():
-#
-#     @property
-#     def useNormalized(self):
-#         return self.useNormalized
-#
-#     @useNormalized.setter
-#     def useNormalized(self, value):
-#         self.useNormalized = value
-#         pass
-#
-#     @property
-#     def minThreshold(self):
-#         return self.minThreshold
-#
-#     @minThreshold.setter
-#     def minThreshold(self, value):
-#         self.minThreshold = value
-#
-#     @property
-#     def maxThreshold(self):
-#         return self.maxThreshold
-#
-#     @maxThreshold.setter
-#     def maxThreshold(self, value):
-#         self.maxThreshold = value
-#
-#     @property
-#     def filterByArea(self):
-#         return self.filterByArea
-#
-#     @filterByArea.setter
-#     def filterByArea(self, value):
-#         self.filterByArea = value
-#         pass
-#
-#     @property
-#     def minArea(self):
-#         return self.minArea
-#
-#     @minArea.setter
-#     def minArea(self, value):
-#         self.minArea = value
+class SimpleBlobDetector():
 
-#      class Camera():
-#         LEFT    = 0
-#         RIGHT   = 1
-#
+    @property
+    def useNormalized(self):
+        return self.useNormalized
 
-#
-#     class Canny():
-#
-#         LEFT_LOW_BOUND = 35
-#         LEFT_UPPER_BOUND = 141
-#
-#         RIGHT_LOW_BOUND = 40
-#         RIGHT_UPPER_BOUND = 167
-#
-#         @classmethod
-#         def getParams(cls, cameraType):
-#             if cameraType == Parameters.Camera.LEFT:
-#                 return (cls.LEFT_LOW_BOUND, cls.LEFT_UPPER_BOUND)
-#             else:
-#                 return (cls.RIGHT_LOW_BOUND, cls.RIGHT_UPPER_BOUND)
-#
-#
-#
-# class Const():
-#     PARAM_1 = 'param1'
-#     PARAM_2 = 'param2'
-#     MIN_RAD = 'minRadius'
-#     MAX_RAD = 'maxRadius'
-#
-#     BLOCKSIZE = 'blockSize'
-#
-#
-#     class Trackbar(Enum):
-#         Hough = 1
-#         Canny = 2
-#         AdaptiveThreshold = 3
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
+    @useNormalized.setter
+    def useNormalized(self, value):
+        self.useNormalized = value
+        pass
+
+    @property
+    def thresholdStep(self):
+        return self.thresholdStep
+
+    @thresholdStep.setter
+    def thresholdStep(self, value):
+        self.thresholdStep = value
+
+    @property
+    def minRepeatability(self):
+        return self.minRepeatability
+
+    @minRepeatability.setter
+    def minRepeatability(self, value):
+        self.minRepeatability = value
+
+    @property
+    def minDistBetweenBlobs(self):
+        return self.minDistBetweenBlobs
+
+    @minDistBetweenBlobs.setter
+    def minDistBetweenBlobs(self, value):
+        self.minDistBetweenBlobs = value
+
+    @property
+    def filterByColor(self):
+        return self.filterByColor
+
+    @filterByColor.setter
+    def filterByColor(self, value):
+        self.filterByColor = value
+
+    @property
+    def blobColor(self):
+        return self.blobColor
+
+    @blobColor.setter
+    def blobColor(self, value):
+        self.blobColor = value
+        pass
+
+    @property
+    def maxInertiaRatio(self):
+        return self.maxInertiaRatio
+
+    @maxInertiaRatio.setter
+    def maxInertiaRatio(self, value):
+        self.maxInertiaRatio = value
+
+
+
+    @property
+    def minThreshold(self):
+        return self.minThreshold
+
+    @minThreshold.setter
+    def minThreshold(self, value):
+        self.minThreshold = value
+
+    @property
+    def maxThreshold(self):
+        return self.maxThreshold
+
+    @maxThreshold.setter
+    def maxThreshold(self, value):
+        self.maxThreshold = value
+
+    @property
+    def filterByArea(self):
+        return self.filterByArea
+
+    @filterByArea.setter
+    def filterByArea(self, value):
+        self.filterByArea = value
+        pass
+
+    @property
+    def minArea(self):
+        return self.minArea
+
+    @minArea.setter
+    def minArea(self, value):
+        self.minArea = value
+
+    @property
+    def maxArea(self):
+        return self.maxArea
+
+    @maxArea.setter
+    def maxArea(self, value):
+        self.maxArea = value
+        pass
+
+    @property
+    def filterByCircularity(self):
+        return self.filterByCircularity
+
+    @filterByCircularity.setter
+    def filterByCircularity(self, value):
+        self.filterByCircularity = value
+
+    @property
+    def minCircularity(self):
+        return self.minCircularity
+
+    @minCircularity.setter
+    def minCircularity(self, value):
+        self.minCircularity
+
+    @property
+    def maxCircularity(self):
+        self.maxCircularity
+
+    @maxCircularity.setter
+    def maxCircularity(self, value):
+        self.maxCircularity = value
+
+    @property
+    def filterByInertia(self):
+        return self.filterByInertia
+
+    @filterByInertia.setter
+    def filterByInertia(self, value):
+        self.filterByInertia = value
+
+    @property
+    def minInertiaRatio(self):
+        return self.minInertiaRatio
+
+    @minInertiaRatio.setter
+    def minInertiaRatio(self, value):
+        self.minInertiaRatio = value
+
+    @property
+    def minInertiaRatio(self):
+        return self.minInertiaRatio
+
+    @minInertiaRatio.setter
+    def minInertiaRatio(self, value):
+        self.minInertiaRatio = value
+
+    @property
+    def filterByConvexity(self):
+        return self.filterByConvexity
+
+    @filterByConvexity.setter
+    def filterByConvexity(self, value):
+        self.filterByConvexity = value
+
+    @property
+    def minConvexity(self):
+        return self.minConvexity
+
+    @minConvexity.setter
+    def minConvexity(self, value):
+        self.minConvexity = value
+
+    @property
+    def maxConvexity(self):
+        return self.maxConvexity
+
+    @maxConvexity.setter
+    def maxConvexity(self, value):
+        self.maxConvexity = value
