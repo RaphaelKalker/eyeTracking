@@ -41,6 +41,8 @@ class Cam():
             port_num = 4
 
         PORT = "/dev/ttyO" + str(port_num)
+        logger.info("About to set port: %s", PORT)
+
         self.conn = serial.Serial(PORT, baudrate=BAUD, timeout=TIMEOUT)
         logger.info("port: %s", PORT)
 
@@ -91,8 +93,13 @@ class Cam():
     def getBufferLen(self, get_fbuf_cmd, fbuf_type):
         get_fbuf = get_fbuf_cmd
         get_fbuf.append(fbuf_type)
+        logger.info('Starting get img')
+
 
         rp = self.serialComm(get_fbuf_cmd, 9)
+
+        logger.info('accessing serialcom')
+
 
         if rp[3] == 0x00:
             return rp[len(rp) - 4:]
@@ -140,7 +147,10 @@ class Cam():
 
     def serialComm(self, cmd_list, readLen):
         cmd = ''.join(map(chr, cmd_list))
+        logger.info('joined')
         self.conn.write(cmd)
+        logger.info('did write')
+
         reply = self.conn.read(readLen)
         rp = map(ord, list(reply))
         return rp
@@ -156,6 +166,8 @@ class Cam():
         # Send GET_FBUF_LEN command to get image lengths in FBUF.
         buff_len = self.getBufferLen(GET_FBUF_LEN, 0x00)
 
+
+
         # READ_FBUF to get the image data
         if buff_len:
             buff = self.readBuffer(READ_FBUF, 0x00, 0x0A,
@@ -165,17 +177,16 @@ class Cam():
                                    highbit=buff_len[2],
                                    lowbit=buff_len[3])
 
-            # if buff:
-            # 	fileName = self.opDir + self.eyeSide + str(timestamp) + ".jpg"
-            # 	with open(fileName, 'w') as f:
-            # 		for i in buff:
-            # 			f.write(chr(i))
+            if buff:
+                fileName = self.opDir + self.eyeSide + str(timestamp) + ".jpg"
+                with open(fileName, 'w') as f:
+                    for i in buff:
+                        f.write(chr(i))
 
             # Send FBUF_CTRL command to resume frame,
-            logger.info('saving bytes to file time: %i', int(time.time()) - int(t1))
             self.controlFrame(FBUF_CTRL, 0x02)
-            # return fileName
-            return buff
+            return fileName
+            # return buff
 
 
     def closeConn(self):

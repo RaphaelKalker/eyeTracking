@@ -39,7 +39,7 @@ class Blob(object):
             # We do this because the mask passed into the Simple Blob Detector doesn't work
             # WARNING orientation is reverse so use y, x coordinates
             if  self.mask[y,x] == WHITE:
-                logging.debug('REFLECTION: x={} y={} size={}'.format(x,y, size))
+                # logging.debug('REFLECTION: x={} y={} size={}'.format(x,y, size))
                 self.eyeBall.addReflection(y,x, size)
                 validKP.append(point)
             else:
