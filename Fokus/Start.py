@@ -32,8 +32,8 @@ TEST_DIR = 'image/read'
 TEST_DB = 'db-LAMPread'
 
 #VERGENCE_TRUTH = 'non_reading'
-#TEST_DIR = 'image/lampDistance'
-#TEST_DB = 'db-LAMPdistance'
+##TEST_DIR = 'image/lampDistance'
+##TEST_DB = 'db-LAMPdistance'
 #TEST_DIR = 'image/DISTANCE_IMAGE'
 #TEST_DB = 'db-tim_distance'
 
