@@ -10,7 +10,7 @@ num_nodes = [];
 train_size = floor(size(data,1)*0.8);
 test_size = size(data,1) - train_size;
 
-while tree_cnt < 100
+while tree_cnt < 10
     [train, train_i] = datasample(data(:,1:4), train_size,'Replace',false);
 
     test_i = setdiff(1:size(data,1), train_i);
