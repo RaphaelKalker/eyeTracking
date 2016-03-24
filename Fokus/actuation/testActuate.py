@@ -6,7 +6,9 @@ import sys
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-actuator = Actuate.Actuate("P8_13", 3,-1)
+#left, then right pin order
+actuator = Actuate.Actuate("P8_13", "P9_14", 3,-1)
+#actuator = Actuate.Actuate("P8_19", 3,-1)
 
 actuator.startup()
 

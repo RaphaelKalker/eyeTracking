@@ -5,26 +5,44 @@ import logging
 logger = logging.getLogger(__name__)
 
 class Actuate():
-    dutyMax = 88.667
-    dutyMin = 85.1103
+    dutyMaxR = None
+    dutyMinR = None
+    dutyMaxL = None
+    dutyMinL = None
     prescriptionMin = -6.0
     prescriptionMax = 3.0
 
     # values of the state of the system
-    duty = 85.1103
-    _PIN = "P8_13"
+    dutyR = None
+    dutyL = None
+    _PINR = "P8_13"
+    _PINL = "P8_19"
 
     # the user's prescription
     nearP = 2.0
     farP = -2.0
 
-    def __init__(self, pin=None, nearPrescription=None, farPrescription=None):
-        self.duty = self.dutyMin
-	logger.info("%s", self.duty)
-        if pin is None:
-            self._PIN = "P8_13"
+    def __init__(self, pinL=None, pinR=None, nearPrescription=None, farPrescription=None):
+        self.dutyMaxR = 91.62
+        self.dutyMinR = 94.75
+        
+        self.dutyMaxL = 88.2
+        self.dutyMinL = 84.5
+
+
+        self.dutyR = self.dutyMinR
+        self.dutyL = self.dutyMinL
+
+        #logger.info("%s", self.duty)
+        if pinR is None:
+            self._PINR = "P8_13"
         else:
-            self._PIN = pin
+            self._PINR = pinR
+
+        if pinL is None:
+            self._PINL = "P8_19"
+        else:
+            self._PINL = pinL
 
         if nearPrescription is not None and farPrescription is not None:
             self.nearP = nearPrescription
@@ -36,21 +54,23 @@ class Actuate():
         self.farP = farPrescription
         return
         
-    def startup(self, dutyCycle=None):
+    def startup(self): #, dutyCycle=None)
         #do an init sweep to ensure actuation
-        PWM.start(self._PIN, self.dutyMin, 60, 1)
+        PWM.start(self._PINR, self.dutyMinR, 60, 1)
+
+        time.sleep(1)
+        PWM.start(self._PINL, self.dutyMinL, 60, 1)
+        
         time.sleep(2)
-        PWM.set_duty_cycle(self._PIN, self.dutyMax)
+        PWM.set_duty_cycle(self._PINR, self.dutyMaxR)
+        PWM.set_duty_cycle(self._PINL, self.dutyMaxL)
         time.sleep(2)
-        if dutyCycle is not None:
-            self.duty = dutyCycle
-	logger.info("%s", self.duty)
-        PWM.set_duty_cycle(self._PIN, self.duty)
         return
 
     def __del__(self):
         #cleanup the PWM thing
-        PWM.stop(self._PIN)
+        PWM.stop(self._PINR)
+        PWM.stop(self._PINL)
         PWM.cleanup()
         return
 
@@ -60,12 +80,17 @@ class Actuate():
             return
 
         p = percent / float(100)
-        dutyC = p*(self.dutyMax-self.dutyMin) + self.dutyMin
-	if dutyC <= self.dutyMax and dutyC >= self.dutyMin:
-            self.duty = dutyC
-            PWM.set_duty_cycle(self._PIN, self.duty)
+        dutyCR = p*(self.dutyMaxR-self.dutyMinR) + self.dutyMinR
+        dutyCL = p*(self.dutyMaxL-self.dutyMinL) + self.dutyMinL
+        #right motor is flipped, that is why signs are opposite
+	if dutyCR >= self.dutyMaxR and dutyCR <= self.dutyMinR:
+            self.dutyR = dutyCR
+            PWM.set_duty_cycle(self._PINR, self.dutyR)
+	if dutyCL <= self.dutyMaxL and dutyCL >= self.dutyMinL:
+            self.dutyL = dutyCL
+            PWM.set_duty_cycle(self._PINL, self.dutyL)
         else:
-            logger.info("actuation signal failure : %s", dutyC)
+            logger.info("actuation signal failure (L,R): %d, %d", dutyCL, dutyCR)
         return
 
     def prescriptionToPercent(self, prescription):
@@ -78,9 +103,9 @@ class Actuate():
         return
 
     def actuate(self, dist):
-        if dist is "NEAR":
+        if dist == "NEAR":
             self.actuatePrescription(self.nearP)
-        elif dist is "FAR":
+        elif dist == "FAR":
             self.actuatePrescription(self.farP)
         else:
             logger.info("Not valid selection of prescription")
