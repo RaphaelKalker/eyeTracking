@@ -79,13 +79,14 @@ def analyzeImageBB(pipe):
 
         if leftImg is not None and rightImg is not None:
             ipTime = int(time.time())
-            (xL, yL) = Analyzer(leftImg).getEyeData().getPupilCentreCandidate(db.Eyeball.FilterOptions.REFLECTION)
-            (xR, yR) = Analyzer(rightImg).getEyeData().getPupilCentreCandidate(db.Eyeball.FilterOptions.REFLECTION)
-            loggerBB.info('Got x: {} y: {}'.format(xL, yL))
-            loggerBB.info('Got x: {} y: {}'.format(xR, yR))
+            (xL, yL) = Analyzer(leftImg).getEyeData().getPupilCentreCandidate(db.Eyeball.Eyeball.FilterOptions.REFLECTION)
+            (xR, yR) = Analyzer(rightImg).getEyeData().getPupilCentreCandidate(db.Eyeball.Eyeball.FilterOptions.REFLECTION)
+            loggerProcessor.info('Got x: {} y: {}'.format(xL, yL))
+            loggerProcessor.info('Got x: {} y: {}'.format(xR, yR))
             
             if all(v != -1 for v in (xL, yL, xR, yR)):
-                pupils = {'x1': xR, 'x2': yR, 'x3': xL,'x4': yL}
+#                pupils = {'x1': xR, 'x2': yR, 'x3': xL,'x4': yL}
+                pupils = {'x1': yR, 'x2': xR, 'x3': yL,'x4': xL}
                 prescription = dTree.traverseTree(pupils, dTree.root) 
                 loggerProcessor.info('vergence computed: %s', prescription)
 
