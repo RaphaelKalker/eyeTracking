@@ -16,7 +16,7 @@ class Actuate():
     dutyR = None
     dutyL = None
     _PINR = "P8_13"
-    _PINL = "P8_19"
+    _PINL = "P9_14"
 
     # the user's prescription
     nearP = 2.0
@@ -40,7 +40,7 @@ class Actuate():
             self._PINR = pinR
 
         if pinL is None:
-            self._PINL = "P8_19"
+            self._PINL = _PINL
         else:
             self._PINL = pinL
 
@@ -56,7 +56,7 @@ class Actuate():
         
     def startup(self): #, dutyCycle=None)
         #do an init sweep to ensure actuation
-        PWM.start(self._PINR, self.dutyMinR, 60, 1)
+        PWM.start(str(self._PINR), self.dutyMinR, 60, 1)
 
         time.sleep(1)
         PWM.start(self._PINL, self.dutyMinL, 60, 1)

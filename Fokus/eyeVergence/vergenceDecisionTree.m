@@ -1,5 +1,5 @@
 close all; clear all;
-data = csvread('pupils.csv',1,0);
+data = csvread('panel.csv',1,0);
 
 tree_cnt = 0;
 test_arr = [];

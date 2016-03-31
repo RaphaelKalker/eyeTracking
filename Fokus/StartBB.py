@@ -65,7 +65,7 @@ def analyzeImageBB(pipe):
     dTree = DecisionTree()
     dTree.importTree(TREE_DIRECTORY)
 
-    motor = Actuate.Actuate("P8_13", 3,-1)
+    motor = Actuate.Actuate("P8_13","P9_14", 3,-1)
     motor.startup()
     motor.actuate("FAR")
 

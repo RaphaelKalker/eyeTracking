@@ -36,9 +36,9 @@ class Cam():
 
         self.eyeSide = side
         if side == 'L':
-            port_num = 1
+            port_num = 4 
         elif side == 'R':
-            port_num = 4
+            port_num = 1
 
         PORT = "/dev/ttyO" + str(port_num)
         self.conn = serial.Serial(PORT, baudrate=BAUD, timeout=TIMEOUT)
@@ -165,16 +165,16 @@ class Cam():
                                    highbit=buff_len[2],
                                    lowbit=buff_len[3])
 
-            # if buff:
-            # 	fileName = self.opDir + self.eyeSide + str(timestamp) + ".jpg"
-            # 	with open(fileName, 'w') as f:
-            # 		for i in buff:
-            # 			f.write(chr(i))
+#            if buff:
+#                fileName = self.opDir + self.eyeSide + str(timestamp) + ".jpg"
+#                with open(fileName, 'w') as f:
+#                    for i in buff:
+#                        f.write(chr(i))
 
             # Send FBUF_CTRL command to resume frame,
             logger.info('saving bytes to file time: %i', int(time.time()) - int(t1))
             self.controlFrame(FBUF_CTRL, 0x02)
-            # return fileName
+#            return fileName
             return buff
 
 
